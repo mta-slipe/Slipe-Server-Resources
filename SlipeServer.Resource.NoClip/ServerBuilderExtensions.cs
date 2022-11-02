@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SlipeServer.Server.ServerBuilders;
 
-namespace SlipeServer.Resource.NoClip;
+namespace SlipeServer.Resources.NoClip;
 
 public static class ServerBuilderExtensions
 {

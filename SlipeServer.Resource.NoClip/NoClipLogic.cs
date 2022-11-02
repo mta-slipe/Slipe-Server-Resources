@@ -1,15 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using SlipeServer.Server;
+﻿using SlipeServer.Server;
 using SlipeServer.Server.Elements;
-using SlipeServer.Server.Events;
-using SlipeServer.Server.ElementCollections;
-using SlipeServer.Server.Services;
-using System.Linq;
-using SlipeServer.Server.Resources;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 
-namespace SlipeServer.Resource.NoClip;
+namespace SlipeServer.Resources.NoClip;
 
 internal class NoClipLogic
 {
@@ -44,7 +36,7 @@ internal class NoClipLogic
             _noClipPlayers.Remove(player);
         }
 
-        if(_noClipPlayers.Contains(player) == enabled)
+        if (_noClipPlayers.Contains(player) == enabled)
             player.TriggerLuaEvent("internalSetNoClipEnabled", player, enabled);
     }
 
@@ -54,10 +46,10 @@ internal class NoClipLogic
         var options = _resource.Options;
         player.ResourceStarted += (player, @event) =>
         {
-            if(@event.NetId == _resource.NetId)
+            if (@event.NetId == _resource.NetId)
                 player.TriggerLuaEvent("internalUpdateConfiguration", player, options.VerticalSpeed, options.HorizontalSpeed);
         };
-        if(options.Bind != null)
+        if (options.Bind != null)
         {
             player.SetBind(options.Bind, Server.Elements.Enums.KeyState.Up);
             player.BindExecuted += Player_BindExecuted;
@@ -66,12 +58,12 @@ internal class NoClipLogic
 
     private void Player_BindExecuted(Player player, Server.Elements.Events.PlayerBindExecutedEventArgs e)
     {
-        if(e.Key == _resource.Options.Bind && e.KeyState == Server.Elements.Enums.KeyState.Up)
+        if (e.Key == _resource.Options.Bind && e.KeyState == Server.Elements.Enums.KeyState.Up)
         {
             bool isNoClipEnabled = _noClipPlayers.Contains(player);
             if (!isNoClipEnabled)
             {
-                if(_resource.Options.AuthorizationCallback != null)
+                if (_resource.Options.AuthorizationCallback != null)
                 {
                     if (!_resource.Options.AuthorizationCallback(player))
                         return;

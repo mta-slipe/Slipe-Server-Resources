@@ -1,7 +1,7 @@
 ﻿using SlipeServer.Server.Elements;
 using System;
 
-namespace SlipeServer.Resource.NoClip;
+namespace SlipeServer.Resources.NoClip;
 
 public class NoClipService
 {

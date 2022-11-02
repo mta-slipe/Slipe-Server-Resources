@@ -1,11 +1,10 @@
 ﻿using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Resources;
-using System.Collections.Generic;
 
-namespace SlipeServer.Resource.NoClip;
+namespace SlipeServer.Resources.NoClip;
 
-internal class NoClipResource : Server.Resources.Resource
+internal class NoClipResource : Resource
 {
     private readonly NoClipOptions _options;
 

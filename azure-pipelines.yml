@@ -3,9 +3,8 @@ trigger:
 pr:
 - main
 
-
 variables:
-  solution: 'SlipeLuaSourceGenerator.sln'
+  solution: 'SlipeServer.Resources.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
