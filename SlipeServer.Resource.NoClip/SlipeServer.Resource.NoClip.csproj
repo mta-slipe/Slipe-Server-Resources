@@ -15,7 +15,7 @@
     <RepositoryUrl>hhttps://github.com/mta-slipe/Slipe-Server-Resources</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Description>C# Server for MTA San Andreas</Description>
+    <Description>NoClip resource for slipe-server</Description>
   </PropertyGroup>
 
 	<ItemGroup>
