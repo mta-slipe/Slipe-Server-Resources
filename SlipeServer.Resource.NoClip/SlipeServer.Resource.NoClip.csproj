@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="Lua\NoClip.lua" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Lua\NoClip.lua" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="SlipeServer.Net" Version="0.1.0-CI-20221016-210941" />
+		<PackageReference Include="SlipeServer.Packets" Version="0.1.0-CI-20221016-210941" />
+		<PackageReference Include="SlipeServer.Server" Version="0.1.0-CI-20221016-210941" />
+	</ItemGroup>
+</Project>
