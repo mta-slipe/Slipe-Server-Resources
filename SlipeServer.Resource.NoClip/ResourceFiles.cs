@@ -1,8 +1,10 @@
 ﻿using SlipeServer.Resources.Base;
+using System.Reflection;
 
 namespace SlipeServer.Resources.NoClip;
 
 internal class ResourceFiles
 {
-    public static byte[] NoClipLua { get; } = EmbeddedResourceHelper.GetLuaFile("SlipeServer.Resource.NoClip.Lua.NoClip.lua");
+    private static Assembly Assembly { get; } = Assembly.GetExecutingAssembly();
+    public static byte[] NoClipLua { get; } = EmbeddedResourceHelper.GetLuaFile("SlipeServer.Resources.NoClip.Lua.NoClip.lua", Assembly);
 }

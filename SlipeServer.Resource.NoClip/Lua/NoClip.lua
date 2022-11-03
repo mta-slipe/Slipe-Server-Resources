@@ -13,13 +13,13 @@ local function putPlayerInPosition(timeslice)
     if(getKeyState("lshift"))then
         timeslice = timeslice * 3
     end
-    if(getKeyState("lctrl"))then
+    if(getKeyState("lalt"))then
         timeslice = timeslice / 3
     end
     if getKeyState("space") then
         abz = abz + (timeslice * config.verticalSpeed)
     end
-    if getKeyState("lalt")  then
+    if getKeyState("lctrl")  then
         abz = abz - (timeslice * config.verticalSpeed)
     end
     local mult = timeslice / math.sqrt(ctx * ctx + cty * cty) * config.horizontalSpeed
