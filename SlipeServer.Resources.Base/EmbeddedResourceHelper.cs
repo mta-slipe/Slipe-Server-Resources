@@ -4,9 +4,9 @@ namespace SlipeServer.Resources.Base
 {
     public static class EmbeddedResourceHelper
     {
-        public static byte[] GetLuaFile(string name)
+        public static byte[] GetLuaFile(string name, Assembly assembly)
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            var asd = assembly.GetManifestResourceNames();
             using var stream = assembly.GetManifestResourceStream(name);
 
             if (stream == null)

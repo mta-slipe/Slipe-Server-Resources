@@ -25,6 +25,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Lua\parachuteopen.mp3" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Lua\parachuteopen.mp3" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\SlipeServer.Resources.Base\SlipeServer.Resources.Base.csproj" />
 	</ItemGroup>
 
