@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SlipeServer.Packets.Definitions.Sync;
 using SlipeServer.Packets.Lua.Camera;
+using SlipeServer.Resources.DGS;
 using SlipeServer.Resources.NoClip;
 using SlipeServer.Resources.Parachute;
 using SlipeServer.Server;
@@ -48,6 +49,7 @@ public partial class Program
     private readonly Configuration configuration;
 
     public ILogger Logger { get; }
+    public TestResource testResource;
 
     public Program(string[] args)
     {
@@ -68,12 +70,21 @@ public partial class Program
                     builder.AddDefaults();
 #endif
 
+                builder.AddBuildStep(server =>
+                {
+                    testResource = new TestResource(server);
+                    testResource.InjectDGSExportedFunctions();
+                    server.AddAdditionalResource(testResource, new());
+                });
+
                 builder.ConfigureServices(services =>
                 {
                     services.AddSingleton<ILogger, ConsoleLogger>();
                 });
+
                 builder.AddNoClipResource();
                 builder.AddParachuteResource();
+                builder.AddDGSResource(DGSVersion.Release_3_518);
             }
         );
 
@@ -100,6 +111,7 @@ public partial class Program
 
         var chatBox = this.server.GetRequiredService<ChatBox>();
         chatBox.OutputTo(player, "Press num_0 to enable no clip.");
+        testResource.StartFor(player);
     }
 
     public void Start()
