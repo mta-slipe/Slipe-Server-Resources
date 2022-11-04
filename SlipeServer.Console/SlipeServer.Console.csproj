@@ -8,8 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Test.lua" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Test.lua" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SlipeServer.Resource.NoClip\SlipeServer.Resources.NoClip.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.Base\SlipeServer.Resources.Base.csproj" />
+    <ProjectReference Include="..\SlipeServer.Resources.DGS\SlipeServer.Resources.DGS.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.Parachute\SlipeServer.Resources.Parachute.csproj" />
   </ItemGroup>
 
