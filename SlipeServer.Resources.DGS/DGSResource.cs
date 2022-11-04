@@ -15,9 +15,20 @@ internal class DGSResource : Resource
 {
     internal Dictionary<string, byte[]> AdditionalFiles { get; } = new();
     private readonly Dictionary<LuaValue, LuaValue> DGSRecordedFiles = new();
+    private readonly DGSVersion version;
+    private Task downloadDGSTask;
 
     internal DGSResource(MtaServer server, DGSVersion version)
         : base(server, server.GetRequiredService<RootElement>(), "dgs")
+    {
+        this.version = version;
+
+        downloadDGSTask = Task.Run(DownloadDGS);
+        //Root.SetData("DGSI_FileInfo", DGSRecordedFiles, DataSyncType.Broadcast);
+        server.PlayerJoined += Server_PlayerJoined;
+    }
+
+    private async Task DownloadDGS()
     {
         var versionString = version switch
         {
@@ -27,13 +38,13 @@ internal class DGSResource : Resource
         var downloadPath = $"https://github.com/thisdp/dgs/archive/refs/tags/{versionString}.zip";
 
         var client = new HttpClient();
-        var response = client.GetAsync(downloadPath).Result;
+        var response = await client.GetAsync(downloadPath);
         response.EnsureSuccessStatusCode();
 
         using var zip = new ZipArchive(response.Content.ReadAsStream(), ZipArchiveMode.Read);
         var metaXmlEntry = zip.GetEntry($"dgs-{versionString}/meta.xml");
 
-        StreamReader streamReader = new StreamReader(metaXmlEntry.Open()); 
+        StreamReader streamReader = new StreamReader(metaXmlEntry.Open());
         MetaXml? metaXml = (MetaXml?)new XmlSerializer(typeof(MetaXml)).Deserialize(streamReader);
 
         using SHA256 sha256Hash = SHA256.Create();
@@ -45,7 +56,7 @@ internal class DGSResource : Resource
             Files.Add(ResourceFileFactory.FromBytes(data, item.Source, ResourceFileType.ClientFile));
             AdditionalFiles.Add(item.Source, data);
             string hash = GetHash(sha256Hash, data);
-            DGSRecordedFiles.Add(item.Source, new LuaValue(new LuaValue[] {hash, data.Length }));
+            DGSRecordedFiles.Add(item.Source, new LuaValue(new LuaValue[] { hash, data.Length }));
         }
 
         foreach (MetaXmlScript item in metaXml.Value.scripts.Where((MetaXmlScript x) => x.Type == "client"))
@@ -57,17 +68,14 @@ internal class DGSResource : Resource
             AdditionalFiles.Add(item.Source, data);
         }
 
-        Exports = metaXml.Value.exports
+        Exports.AddRange(metaXml.Value.exports
             .Where(x => x.Type == "client")
-            .Select(x => x.Function)
-            .ToList();
-
-        //Root.SetData("DGSI_FileInfo", DGSRecordedFiles, DataSyncType.Broadcast);
-        server.PlayerJoined += Server_PlayerJoined;
+            .Select(x => x.Function));
     }
 
     private void Server_PlayerJoined(Player obj)
     {
+        downloadDGSTask.Wait();
         Root.SetData("DGSI_FileInfo", DGSRecordedFiles, DataSyncType.Broadcast);
     }
 
