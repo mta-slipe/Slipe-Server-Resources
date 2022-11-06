@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SlipeServer.Packets.Definitions.Sync;
 using SlipeServer.Packets.Lua.Camera;
 using SlipeServer.Resources.DGS;
+using SlipeServer.Resources.GuiProxy;
 using SlipeServer.Resources.NoClip;
 using SlipeServer.Resources.Parachute;
 using SlipeServer.Server;
@@ -85,6 +86,9 @@ public partial class Program
                 builder.AddNoClipResource();
                 builder.AddParachuteResource();
                 builder.AddDGSResource(DGSVersion.Release_3_518);
+                builder.AddGuiProxy();
+
+                builder.AddLogic<GuiProxyLogic>();
             }
         );
 

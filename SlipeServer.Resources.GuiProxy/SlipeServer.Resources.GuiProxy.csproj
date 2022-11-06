@@ -6,6 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+	<ItemGroup>
+		<None Remove="Lua\*.lua" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Lua\*.lua" />
+	</ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\SlipeServer.Resources.Base\SlipeServer.Resources.Base.csproj" />
   </ItemGroup>
