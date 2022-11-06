@@ -5,6 +5,7 @@ using SlipeServer.Packets.Lua.Camera;
 using SlipeServer.Resources.DGS;
 using SlipeServer.Resources.NoClip;
 using SlipeServer.Resources.Parachute;
+using SlipeServer.Resources.Text3d;
 using SlipeServer.Server;
 using SlipeServer.Server.Behaviour;
 using SlipeServer.Server.Elements;
@@ -85,6 +86,9 @@ public partial class Program
                 builder.AddNoClipResource();
                 builder.AddParachuteResource();
                 builder.AddDGSResource(DGSVersion.Release_3_518);
+                builder.AddText3dResource();
+
+                builder.AddLogic<TestLogic>();
             }
         );
 

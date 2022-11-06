@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Lua\Text3d.lua" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Lua\Text3d.lua" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SlipeServer.Resources.Base\SlipeServer.Resources.Base.csproj" />
+  </ItemGroup>
+
+</Project>
