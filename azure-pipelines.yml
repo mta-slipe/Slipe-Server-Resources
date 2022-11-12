@@ -33,7 +33,7 @@ jobs:
     displayName: 'dotnet pack'
     inputs:
       command: 'pack'
-      packagesToPack: '**/SlipeServer.Resources.Base.csproj;**/SlipeServer.Resources.Parachute.csproj;**/SlipeServer.Resources.NoClip.csproj;**/SlipeServer.Resources.Text3d.csproj'
+      packagesToPack: '**/SlipeServer.Resources.Base.csproj;**/SlipeServer.Resources.Parachute.csproj;**/SlipeServer.Resources.NoClip.csproj;**/SlipeServer.Resources.Text3d.csproj;**/SlipeServer.Resources.Reload.csproj'
       versioningScheme: 'byPrereleaseNumber'
       majorVersion: '0'
       minorVersion: '1'

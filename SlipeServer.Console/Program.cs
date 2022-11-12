@@ -85,8 +85,9 @@ public partial class Program
 
                 builder.AddNoClipResource();
                 builder.AddParachuteResource();
-                builder.AddDGSResource(DGSVersion.Release_3_518);
+                //builder.AddDGSResource(DGSVersion.Release_3_518);
                 builder.AddText3dResource();
+                builder.AddReloadResource();
 
                 builder.AddLogic<TestLogic>();
             }
@@ -112,6 +113,7 @@ public partial class Program
         player.Camera.Target = player;
         player.Camera.Fade(CameraFade.In);
         player.AddWeapon(Server.Enums.WeaponId.Parachute, 1, true);
+        player.AddWeapon(Server.Enums.WeaponId.M4, 500, false);
 
         var chatBox = this.server.GetRequiredService<ChatBox>();
         chatBox.OutputTo(player, "Press num_0 to enable no clip.");

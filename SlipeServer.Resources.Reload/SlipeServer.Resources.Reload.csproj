@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
@@ -14,11 +14,19 @@
 		<RepositoryUrl>https://github.com/mta-slipe/Slipe-Server-Resources</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Description>Base library for creating easy-to-add resources for Slipe Server</Description>
+		<Description>Reload resource for slipe-server</Description>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="SlipeServer.Server" Version="0.1.0-CI-20221112-134221" />
+		<None Remove="Lua\*.lua" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Lua\*.lua" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\SlipeServer.Resources.Base\SlipeServer.Resources.Base.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -31,6 +39,5 @@
 			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
-
 
 </Project>
