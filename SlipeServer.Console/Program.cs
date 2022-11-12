@@ -5,6 +5,7 @@ using SlipeServer.Packets.Lua.Camera;
 using SlipeServer.Resources.DGS;
 using SlipeServer.Resources.NoClip;
 using SlipeServer.Resources.Parachute;
+using SlipeServer.Resources.Reload;
 using SlipeServer.Resources.Text3d;
 using SlipeServer.Server;
 using SlipeServer.Server.Behaviour;
