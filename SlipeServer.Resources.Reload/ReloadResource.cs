@@ -3,7 +3,7 @@ using SlipeServer.Server.Elements;
 using SlipeServer.Server.Resources;
 using System.Security.Cryptography;
 
-namespace SlipeServer.Resources.Parachute;
+namespace SlipeServer.Resources.Reload;
 
 public class ReloadResource : Resource
 {

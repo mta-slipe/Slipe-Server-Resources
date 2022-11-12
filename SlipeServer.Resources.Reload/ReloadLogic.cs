@@ -5,7 +5,7 @@ using SlipeServer.Server.Events;
 using SlipeServer.Server.ElementCollections;
 using SlipeServer.Server.Services;
 
-namespace SlipeServer.Resources.Parachute;
+namespace SlipeServer.Resources.Reload;
 
 public class ReloadLogic
 {

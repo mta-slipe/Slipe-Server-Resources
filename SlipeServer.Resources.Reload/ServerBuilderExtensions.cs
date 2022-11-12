@@ -1,6 +1,6 @@
 ﻿using SlipeServer.Server.ServerBuilders;
 
-namespace SlipeServer.Resources.Parachute;
+namespace SlipeServer.Resources.Reload;
 public static class ServerBuilderExtensions
 {
     public static void AddReloadResource(this ServerBuilder builder)
