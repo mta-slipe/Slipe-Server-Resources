@@ -16,14 +16,13 @@ internal class DGSResource : Resource
     internal Dictionary<string, byte[]> AdditionalFiles { get; } = new();
     private readonly Dictionary<LuaValue, LuaValue> DGSRecordedFiles = new();
     private readonly DGSVersion version;
-    private Task downloadDGSTask;
 
     internal DGSResource(MtaServer server, DGSVersion version)
         : base(server, server.GetRequiredService<RootElement>(), "dgs")
     {
         this.version = version;
 
-        downloadDGSTask = Task.Run(DownloadDGS);
+        DownloadDGS().Wait();
         //Root.SetData("DGSI_FileInfo", DGSRecordedFiles, DataSyncType.Broadcast);
         server.PlayerJoined += Server_PlayerJoined;
     }
@@ -75,7 +74,6 @@ internal class DGSResource : Resource
 
     private void Server_PlayerJoined(Player obj)
     {
-        downloadDGSTask.Wait();
         Root.SetData("DGSI_FileInfo", DGSRecordedFiles, DataSyncType.Broadcast);
     }
 
