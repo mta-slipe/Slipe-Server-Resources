@@ -50,8 +50,9 @@ internal class DGSResource : Resource
         foreach (MetaXmlFile item in metaXml.Value.files)
         {
             var entry = zip.GetEntry($"dgs-{versionString}/{item.Source}");
-            using StreamReader sr = new StreamReader(entry.Open());
-            var data = Encoding.Default.GetBytes(sr.ReadToEnd());
+            using MemoryStream ms = new MemoryStream();
+            entry.Open().CopyTo(ms);
+            var data = ms.ToArray();
             Files.Add(ResourceFileFactory.FromBytes(data, item.Source, ResourceFileType.ClientFile));
             AdditionalFiles.Add(item.Source, data);
             string hash = GetHash(sha256Hash, data);
