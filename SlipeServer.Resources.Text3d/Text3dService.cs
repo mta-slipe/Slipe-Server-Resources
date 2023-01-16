@@ -96,4 +96,9 @@ public class Text3dService
 
         return true;
     }
+
+    public void SetRenderingEnabled(Player player, bool enabled)
+    {
+        player.TriggerLuaEvent("internalSetText3dRenderingEnabled", player, enabled);
+    }
 }

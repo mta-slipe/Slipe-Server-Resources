@@ -1,4 +1,5 @@
 ﻿local texts = {}
+local renderingEnabled = true;
 
 local function addText3d(text)
 	texts[text.id] = text
@@ -27,7 +28,7 @@ addEventHandler("internalRemoveText3d", localPlayer, function(id)
 	texts[id] = nil
 end)
 
-addEventHandler("onClientRender", root, function()
+local function render()
 	local cx,cy,cz = getCameraMatrix()
 	local x,y,z, sx,sy, distance, ignoredElement;
 	for id, text in pairs(texts)do
@@ -54,4 +55,20 @@ addEventHandler("onClientRender", root, function()
 			end
 		end
 	end
+end
+
+addEvent("internalSetText3dRenderingEnabled", true)
+addEventHandler("internalSetText3dRenderingEnabled", localPlayer, function(enabled)
+	if(renderingEnabled == enabled)then
+		return;
+	end
+
+	if(enabled)then
+		addEventHandler("onClientRender", root, render)
+	else
+		removeEventHandler("onClientRender", root, render)
+	end
+	renderingEnabled = enabled;
 end)
+
+addEventHandler("onClientRender", root, render)
