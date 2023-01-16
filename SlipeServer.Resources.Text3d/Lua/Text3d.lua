@@ -64,7 +64,7 @@ addEventHandler("internalSetText3dRenderingEnabled", localPlayer, function(enabl
 	end
 
 	if(enabled)then
-		addEventHandler("onClientRender", root, render, "high+50")
+		addEventHandler("onClientRender", root, render, true, "high+50")
 	else
 		removeEventHandler("onClientRender", root, render)
 	end
