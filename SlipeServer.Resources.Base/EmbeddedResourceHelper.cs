@@ -6,7 +6,9 @@ namespace SlipeServer.Resources.Base
     {
         public static byte[] GetLuaFile(string name, Assembly assembly)
         {
-            var asd = assembly.GetManifestResourceNames();
+#if DEBUG
+            var debugListOfLuaFiles = assembly.GetManifestResourceNames();
+#endif
             using var stream = assembly.GetManifestResourceStream(name);
 
             if (stream == null)

@@ -7,6 +7,7 @@ using SlipeServer.Resources.NoClip;
 using SlipeServer.Resources.Parachute;
 using SlipeServer.Resources.Reload;
 using SlipeServer.Resources.Text3d;
+using SlipeServer.Resources.Watermark;
 using SlipeServer.Server;
 using SlipeServer.Server.Behaviour;
 using SlipeServer.Server.Elements;
@@ -89,6 +90,7 @@ public partial class Program
                 builder.AddDGSResource(DGSVersion.Release_3_518);
                 builder.AddText3dResource();
                 builder.AddReloadResource();
+                builder.AddWatermarkResource();
 
                 builder.AddLogic<TestLogic>();
             }
