@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SlipeServer.Packets.Definitions.Sync;
 using SlipeServer.Packets.Lua.Camera;
+using SlipeServer.Resources.BoneAttach;
 using SlipeServer.Resources.DGS;
 using SlipeServer.Resources.NoClip;
 using SlipeServer.Resources.Parachute;
@@ -91,6 +92,7 @@ public partial class Program
                 builder.AddText3dResource();
                 builder.AddReloadResource();
                 builder.AddWatermarkResource();
+                builder.AddBoneAttachResource(BoneAttachVersion.Release_1_2_0);
 
                 builder.AddLogic<TestLogic>();
             }
