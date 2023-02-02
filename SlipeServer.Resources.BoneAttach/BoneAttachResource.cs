@@ -1,4 +1,5 @@
 ﻿using SlipeServer.Packets.Definitions.Lua;
+using SlipeServer.Resources.Base;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Elements.Enums;
@@ -28,18 +29,17 @@ internal class BoneAttachResource : Resource
 
     private async Task DownloadBoneAttach()
     {
-        var versionString = version switch
+        var versionAndChecksum = version switch
         {
-            BoneAttachVersion.Release_1_2_0 => "v1.2.0",
+            BoneAttachVersion.Release_1_2_0 => ("v1.2.0", new byte[] { 143, 143, 137, 79, 155, 171, 106, 74, 226, 50, 11, 175, 24, 254, 218, 174 }),
             _ => throw new NotImplementedException()
         };
+        var versionString = versionAndChecksum.Item1;
         var downloadPath = $"https://github.com/Patrick2562/mtasa-pAttach/releases/download/{versionString}/pAttach-{versionString}.zip";
 
-        var client = new HttpClient();
-        var response = await client.GetAsync(downloadPath);
-        response.EnsureSuccessStatusCode();
+        using var file = await RemoteResourcesHelper.DownloadOrGetFromCache(downloadPath, $"pAttach-{versionString}.zip", versionAndChecksum.Item2);
 
-        using var zip = new ZipArchive(response.Content.ReadAsStream(), ZipArchiveMode.Read);
+        using var zip = new ZipArchive(file, ZipArchiveMode.Read);
         var metaXmlEntry = zip.GetEntry($"pAttach/meta.xml");
 
         StreamReader streamReader = new StreamReader(metaXmlEntry.Open());

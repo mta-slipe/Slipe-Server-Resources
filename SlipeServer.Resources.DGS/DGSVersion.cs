@@ -2,5 +2,5 @@
 
 public enum DGSVersion
 {
-    Release_3_518,
+    Release_3_520,
 }

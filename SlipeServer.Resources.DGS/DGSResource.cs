@@ -1,4 +1,5 @@
 ﻿using SlipeServer.Packets.Definitions.Lua;
+using SlipeServer.Resources.Base;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Elements.Enums;
@@ -29,18 +30,18 @@ internal class DGSResource : Resource
 
     private async Task DownloadDGS()
     {
-        var versionString = version switch
+        var versionAndChecksum = version switch
         {
-            DGSVersion.Release_3_518 => "3.518",
+            DGSVersion.Release_3_520 => ("3.520", new byte[] { 118, 232, 221, 243, 54, 89, 247, 244, 47, 43, 81, 92, 115, 241, 76, 144 }),
             _ => throw new NotImplementedException()
         };
+
+        var versionString = versionAndChecksum.Item1;
         var downloadPath = $"https://github.com/thisdp/dgs/archive/refs/tags/{versionString}.zip";
 
-        var client = new HttpClient();
-        var response = await client.GetAsync(downloadPath);
-        response.EnsureSuccessStatusCode();
+        using var file = await RemoteResourcesHelper.DownloadOrGetFromCache(downloadPath, $"dgs-{versionString}.zip", versionAndChecksum.Item2);
 
-        using var zip = new ZipArchive(response.Content.ReadAsStream(), ZipArchiveMode.Read);
+        using var zip = new ZipArchive(file, ZipArchiveMode.Read);
         var metaXmlEntry = zip.GetEntry($"dgs-{versionString}/meta.xml");
 
         StreamReader streamReader = new StreamReader(metaXmlEntry.Open());
