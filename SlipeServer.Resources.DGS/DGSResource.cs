@@ -1,5 +1,6 @@
 ﻿using SlipeServer.Packets.Definitions.Lua;
 using SlipeServer.Resources.Base;
+using SlipeServer.Resources.DGS.Style;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Elements.Enums;
@@ -17,12 +18,13 @@ internal class DGSResource : Resource
     internal Dictionary<string, byte[]> AdditionalFiles { get; } = new();
     private readonly Dictionary<LuaValue, LuaValue> DGSRecordedFiles = new();
     private readonly DGSVersion version;
+    private readonly DGSStyle? dgsStyle;
 
-    internal DGSResource(MtaServer server, DGSVersion version)
+    internal DGSResource(MtaServer server, DGSVersion version, DGSStyle? dgsStyle = null)
         : base(server, server.GetRequiredService<RootElement>(), "dgs")
     {
         this.version = version;
-
+        this.dgsStyle = dgsStyle;
         DownloadDGS().Wait();
         //Root.SetData("DGSI_FileInfo", DGSRecordedFiles, DataSyncType.Broadcast);
         server.PlayerJoined += Server_PlayerJoined;
@@ -30,6 +32,13 @@ internal class DGSResource : Resource
 
     private async Task DownloadDGS()
     {
+        string? customStyle = dgsStyle?.ToString();
+
+#if DEBUG
+        if(dgsStyle != null)
+            File.WriteAllText("debugStyle.lua", dgsStyle.ToString());
+#endif
+
         var versionAndChecksum = version switch
         {
             DGSVersion.Release_3_520 => ("3.520", new byte[] { 118, 232, 221, 243, 54, 89, 247, 244, 47, 43, 81, 92, 115, 241, 76, 144 }),
