@@ -43,7 +43,7 @@ public class DGSStyleWindow
         sb.Write(nameof(CloseButton), CloseButton);
         sb.Write(nameof(Font), Font);
         sb.Write(nameof(TextSize), TextSize);
-        sb.Write(nameof(titleHeight), TextSize);
+        sb.Write(nameof(titleHeight), titleHeight);
         sb.Write(nameof(BorderSize), BorderSize);
         sb.Write(nameof(CloseButtonText), CloseButtonText);
         return sb.ToString();

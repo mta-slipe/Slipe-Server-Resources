@@ -18,6 +18,7 @@ using SlipeServer.Server.PacketHandling.Handlers.Middleware;
 using SlipeServer.Server.ServerBuilders;
 using SlipeServer.Server.Services;
 using System;
+using System.Drawing;
 using System.Numerics;
 using System.Threading;
 
@@ -89,11 +90,7 @@ public partial class Program
 
                 builder.AddNoClipResource();
                 builder.AddParachuteResource();
-                builder.AddDGSResource(DGSVersion.Release_3_520, new DGSStyle
-                {
-                    SharedTexture = true,
-                    
-                });
+                builder.AddDGSResource(DGSVersion.Release_3_520, DGSStyleFactory.CreateFromColors(Color.Red, Color.Blue));
                 builder.AddText3dResource();
                 builder.AddReloadResource();
                 builder.AddWatermarkResource();

@@ -36,7 +36,7 @@ internal class DGSResource : Resource
 
 #if DEBUG
         if(dgsStyle != null)
-            File.WriteAllText("debugStyle.lua", dgsStyle.ToString());
+            File.WriteAllText("debugStyle.lua", customStyle);
 #endif
 
         var versionAndChecksum = version switch
@@ -60,9 +60,17 @@ internal class DGSResource : Resource
         foreach (MetaXmlFile item in metaXml.Value.files)
         {
             var entry = zip.GetEntry($"dgs-{versionString}/{item.Source}");
-            using MemoryStream ms = new MemoryStream();
-            entry.Open().CopyTo(ms);
-            var data = ms.ToArray();
+            byte[] data;
+            if (customStyle != null && item.Source == "styleManager/Default/styleSettings.txt")
+            {
+                data = System.Text.UTF8Encoding.UTF8.GetBytes(customStyle);
+            }
+            else
+            {
+                using MemoryStream ms = new MemoryStream();
+                entry.Open().CopyTo(ms);
+                data = ms.ToArray();
+            }
             Files.Add(ResourceFileFactory.FromBytes(data, item.Source, ResourceFileType.ClientFile));
             AdditionalFiles.Add(item.Source, data);
             string hash = GetHash(sha256Hash, data);
@@ -77,7 +85,6 @@ internal class DGSResource : Resource
             Files.Add(ResourceFileFactory.FromBytes(data, item.Source, ResourceFileType.ClientScript));
             AdditionalFiles.Add(item.Source, data);
         }
-
         Exports.AddRange(metaXml.Value.exports
             .Where(x => x.Type == "client")
             .Select(x => x.Function));
