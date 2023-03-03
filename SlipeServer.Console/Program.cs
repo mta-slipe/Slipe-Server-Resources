@@ -4,6 +4,7 @@ using SlipeServer.Packets.Definitions.Sync;
 using SlipeServer.Packets.Lua.Camera;
 using SlipeServer.Resources.BoneAttach;
 using SlipeServer.Resources.DGS;
+using SlipeServer.Resources.DGS.Style;
 using SlipeServer.Resources.NoClip;
 using SlipeServer.Resources.Parachute;
 using SlipeServer.Resources.Reload;
@@ -17,6 +18,7 @@ using SlipeServer.Server.PacketHandling.Handlers.Middleware;
 using SlipeServer.Server.ServerBuilders;
 using SlipeServer.Server.Services;
 using System;
+using System.Drawing;
 using System.Numerics;
 using System.Threading;
 
@@ -88,7 +90,8 @@ public partial class Program
 
                 builder.AddNoClipResource();
                 builder.AddParachuteResource();
-                builder.AddDGSResource(DGSVersion.Release_3_520);
+                var style = DGSStyleFactory.CreateFromColors(Color.Black, Color.Gray, Color.White);
+                builder.AddDGSResource(DGSVersion.Release_3_520, style);
                 builder.AddText3dResource();
                 builder.AddReloadResource();
                 builder.AddWatermarkResource();

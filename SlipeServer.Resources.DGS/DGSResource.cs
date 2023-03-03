@@ -1,5 +1,6 @@
 ﻿using SlipeServer.Packets.Definitions.Lua;
 using SlipeServer.Resources.Base;
+using SlipeServer.Resources.DGS.Style;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Elements.Enums;
@@ -17,12 +18,13 @@ internal class DGSResource : Resource
     internal Dictionary<string, byte[]> AdditionalFiles { get; } = new();
     private readonly Dictionary<LuaValue, LuaValue> DGSRecordedFiles = new();
     private readonly DGSVersion version;
+    private readonly DGSStyle? dgsStyle;
 
-    internal DGSResource(MtaServer server, DGSVersion version)
+    internal DGSResource(MtaServer server, DGSVersion version, DGSStyle? dgsStyle = null)
         : base(server, server.GetRequiredService<RootElement>(), "dgs")
     {
         this.version = version;
-
+        this.dgsStyle = dgsStyle;
         DownloadDGS().Wait();
         //Root.SetData("DGSI_FileInfo", DGSRecordedFiles, DataSyncType.Broadcast);
         server.PlayerJoined += Server_PlayerJoined;
@@ -30,6 +32,13 @@ internal class DGSResource : Resource
 
     private async Task DownloadDGS()
     {
+        string? customStyle = dgsStyle?.ToString();
+
+#if DEBUG
+        if(dgsStyle != null)
+            File.WriteAllText("debugStyle.lua", customStyle);
+#endif
+
         var versionAndChecksum = version switch
         {
             DGSVersion.Release_3_520 => ("3.520", new byte[] { 118, 232, 221, 243, 54, 89, 247, 244, 47, 43, 81, 92, 115, 241, 76, 144 }),
@@ -51,9 +60,17 @@ internal class DGSResource : Resource
         foreach (MetaXmlFile item in metaXml.Value.files)
         {
             var entry = zip.GetEntry($"dgs-{versionString}/{item.Source}");
-            using MemoryStream ms = new MemoryStream();
-            entry.Open().CopyTo(ms);
-            var data = ms.ToArray();
+            byte[] data;
+            if (customStyle != null && item.Source == "styleManager/Default/styleSettings.txt")
+            {
+                data = System.Text.UTF8Encoding.UTF8.GetBytes(customStyle);
+            }
+            else
+            {
+                using MemoryStream ms = new MemoryStream();
+                entry.Open().CopyTo(ms);
+                data = ms.ToArray();
+            }
             Files.Add(ResourceFileFactory.FromBytes(data, item.Source, ResourceFileType.ClientFile));
             AdditionalFiles.Add(item.Source, data);
             string hash = GetHash(sha256Hash, data);
@@ -68,7 +85,6 @@ internal class DGSResource : Resource
             Files.Add(ResourceFileFactory.FromBytes(data, item.Source, ResourceFileType.ClientScript));
             AdditionalFiles.Add(item.Source, data);
         }
-
         Exports.AddRange(metaXml.Value.exports
             .Where(x => x.Type == "client")
             .Select(x => x.Function));

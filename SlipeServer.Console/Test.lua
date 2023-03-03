@@ -5,8 +5,34 @@ bindKey("f1", "down", function()
 end)
 
 addEventHandler("onClientResourceStart", resourceRoot, function()
-    local window = dgsCreateWindow(0.2, 0.2, 0.2, 0.2, "DGS Window", true)
-	local label = dgsCreateLabel(0,0,0.5,0.1,"dgs label",true, window)
+    local window = dgsCreateWindow(200, 50, 800, 600, "DGS Window", false)
+	local label = dgsCreateLabel(10,0,70,20,"dgs label",false, window)
+	local button = dgsCreateButton(10,20,70,20,"dgs button",false, window)
+	local combobox = dgsCreateComboBox(10, 80, 100, 20, "test", false, window)
+	dgsComboBoxAddItem(combobox, "test 1")
+	dgsComboBoxAddItem(combobox, "test 2")
+	dgsComboBoxAddItem(combobox, "test 3")
+	dgsCreateCheckBox(10,150, 50, 20,"checkbox",false,false,window)
+	dgsCreateRadioButton(10,180, 50, 20,"radio 1",false,window)
+	dgsCreateRadioButton(10,205, 50, 20,"radio 2",false,window)
+	dgsCreateEdit(10, 230, 50, 20, "foobar", false, window)
+	local playerList = dgsCreateGridList (10, 255, 100, 60, false, window)  --Create the grid list element
+	local column = dgsGridListAddColumn( playerList, "Player", 0.5 )  --Create a players column in the list
+	for id, player in ipairs(getElementsByType("player")) do
+		local row = dgsGridListAddRow ( playerList )
+		dgsGridListSetItemText ( playerList, row, column, getPlayerName ( player ) )
+	end 
+	dgsCreateMemo(10, 320, 50, 50, "foobar", false, window)
+	progressbar = dgsCreateProgressBar(10, 375, 100, 20, false, window)
+	dgsProgressBarSetProgress(progressbar,50)
+	dgsCreateScrollBar(10,400, 100, 20, true, false, window)
+	dgsCreateSwitchButton( 10,425, 100, 20, "On", "Off", true, false, window)
+	tab = dgsCreateTabPanel (10,450, 200, 100, false, window)
+	tab1 = dgsCreateTab("Main",tab)
+	dgsCreateLabel(10,0,70,20,"main label",false, tab1)
+	tab2 = dgsCreateTab("Rules",tab)
+	tab3 = dgsCreateTab("FAQ",tab)
+	tab4 = dgsCreateTab("About Us",tab)
 end)
 
 function drawGUI()
@@ -27,3 +53,7 @@ function cmdGUI(cmd)
 	showCursor(not isCursorShowing()) -- similar to above visibility
 end
 addCommandHandler("guiwindow",cmdGUI) -- trigger cmdGUI function with this command
+
+bindKey("f3", "down", function()
+	showCursor(not isCursorShowing())
+end)
