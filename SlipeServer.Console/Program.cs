@@ -90,7 +90,8 @@ public partial class Program
 
                 builder.AddNoClipResource();
                 builder.AddParachuteResource();
-                builder.AddDGSResource(DGSVersion.Release_3_520, DGSStyleFactory.CreateFromColors(Color.Red, Color.Blue));
+                var style = DGSStyleFactory.CreateFromColors(Color.Black, Color.Gray, Color.White);
+                builder.AddDGSResource(DGSVersion.Release_3_520, style);
                 builder.AddText3dResource();
                 builder.AddReloadResource();
                 builder.AddWatermarkResource();

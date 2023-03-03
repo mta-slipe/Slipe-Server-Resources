@@ -62,7 +62,7 @@ public class DGSStyleComboBox
         sb.Write(nameof(Arrow), Arrow);
         sb.Write(nameof(Image), Image);
         sb.Write(nameof(ItemImage), ItemImage);
-        sb.Write("bgImage", BackgroundImage, true);
+        sb.Write("bgImage", BackgroundImage);
         sb.Write(nameof(Font), Font);
         sb.Write(nameof(TextSize), TextSize);
         sb.Write(nameof(ItemTextSize), ItemTextSize);

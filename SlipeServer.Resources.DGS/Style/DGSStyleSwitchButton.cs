@@ -76,6 +76,12 @@ public class DGSStyleSwitchButton
         Value = 0.5f,
         Relative = true
     };
+    
+    public DGSStyleUnit CursorWidth { get; set; } = new DGSStyleUnit
+    {
+        Value = 1.0f,
+        Relative = true
+    };
 
     public override string ToString()
     {
@@ -94,6 +100,7 @@ public class DGSStyleSwitchButton
         sb.Write(nameof(TextOffset), TextOffset);
         sb.Write(nameof(TroughWidth), TroughWidth);
         sb.Write(nameof(CursorLength), CursorLength);
+        sb.Write(nameof(CursorWidth), CursorWidth);
         return sb.ToString();
     }
 }

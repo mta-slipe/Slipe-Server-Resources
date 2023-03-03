@@ -20,7 +20,7 @@ public class DGSStyleScrollBar
         Click = Color.FromArgb(60, 110, 180, 180),
     };
 
-    public DGSStyleColors ThroughColor = new DGSStyleColors
+    public DGSStyleColors TroughColor = new DGSStyleColors
     {
         ColorA = Color.FromArgb(255, 30, 30, 30),
         ColorB = Color.FromArgb(255, 30, 30, 30),
@@ -58,7 +58,7 @@ public class DGSStyleScrollBar
         using var _ = new IndentScope();
         sb.Write(nameof(CursorColor), CursorColor);
         sb.Write(nameof(ArrowColor), ArrowColor);
-        sb.Write(nameof(ThroughColor), ThroughColor);
+        sb.Write(nameof(TroughColor), TroughColor);
         sb.Write(nameof(ArrowImage), ArrowImage, true);
         sb.Write(nameof(TroughImage), TroughImage);
         sb.Write(nameof(TroughImageHorizontal), TroughImageHorizontal);
