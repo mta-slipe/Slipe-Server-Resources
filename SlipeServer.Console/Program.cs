@@ -7,6 +7,7 @@ using SlipeServer.Resources.DGS;
 using SlipeServer.Resources.DGS.Style;
 using SlipeServer.Resources.NoClip;
 using SlipeServer.Resources.Parachute;
+using SlipeServer.Resources.PedIntelligance;
 using SlipeServer.Resources.Reload;
 using SlipeServer.Resources.Text3d;
 using SlipeServer.Resources.Watermark;
@@ -95,6 +96,7 @@ public partial class Program
                 builder.AddText3dResource();
                 builder.AddReloadResource();
                 builder.AddWatermarkResource();
+                builder.AddPedIntelliganceResource();
                 builder.AddBoneAttachResource(BoneAttachVersion.Release_1_2_0);
 
                 builder.AddLogic<TestLogic>();

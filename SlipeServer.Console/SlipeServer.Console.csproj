@@ -21,6 +21,7 @@
     <ProjectReference Include="..\SlipeServer.Resources.BoneAttach\SlipeServer.Resources.BoneAttach.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.DGS\SlipeServer.Resources.DGS.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.Parachute\SlipeServer.Resources.Parachute.csproj" />
+    <ProjectReference Include="..\SlipeServer.Resources.PedIntelligence\SlipeServer.Resources.PedIntelligence.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.Reload\SlipeServer.Resources.Reload.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.Text3d\SlipeServer.Resources.Text3d.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.Watermark\SlipeServer.Resources.Watermark.csproj" />

@@ -5,7 +5,7 @@ bindKey("f1", "down", function()
 end)
 
 addEventHandler("onClientResourceStart", resourceRoot, function()
-    local window = dgsCreateWindow(200, 50, 800, 600, "DGS Window", false)
+    local window = dgsCreateWindow(1800, 1000, 800, 600, "DGS Window", false)
 	local label = dgsCreateLabel(10,0,70,20,"dgs label",false, window)
 	local button = dgsCreateButton(10,20,70,20,"dgs button",false, window)
 	local combobox = dgsCreateComboBox(10, 80, 100, 20, "test", false, window)
@@ -56,4 +56,9 @@ addCommandHandler("guiwindow",cmdGUI) -- trigger cmdGUI function with this comma
 
 bindKey("f3", "down", function()
 	showCursor(not isCursorShowing())
+end)
+
+addCommandHandler("gp", function()
+	local pos = string.format("%.2f, %.2f, %.2f", getElementPosition(localPlayer))
+	outputChatBox(pos)
 end)
