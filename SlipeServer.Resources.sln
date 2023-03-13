@@ -28,7 +28,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlipeServer.Resources.Water
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlipeServer.Resources.BoneAttach", "SlipeServer.Resources.BoneAttach\SlipeServer.Resources.BoneAttach.csproj", "{F32A31EB-4F57-4689-B624-1729914EC25E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlipeServer.Resources.PedIntelligence", "SlipeServer.Resources.PedIntelligence\SlipeServer.Resources.PedIntelligence.csproj", "{64919DFD-A30F-4BEE-B9A1-E56F7FFB22AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlipeServer.Resources.PedIntelligence", "SlipeServer.Resources.PedIntelligence\SlipeServer.Resources.PedIntelligence.csproj", "{64919DFD-A30F-4BEE-B9A1-E56F7FFB22AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlipeServer.Resources.Scoreboard", "SlipeServer.Resource.Scoreboard\SlipeServer.Resources.Scoreboard.csproj", "{5B1C0938-06BA-4F6C-8634-8FA33F875154}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +78,10 @@ Global
 		{64919DFD-A30F-4BEE-B9A1-E56F7FFB22AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64919DFD-A30F-4BEE-B9A1-E56F7FFB22AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64919DFD-A30F-4BEE-B9A1-E56F7FFB22AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B1C0938-06BA-4F6C-8634-8FA33F875154}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B1C0938-06BA-4F6C-8634-8FA33F875154}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B1C0938-06BA-4F6C-8634-8FA33F875154}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B1C0938-06BA-4F6C-8634-8FA33F875154}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
