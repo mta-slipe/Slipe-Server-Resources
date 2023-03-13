@@ -1,5 +1,7 @@
 ﻿using SlipeServer.Packets.Enums;
 using SlipeServer.Resources.BoneAttach;
+using SlipeServer.Resources.PedIntelligance;
+using SlipeServer.Resources.PedIntelligence.Interfaces;
 using SlipeServer.Resources.Text3d;
 using SlipeServer.Resources.Watermark;
 using SlipeServer.Server;
@@ -14,13 +16,17 @@ internal class TestLogic
     private readonly Text3dService _text3DService;
     private readonly BoneAttachService boneAttachService;
     private readonly MtaServer mtaServer;
+    private readonly PedIntelliganceService pedIntelliganceService;
+    private readonly ChatBox chatBox;
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
-        BoneAttachService boneAttachService, MtaServer mtaServer)
+        BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelliganceService pedIntelliganceService, ChatBox chatBox)
     {
         _text3DService = text3DService;
         this.boneAttachService = boneAttachService;
         this.mtaServer = mtaServer;
+        this.pedIntelliganceService = pedIntelliganceService;
+        this.chatBox = chatBox;
         var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns");
         Task.Run(async () =>
         {
@@ -37,6 +43,8 @@ internal class TestLogic
         commandService.AddCommand("setText3dEnabled").Triggered += TestLogic_Triggered;
         commandService.AddCommand("attach").Triggered += HandleAttachCommand;
         commandService.AddCommand("fullattachTest").Triggered += HandleFullAttachTestCommand;
+        commandService.AddCommand("pedai").Triggered += HandlePedAiCommand;
+        commandService.AddCommand("car").Triggered += HandleCarCommand;
 
         watermarkService.SetContent("Sample server, version: 1");
 
@@ -58,6 +66,11 @@ internal class TestLogic
         {
             element.Destroy();
         }
+    }
+
+    private void HandleCarCommand(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        new Vehicle(VehicleModel.Buffalo, e.Player.Position).AssociateWith(mtaServer);
     }
 
     private void HandleFullAttachTestCommand(object? sender, Server.Events.CommandTriggeredEventArgs e)
@@ -86,4 +99,24 @@ internal class TestLogic
     {
         _text3DService.SetRenderingEnabled(e.Player, e.Arguments.FirstOrDefault("false") == "true" ? true : false);
     }
+
+    private async void HandlePedAiCommand(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        var ped = new Ped(Server.Elements.Enums.PedModel.Cj, new Vector3(4.46f, 11.36f, 3.12f)).AssociateWith(this.mtaServer);
+        ped.Syncer = e.Player;
+        chatBox.Output("spawned ped");
+
+        var points = new Vector3[] { new Vector3(17.13f, -3.29f, 3.12f), new Vector3(3.67f, 12.75f, 3.12f) };
+        var index = 0;
+        while (true)
+        {
+            IPedIntelliganceState pedState = this.pedIntelliganceService.GoTo(ped, points[index]);
+            await pedState.Completed;
+            if (index == 1)
+                index = 0;
+            else
+                index = 1;
+        }
+    }
+
 }
