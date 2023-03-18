@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SlipeServer.Packets.Definitions.Lua;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 
@@ -33,7 +34,7 @@ internal class ScoreboardLogic
         {
             await _resource.StartForAsync(player);
             var options = _resource.Options;
-            player.TriggerLuaEvent("internalUpdateScoreboardConfiguration", player, options.Bind);
+            player.TriggerLuaEvent("internalUpdateScoreboardConfiguration", player, options.Bind, options.Columns.Select(x => x.LuaValue).ToArray());
             _logger.LogInformation("kk");
         }
         catch(Exception ex)
