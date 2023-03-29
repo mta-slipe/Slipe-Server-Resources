@@ -20,12 +20,24 @@ internal class ScoreboardLogic
 
         _resource = _server.GetAdditionalResource<ScoreboardResource>();
 
-        scoreboardService.ScoreboardStateChanged = HandleScoreboardStateChanged;
+        scoreboardService.StatcheChanged = HandleStateChanged;
+        scoreboardService.ColumnsChanged = HandleColumnsChanged;
+        scoreboardService.HeaderChanged = HandleHeaderChanged;
     }
 
-    private void HandleScoreboardStateChanged(Player player, bool enabled)
+    private void HandleStateChanged(Player player, bool enabled)
     {
         player.TriggerLuaEvent("internalSetScoreboardEnabled", player, enabled);
+    }
+
+    private void HandleHeaderChanged(Player player, ScoreboardHeader scoreboardHeader)
+    {
+        player.TriggerLuaEvent("internalSetScoreboardHeader", player, scoreboardHeader.LuaValue);
+    }
+    
+    private void HandleColumnsChanged(Player player, List<ScoreboardColumn> scoreboardColumns)
+    {
+        player.TriggerLuaEvent("internalSetScoreboardColumns", player, scoreboardColumns.Select(x => x.LuaValue).ToArray());
     }
 
     private async void HandlePlayerJoin(Player player)
@@ -35,7 +47,6 @@ internal class ScoreboardLogic
             await _resource.StartForAsync(player);
             var options = _resource.Options;
             player.TriggerLuaEvent("internalUpdateScoreboardConfiguration", player, options.Bind, options.Columns.Select(x => x.LuaValue).ToArray());
-            _logger.LogInformation("kk");
         }
         catch(Exception ex)
         {
