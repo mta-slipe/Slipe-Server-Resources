@@ -2,6 +2,7 @@
 using SlipeServer.Resources.BoneAttach;
 using SlipeServer.Resources.PedIntelligance;
 using SlipeServer.Resources.PedIntelligence.Interfaces;
+using SlipeServer.Resources.Scoreboard;
 using SlipeServer.Resources.Text3d;
 using SlipeServer.Resources.Watermark;
 using SlipeServer.Server;
@@ -18,15 +19,18 @@ internal class TestLogic
     private readonly MtaServer mtaServer;
     private readonly PedIntelliganceService pedIntelliganceService;
     private readonly ChatBox chatBox;
+    private readonly ScoreboardService scoreboardService;
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
-        BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelliganceService pedIntelliganceService, ChatBox chatBox)
+        BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelliganceService pedIntelliganceService, ChatBox chatBox,
+        ScoreboardService scoreboardService)
     {
         _text3DService = text3DService;
         this.boneAttachService = boneAttachService;
         this.mtaServer = mtaServer;
         this.pedIntelliganceService = pedIntelliganceService;
         this.chatBox = chatBox;
+        this.scoreboardService = scoreboardService;
         var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns");
         Task.Run(async () =>
         {
@@ -45,6 +49,7 @@ internal class TestLogic
         commandService.AddCommand("fullattachTest").Triggered += HandleFullAttachTestCommand;
         commandService.AddCommand("pedai").Triggered += HandlePedAiCommand;
         commandService.AddCommand("car").Triggered += HandleCarCommand;
+        commandService.AddCommand("scoreboard").Triggered += HandleScoreboard; ;
 
         watermarkService.SetContent("Sample server, version: 1");
 
@@ -52,6 +57,46 @@ internal class TestLogic
         var ak47 = new WorldObject(355, Vector3.Zero).AssociateWith(mtaServer);
         this.boneAttachService.Attach(ak47, ped, BoneId.Spine1, new Vector3(0, -0.15f, 0));
         this.boneAttachService.ElementDetached += HandleElementDetached;
+    }
+
+    private void HandleScoreboard(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        var columns = new List<ScoreboardColumn> {
+            new ScoreboardColumn
+            {
+                Name = "Name",
+                Source = ScoreboardColumn.DataSource.Property,
+                Key = "Name",
+                Width = 400,
+                WidthRelative = false,
+            },
+            new ScoreboardColumn
+            {
+                Name = "TestKey",
+                Source = ScoreboardColumn.DataSource.ElementData,
+                Key = "TestKey",
+                Width = 100,
+                WidthRelative = false,
+            },
+            new ScoreboardColumn
+            {
+                Name = "Ping",
+                Source = ScoreboardColumn.DataSource.Property,
+                Key = "Ping",
+                Width = 80,
+                WidthRelative = false,
+                TextAlign = "right"
+            },
+        };
+
+        e.Player.SetData("TestKey", "TestValue", Server.Elements.Enums.DataSyncType.Broadcast);
+        scoreboardService.SetColumns(e.Player, columns);
+        scoreboardService.SetHeader(e.Player, new ScoreboardHeader
+        {
+            Text = "Sample server name",
+            Size = 2.5f,
+            Font = "sans"
+        });
     }
 
     private void HandleAttachCommand(object? sender, Server.Events.CommandTriggeredEventArgs e)
