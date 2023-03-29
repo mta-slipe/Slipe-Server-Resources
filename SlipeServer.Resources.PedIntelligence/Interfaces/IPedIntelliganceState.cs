@@ -14,4 +14,6 @@ public interface IPedIntelliganceState
 
     internal void Complete();
     internal bool AdvanceToNextTask();
+
+    void Stop();
 }

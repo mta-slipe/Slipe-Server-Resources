@@ -56,11 +56,21 @@ function renderDebug()
 				local dis2d = getDistanceBetweenPoints2D(x,y, task[2], task[3]);
 				drawDebugLine(x,y,z, task[2], task[3], task[4])
 				description = description..string.format("\nDistance left: %.2fm (%.1fm)", dis2d, task[5])
+			elseif(taskName == "PedTaskFollow")then
+				local element = task[2];
+				local tx,ty,tz = getElementPosition(element)
+				local dis2d = getDistanceBetweenPoints2D(x,y, tx, ty);
+				drawDebugLine(x,y,z, tx, ty, tz)
+				description = description..string.format("\nFollow: %s %.2fm (%.2fm)", getElementType(element), dis2d, task[3])
 			end
 			
 			sx,sy = getScreenFromWorldPosition(x,y,z, 128, false)
 			if(sx and sy)then
-				drawDebugText(description, sx, sy)
+				if(isElementSyncer(ped))then
+					drawDebugText(description.."\n\n***Synchronized by another player***", sx, sy)
+				else
+					drawDebugText(description, sx, sy)
+				end
 			end
 		end
 	end
@@ -136,7 +146,28 @@ local function processTask(ped, task, complete)
 			setPedAnalogControlState(ped, "forwards", 0)
 			complete();
 		end
+	elseif(taskName == "PedTaskFollow")then
+		local tx,ty,tz = getElementPosition(task[2])
+		local x,y,z = getElementPosition(ped);
+		if((task.data.nextRotationAdjustment or 0) < getTickCount())then
+			adjustRotationIntoDirection(ped, findRotation(x, y, tx, ty) - 90)
+			task.data.nextRotationAdjustment = getTickCount() + 200
+		end
+		local distance = getDistanceBetweenPoints2D(tx, ty, x,y);
+		if(distance > (task[6] or 9999999) or distance < task[3])then
+			toggleOffAllControls(ped)
+		else
+			setPedAnalogControlState(ped, "forwards", 1)
+		end
 	end
+end
+
+function stopPedAi(ped)
+	iprint("stopPedAi",ped)
+	toggleOffAllControls(ped)
+	pedsTasks[ped] = nil
+	pedsCount = pedsCount - 1
+	iprint("pedsTasks",pedsTasks)
 end
 
 local function process()
@@ -148,29 +179,34 @@ local function process()
 	local processNextTask = true;
 	pedsToRemove = {}
 	for ped,pedTaskData in pairs(pedsTasks)do
-		if(pedTaskData.takeNext)then
-			pedTaskData.currentTask = pedTaskData.currentTask + 1
-			if(pedTaskData.tasks[pedTaskData.currentTask])then
-				pedTaskData.takeNext = false
-			else
-				pedsToRemove[#pedsToRemove + 1] = ped;
-				processNextTask = false;
+		if(isElementSyncer(ped) or true)then
+			if(pedTaskData.takeNext)then
+				pedTaskData.currentTask = pedTaskData.currentTask + 1
+				if(pedTaskData.tasks[pedTaskData.currentTask])then
+					pedTaskData.takeNext = false
+				else
+					pedsToRemove[#pedsToRemove + 1] = ped;
+					processNextTask = false;
+				end
 			end
-		end
-		if(processNextTask)then
-			task = pedTaskData.tasks[pedTaskData.currentTask]
-			processTask(ped, task, function()
-				pedTaskData.takeNext = true;
-				triggerServerEvent("pedFinishedTask", resourceRoot, ped)
-			end)
+			if(processNextTask)then
+				task = pedTaskData.tasks[pedTaskData.currentTask]
+				processTask(ped, task, function()
+					pedTaskData.takeNext = true;
+					triggerServerEvent("pedFinishedTask", resourceRoot, ped)
+				end)
+			end
 		end
 	end
 	for i,ped in ipairs(pedsToRemove)do
-		toggleOffAllControls(ped)
-		pedsTasks[ped] = nil
-		pedsCount = pedsCount - 1
+		stopPedAi(ped)
 	end
 end
+
+addEvent("stopPedTasks", true)
+addEventHandler("stopPedTasks", root, function()
+	stopPedAi(source)
+end)
 
 addEvent("onPedTasks", true)
 addEventHandler("onPedTasks", localPlayer, function(ped, id, tasks)

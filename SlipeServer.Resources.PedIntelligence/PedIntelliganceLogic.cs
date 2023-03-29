@@ -8,6 +8,7 @@ using SlipeServer.Server.Elements;
 using SlipeServer.Server.Events;
 using SlipeServer.Server.Services;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace SlipeServer.Resources.PedIntelligance;
 
@@ -57,7 +58,13 @@ internal class PedIntelliganceLogic
         if (!_pedIntelliganceStates.TryAdd(ped, taskState))
             throw new Exception("Ped has already running tasks");
 
+        taskState.Stopped += HandleStopped;
         ped.Syncer.TriggerLuaEvent("onPedTasks", ped.Syncer, ped, taskState.Id.ToString(), tasks.Select(x => x.ToLuaValue()).ToArray());
         return taskState;
+    }
+
+    private void HandleStopped(IPedIntelliganceState pedIntelliganceState)
+    {
+        pedIntelliganceState.Ped.Syncer.TriggerLuaEvent("stopPedTasks", pedIntelliganceState.Ped);
     }
 }
