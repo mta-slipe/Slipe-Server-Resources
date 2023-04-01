@@ -8,6 +8,7 @@ public interface IPedIntelliganceState
     int TaskId { get; }
     int TotalTasks { get; }
     Task Completed { get; }
+    bool IsCompleted { get; }
 
     event Action<IPedIntelliganceState, int> TaskCompleted;
     event Action<IPedIntelliganceState> AllTasksCompleted;

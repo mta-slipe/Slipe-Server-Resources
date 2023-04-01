@@ -177,10 +177,9 @@ internal class TestLogic
     {
         var ped = new Ped(Server.Elements.Enums.PedModel.Cj, new Vector3(4.46f, 11.36f, 3.12f)).AssociateWith(this.mtaServer);
         ped.Syncer = e.Player;
-        chatBox.Output("spawned ped");
 
         IPedIntelliganceState pedState = this.pedIntelliganceService.Follow(ped, e.Player);
-        await Task.Delay(TimeSpan.FromSeconds(2));
+        await Task.Delay(TimeSpan.FromSeconds(200));
         pedState.Stop();
     }
 

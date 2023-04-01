@@ -38,6 +38,9 @@ local function drawDebugText(text, x,y)
 end
 
 function renderDebug()
+	if(not getKeyState("i"))then
+		return
+	end
 	local count = 0;
 	local sx,sy;
 	for ped, state in pairs(pedsTasks)do
@@ -60,8 +63,8 @@ function renderDebug()
 				local element = task[2];
 				local tx,ty,tz = getElementPosition(element)
 				local dis2d = getDistanceBetweenPoints2D(x,y, tx, ty);
-				drawDebugLine(x,y,z, tx, ty, tz)
-				description = description..string.format("\nFollow: %s %.2fm (%.2fm)", getElementType(element), dis2d, task[3])
+				--drawDebugLine(x,y,z, tx, ty, tz)
+				description = description..string.format("\nFollow: %s %.2fm (%.2fm) (s:%i)", getElementType(element), dis2d, task[3], task.data.state or -1)
 			end
 			
 			sx,sy = getScreenFromWorldPosition(x,y,z, 128, false)
@@ -129,6 +132,45 @@ local function adjustRotationIntoDirection(ped, direction, tolerance)
 	return false;
 end
 
+local function detectIfStucked(ped, task)
+	if(pedsTasks[ped].start + 2500 > getTickCount())then -- Ped just spawned
+		return false;
+	end
+	local traveledDistance = 999;
+	if(task.data.lastPosition)then
+		local x,y,z = getElementPosition(ped)
+		traveledDistance = getDistanceBetweenPoints3D(x,y,z, unpack(task.data.lastPosition))
+	end
+
+	if(traveledDistance < 0.05)then -- if ped moving too slow he probably stuck
+		task.data.stuckCounter = (task.data.stuckCounter or 0) + 1
+		if(task.data.stuckCounter > 7)then
+			if(not task.data.stuck)then
+				task.data.justStucked = true;
+			end
+			task.data.stuck = true;
+			return true;
+		end
+		return false
+	else
+		task.data.lastPosition = {getElementPosition(ped)}
+	end
+	task.data.stuckCounter = 0;
+	task.data.stuck = false;
+	return false;
+end
+
+local function checkIfDistanceChanged(ped, task, distance)
+	local diff = math.abs((task.data.lastDistance or 0) - distance);
+	if(diff > 0.02)then
+		task.data.stuck = false;
+		task.data.stuckCounter = 0;
+		return true;
+	end
+	task.data.lastDistance = distance;
+	return false;
+end
+
 local function processTask(ped, task, complete)
 	local taskName = task[1]
 	if(taskName == "PedTaskRotate")then
@@ -136,9 +178,9 @@ local function processTask(ped, task, complete)
 		complete()
 	elseif(taskName == "PedTaskGoTo")then
 		local x,y,z = getElementPosition(ped);
-		if((task.data.nextRotationAdjustment or 0) < getTickCount())then
+		if((task.data.nextCheck or 0) < getTickCount())then
 			adjustRotationIntoDirection(ped, findRotation(x, y, task[2], task[3]) - 90)
-			task.data.nextRotationAdjustment = getTickCount() + 200
+			task.data.nextCheck = getTickCount() + 200
 		end
 		setPedAnalogControlState(ped, "forwards", 1)
 		local distance = getDistanceBetweenPoints2D(task[2], task[3], x,y);
@@ -149,25 +191,43 @@ local function processTask(ped, task, complete)
 	elseif(taskName == "PedTaskFollow")then
 		local tx,ty,tz = getElementPosition(task[2])
 		local x,y,z = getElementPosition(ped);
-		if((task.data.nextRotationAdjustment or 0) < getTickCount())then
-			adjustRotationIntoDirection(ped, findRotation(x, y, tx, ty) - 90)
-			task.data.nextRotationAdjustment = getTickCount() + 200
-		end
 		local distance = getDistanceBetweenPoints2D(tx, ty, x,y);
-		if(distance > (task[6] or 9999999) or distance < task[3])then
+
+
+		if(distance < task[3])then
+			task.data.state = 1;
 			toggleOffAllControls(ped)
 		else
-			setPedAnalogControlState(ped, "forwards", 1)
+			detectIfStucked(ped, task)
+			if(task.data.stuck)then
+				if(task.data.justStucked)then
+					toggleOffAllControls(ped)
+					task.data.justStucked = false;
+					task.data.lastDistance = distance
+					task.data.state = 2;
+					--iprint("just stucked",getTickCount())
+				else
+					checkIfDistanceChanged(ped, task, distance)
+					task.data.state = 3;
+				end
+			else
+				if((task.data.nextCheck or 0) < getTickCount())then
+					adjustRotationIntoDirection(ped, findRotation(x, y, tx, ty) - 90)
+					task.data.nextCheck = getTickCount() + 200
+				end
+				setPedAnalogControlState(ped, "forwards", 1)
+				task.data.state = 4;
+			end
 		end
 	end
 end
 
 function stopPedAi(ped)
-	iprint("stopPedAi",ped)
-	toggleOffAllControls(ped)
-	pedsTasks[ped] = nil
-	pedsCount = pedsCount - 1
-	iprint("pedsTasks",pedsTasks)
+	if(pedsTasks[ped])then
+		toggleOffAllControls(ped)
+		pedsTasks[ped] = nil
+		pedsCount = pedsCount - 1
+	end
 end
 
 local function process()
@@ -223,7 +283,8 @@ addEventHandler("onPedTasks", localPlayer, function(ped, id, tasks)
 		currentTask = 0,
 		id = id,
 		takeNext = true,
-		tasks = tasks
+		tasks = tasks,
+		start = getTickCount()
 	}
 end)
 addEventHandler("onClientPreRender", root, process)
