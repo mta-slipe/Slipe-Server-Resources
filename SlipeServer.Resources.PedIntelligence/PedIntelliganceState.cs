@@ -1,6 +1,7 @@
 ﻿using SlipeServer.Resources.PedIntelligence.Interfaces;
 using SlipeServer.Resources.PedIntelligence.PedTasks;
 using SlipeServer.Server.Elements;
+using SlipeServer.Server.Services;
 
 namespace SlipeServer.Resources.PedIntelligence;
 
@@ -12,15 +13,30 @@ internal class PedIntelliganceState : IPedIntelliganceState
     public int TaskId { get; set; }
     public int TotalTasks => Tasks.Length;
 
+    public bool IsCompleted => TaskId == TotalTasks;
+
     public event Action<IPedIntelliganceState, int>? TaskCompleted;
     public event Action<IPedIntelliganceState>? AllTasksCompleted;
+    public event Action<IPedIntelliganceState>? Stopped;
     public Task Completed { get
         {
             var task = new TaskCompletionSource();
-            this.AllTasksCompleted += e =>
+            void HandleCompleted(IPedIntelliganceState e)
             {
                 task.SetResult();
+                this.AllTasksCompleted -= HandleCompleted;
+                this.Stopped -= HandleStopped;
             };
+
+            void HandleStopped(IPedIntelliganceState e)
+            {
+                task.SetException(new OperationCanceledException());
+                this.AllTasksCompleted -= HandleCompleted;
+                this.Stopped -= HandleStopped;
+            };
+
+            this.AllTasksCompleted += HandleCompleted;
+            this.Stopped += HandleStopped;
 
             return task.Task;
         } }
@@ -47,6 +63,17 @@ internal class PedIntelliganceState : IPedIntelliganceState
 
     public void Complete()
     {
+        if (IsCompleted)
+            throw new InvalidOperationException();
+
         AllTasksCompleted?.Invoke(this);
+    }
+
+    public void Stop()
+    {
+        if (IsCompleted)
+            throw new InvalidOperationException();
+
+        Stopped?.Invoke(this);
     }
 }

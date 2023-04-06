@@ -9,7 +9,7 @@ namespace SlipeServer.Resources.PedIntelligance;
 
 public class PedIntelliganceService
 {
-    internal Func<Ped, IEnumerable<PedTask>, IPedIntelliganceState>? RelayPedTasks { get; set; }
+    internal Func<Ped, IEnumerable<PedTask>, IPedIntelliganceState> RelayPedTasks { get; set; } = default!;
 
     private float FindRotation(Vector3 a, Vector3 b)
     {
@@ -17,13 +17,20 @@ public class PedIntelliganceService
         return t < 0 ? t + 360 : t;
     }
 
-    public IPedIntelliganceState GoTo(Ped ped, Vector3 destination)
+    public IPedIntelliganceState GoTo(Ped ped, Vector3 destination, float threshold = 0.5f)
     {
         var rotation = FindRotation(ped.Position, destination);
-        return RelayPedTasks?.Invoke(ped, new PedTask[]
+        return RelayPedTasks(ped, new PedTask[]
         {
-            //new PedTaskRotate(-rotation - 90),
-            new PedTaskGoTo(destination),
+            new PedTaskGoTo(destination, threshold),
+        });
+    }
+
+    public IPedIntelliganceState Follow(Ped ped, Element element, float distance = 1.5f)
+    {
+        return RelayPedTasks(ped, new PedTask[]
+        {
+            new PedTaskFollow(element, distance),
         });
     }
 }

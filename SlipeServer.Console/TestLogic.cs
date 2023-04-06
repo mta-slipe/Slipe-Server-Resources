@@ -20,10 +20,11 @@ internal class TestLogic
     private readonly PedIntelliganceService pedIntelliganceService;
     private readonly ChatBox chatBox;
     private readonly ScoreboardService scoreboardService;
+    private readonly GameWorld gameWorld;
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
         BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelliganceService pedIntelliganceService, ChatBox chatBox,
-        ScoreboardService scoreboardService)
+        ScoreboardService scoreboardService, GameWorld gameWorld)
     {
         _text3DService = text3DService;
         this.boneAttachService = boneAttachService;
@@ -31,6 +32,7 @@ internal class TestLogic
         this.pedIntelliganceService = pedIntelliganceService;
         this.chatBox = chatBox;
         this.scoreboardService = scoreboardService;
+        this.gameWorld = gameWorld;
         var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns");
         Task.Run(async () =>
         {
@@ -48,8 +50,10 @@ internal class TestLogic
         commandService.AddCommand("attach").Triggered += HandleAttachCommand;
         commandService.AddCommand("fullattachTest").Triggered += HandleFullAttachTestCommand;
         commandService.AddCommand("pedai").Triggered += HandlePedAiCommand;
+        commandService.AddCommand("pedai2").Triggered += HandlePedAi2Command;
         commandService.AddCommand("car").Triggered += HandleCarCommand;
-        commandService.AddCommand("scoreboard").Triggered += HandleScoreboard; ;
+        commandService.AddCommand("scoreboard").Triggered += HandleScoreboard;
+        commandService.AddCommand("day").Triggered += HandleDay;
 
         watermarkService.SetContent("Sample server, version: 1");
 
@@ -57,6 +61,11 @@ internal class TestLogic
         var ak47 = new WorldObject(355, Vector3.Zero).AssociateWith(mtaServer);
         this.boneAttachService.Attach(ak47, ped, BoneId.Spine1, new Vector3(0, -0.15f, 0));
         this.boneAttachService.ElementDetached += HandleElementDetached;
+    }
+
+    private void HandleDay(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        gameWorld.SetTime(12, 0);
     }
 
     private void HandleScoreboard(object? sender, Server.Events.CommandTriggeredEventArgs e)
@@ -162,6 +171,16 @@ internal class TestLogic
             else
                 index = 1;
         }
+    }
+    
+    private async void HandlePedAi2Command(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        var ped = new Ped(Server.Elements.Enums.PedModel.Cj, new Vector3(4.46f, 11.36f, 3.12f)).AssociateWith(this.mtaServer);
+        ped.Syncer = e.Player;
+
+        IPedIntelliganceState pedState = this.pedIntelliganceService.Follow(ped, e.Player);
+        await Task.Delay(TimeSpan.FromSeconds(200));
+        pedState.Stop();
     }
 
 }
