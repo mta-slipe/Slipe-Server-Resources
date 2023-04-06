@@ -14,17 +14,9 @@ function getPointFromDistanceRotation(x, y, dist, angle)
     return x+dx, y+dy;
 end
 
-function math.lerp(a, b, k)
-	if(a > b)then
-		a,b = b,a
-	end
-	local result = a * (1-k) + b * k
-	if result >= b then
-		result = b
-	elseif result <= a then
-		result = a
-	end
-	return result
+function lerpRotationDegrees(startRot, endRot, t)
+  local angle = ((endRot - startRot + 180) % 360 - 180) * t
+  return startRot + angle
 end
 
 local function drawDebugLine(ax,ay,az, bx,by,bz)
@@ -103,32 +95,9 @@ local function adjustRotationIntoDirection(ped, direction, tolerance)
 	end
 
 	local rx,ry,rz = getElementRotation(ped)
-	local lerp = math.lerp(rz, direction + 90, 0.75);
-	if(rDelta > 0)then
-		if(absRDelta > 90)then
-			setPedAnalogControlState(ped, "left", 0.5)
-		elseif(absRDelta > 45)then
-			setPedAnalogControlState(ped, "left", 0.2)
-		elseif(absRDelta > 10)then
-			setPedAnalogControlState(ped, "left", 0.1)
-		elseif(absRDelta > 5)then
-			setPedAnalogControlState(ped, "left", 0.02)
-		end
-	else
-		if(absRDelta > 90)then
-			setPedAnalogControlState(ped, "right", 0.5)
-		elseif(absRDelta > 45)then
-			setPedAnalogControlState(ped, "right", 0.2)
-		elseif(absRDelta > 10)then
-			setPedAnalogControlState(ped, "right", 0.1)
-		elseif(absRDelta > 5)then
-			setPedAnalogControlState(ped, "right", 0.02)
-		end
-	end
-	
-	setTimer(function()
-		setElementRotation(ped, rx,ry,lerp, "default", true)
-	end, 100, 1)
+
+	local lerp1 = lerpRotationDegrees(rz, direction + 90, 0.5);
+	setElementRotation(ped, rx,ry,lerp1, "default", true)
 	return false;
 end
 
@@ -180,7 +149,7 @@ local function processTask(ped, task, complete)
 		local x,y,z = getElementPosition(ped);
 		if((task.data.nextCheck or 0) < getTickCount())then
 			adjustRotationIntoDirection(ped, findRotation(x, y, task[2], task[3]) - 90)
-			task.data.nextCheck = getTickCount() + 200
+			task.data.nextCheck = getTickCount() + 100
 		end
 		setPedAnalogControlState(ped, "forwards", 1)
 		local distance = getDistanceBetweenPoints2D(task[2], task[3], x,y);
@@ -213,7 +182,7 @@ local function processTask(ped, task, complete)
 			else
 				if((task.data.nextCheck or 0) < getTickCount())then
 					adjustRotationIntoDirection(ped, findRotation(x, y, tx, ty) - 90)
-					task.data.nextCheck = getTickCount() + 200
+					task.data.nextCheck = getTickCount() + 100
 				end
 				setPedAnalogControlState(ped, "forwards", 1)
 				task.data.state = 4;
