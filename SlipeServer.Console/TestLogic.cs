@@ -39,7 +39,7 @@ internal class TestLogic
             while(true)
             {
                 await Task.Delay(1000);
-                _text3DService.UpdateText3d(textId, $"Current date time: {DateTime.Now}");
+                _text3DService.SetText3dText(textId, $"Current date time: {DateTime.Now}");
             }
         });
 
@@ -47,6 +47,8 @@ internal class TestLogic
         _text3DService.RemoveText3d(textId2);
 
         commandService.AddCommand("setText3dEnabled").Triggered += TestLogic_Triggered;
+        commandService.AddCommand("addText3d").Triggered += TestLogic_Triggered1;
+        commandService.AddCommand("customizeText3d").Triggered += HandleCustomizeText3d; ;
         commandService.AddCommand("attach").Triggered += HandleAttachCommand;
         commandService.AddCommand("fullattachTest").Triggered += HandleFullAttachTestCommand;
         commandService.AddCommand("pedai").Triggered += HandlePedAiCommand;
@@ -61,6 +63,20 @@ internal class TestLogic
         var ak47 = new WorldObject(355, Vector3.Zero).AssociateWith(mtaServer);
         this.boneAttachService.Attach(ak47, ped, BoneId.Spine1, new Vector3(0, -0.15f, 0));
         this.boneAttachService.ElementDetached += HandleElementDetached;
+    }
+
+    private int sampleText3d = 0;
+    private void HandleCustomizeText3d(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        _text3DService.SetText3dText(sampleText3d, "New text");
+        _text3DService.SetText3dDistance(sampleText3d, 10);
+        _text3DService.SetText3dFontSize(sampleText3d, 3);
+        _text3DService.SetText3dPosition(sampleText3d, e.Player.Position);
+    }
+
+    private void TestLogic_Triggered1(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        sampleText3d = _text3DService.CreateText3d(e.Player.Position, e.Player.Name);
     }
 
     private void HandleDay(object? sender, Server.Events.CommandTriggeredEventArgs e)
@@ -178,9 +194,16 @@ internal class TestLogic
         var ped = new Ped(Server.Elements.Enums.PedModel.Cj, new Vector3(4.46f, 11.36f, 3.12f)).AssociateWith(this.mtaServer);
         ped.Syncer = e.Player;
 
+        try
+        {
+
         IPedIntelliganceState pedState = this.pedIntelliganceService.Follow(ped, e.Player);
-        await Task.Delay(TimeSpan.FromSeconds(200));
-        pedState.Stop();
+            await pedState.Completed;
+        }
+        catch(Exception ex)
+        {
+            // Ped is unable to follow
+        }
     }
 
 }
