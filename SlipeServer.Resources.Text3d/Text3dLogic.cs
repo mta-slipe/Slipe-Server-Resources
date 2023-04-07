@@ -1,27 +1,34 @@
-﻿using SlipeServer.Server;
+﻿using Microsoft.Extensions.Logging;
+using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 
 namespace SlipeServer.Resources.Text3d;
 
 internal class Text3dLogic
 {
-    private readonly MtaServer _server;
-    private readonly Text3dResource _resource;
-    private readonly Text3dService _text3dService;
+    private readonly Text3dResource resource;
+    private readonly Text3dService text3dService;
+    private readonly ILogger<Text3dLogic> logger;
 
-    private readonly HashSet<Player> _noClipPlayers = new();
-
-    public Text3dLogic(MtaServer server, Text3dService text3dService)
+    public Text3dLogic(MtaServer server, Text3dService text3dService, ILogger<Text3dLogic> logger)
     {
-        _server = server;
-        _text3dService = text3dService;
+        this.text3dService = text3dService;
+        this.logger = logger;
         server.PlayerJoined += HandlePlayerJoin;
 
-        _resource = _server.GetAdditionalResource<Text3dResource>();
+        resource = server.GetAdditionalResource<Text3dResource>();
     }
 
     private void HandlePlayerJoin(Player player)
     {
-        _resource.StartFor(player);
+        try
+        {
+            resource.StartForAsync(player);
+            text3dService.AddPlayer(player);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to start Text3d resource");
+        }
     }
 }
