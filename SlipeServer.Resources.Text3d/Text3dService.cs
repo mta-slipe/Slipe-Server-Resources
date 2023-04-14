@@ -1,11 +1,8 @@
 ﻿using SlipeServer.Packets.Definitions.Lua;
-using SlipeServer.Server;
 using SlipeServer.Server.ElementCollections;
 using SlipeServer.Server.Elements;
 using System.Drawing;
 using System.Numerics;
-using System.Reflection.Metadata;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SlipeServer.Resources.Text3d;
 
