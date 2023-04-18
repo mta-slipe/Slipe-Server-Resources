@@ -10,7 +10,7 @@ internal class ScoreboardLogic
 {
     private readonly MtaServer _server;
     private readonly ILogger<ScoreboardLogic> _logger;
-    private readonly ScoreboardResource _resource;
+    private readonly ScoreboardResource resource;
 
     public ScoreboardLogic(MtaServer server, ScoreboardService scoreboardService, ILogger<ScoreboardLogic> logger)
     {
@@ -18,7 +18,7 @@ internal class ScoreboardLogic
         _logger = logger;
         server.PlayerJoined += HandlePlayerJoin;
 
-        _resource = _server.GetAdditionalResource<ScoreboardResource>();
+        resource = _server.GetAdditionalResource<ScoreboardResource>();
 
         scoreboardService.StatcheChanged = HandleStateChanged;
         scoreboardService.ColumnsChanged = HandleColumnsChanged;
@@ -44,8 +44,8 @@ internal class ScoreboardLogic
     {
         try
         {
-            await _resource.StartForAsync(player);
-            var options = _resource.Options;
+            await resource.StartForAsync(player);
+            var options = resource.Options;
             player.TriggerLuaEvent("internalUpdateScoreboardConfiguration", player, options.Bind, options.Columns.Select(x => x.LuaValue).ToArray());
         }
         catch(Exception ex)
