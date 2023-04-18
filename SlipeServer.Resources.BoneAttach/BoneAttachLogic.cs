@@ -1,4 +1,5 @@
-﻿using SlipeServer.Packets.Definitions.Lua;
+﻿using Microsoft.Extensions.Logging;
+using SlipeServer.Packets.Definitions.Lua;
 using SlipeServer.Packets.Enums;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
@@ -13,16 +14,18 @@ internal class BoneAttachLogic
     private readonly MtaServer server;
     private readonly BoneAttachService boneAttachService;
     private readonly LuaEventService luaEventService;
+    private readonly ILogger<BoneAttachLogic> logger;
     private readonly BoneAttachResource resource;
 
     private Dictionary<Element, AttachInfo> cache = new();
     private readonly object cacheLock = new();
 
-    public BoneAttachLogic(MtaServer server, BoneAttachService boneAttachService, LuaEventService luaEventService)
+    public BoneAttachLogic(MtaServer server, BoneAttachService boneAttachService, LuaEventService luaEventService, ILogger<BoneAttachLogic> logger)
     {
         this.server = server;
         this.boneAttachService = boneAttachService;
         this.luaEventService = luaEventService;
+        this.logger = logger;
         server.PlayerJoined += HandlePlayerJoin;
 
         resource = this.server.GetAdditionalResource<BoneAttachResource>();
@@ -229,7 +232,14 @@ internal class BoneAttachLogic
 
     private async void HandlePlayerJoin(Player player)
     {
-        await resource.StartForAsync(player);
-        SendCacheToPlayer(player);
+        try
+        {
+            await resource.StartForAsync(player);
+            SendCacheToPlayer(player);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to start boneattach resource for player {playerName}", player.Name);
+        }
     }
 }

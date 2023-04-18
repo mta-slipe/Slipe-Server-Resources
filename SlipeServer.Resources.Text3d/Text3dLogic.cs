@@ -19,11 +19,11 @@ internal class Text3dLogic
         resource = server.GetAdditionalResource<Text3dResource>();
     }
 
-    private void HandlePlayerJoin(Player player)
+    private async void HandlePlayerJoin(Player player)
     {
         try
         {
-            resource.StartForAsync(player);
+            await resource.StartForAsync(player);
             text3dService.AddPlayer(player);
         }
         catch (Exception ex)
