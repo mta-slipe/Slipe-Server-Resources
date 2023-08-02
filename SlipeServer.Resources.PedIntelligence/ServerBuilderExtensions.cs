@@ -1,23 +1,23 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SlipeServer.Server.ServerBuilders;
 
-namespace SlipeServer.Resources.PedIntelligance;
+namespace SlipeServer.Resources.PedIntelligence;
 
 public static class ServerBuilderExtensions
 {
-    public static void AddPedIntelliganceResource(this ServerBuilder builder)
+    public static void AddPedIntelligenceResource(this ServerBuilder builder)
     {
         builder.AddBuildStep(server =>
         {
-            var resource = new PedIntelliganceResource(server);
+            var resource = new PedIntelligenceResource(server);
             server.AddAdditionalResource(resource, resource.AdditionalFiles);
         });
 
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<PedIntelliganceService>();
+            services.AddSingleton<PedIntelligenceService>();
         });
 
-        builder.AddLogic<PedIntelliganceLogic>();
+        builder.AddLogic<PedIntelligenceLogic>();
     }
 }

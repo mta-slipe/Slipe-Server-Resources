@@ -1,5 +1,6 @@
 ﻿using SlipeServer.Packets.Structs;
 using SlipeServer.Resources.PedIntelligence;
+using SlipeServer.Resources.PedIntelligence.Exceptions;
 using SlipeServer.Resources.PedIntelligence.Interfaces;
 using SlipeServer.Resources.PedIntelligence.PedTasks;
 using SlipeServer.Server;
@@ -10,37 +11,50 @@ using SlipeServer.Server.Services;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
-namespace SlipeServer.Resources.PedIntelligance;
+namespace SlipeServer.Resources.PedIntelligence;
 
-internal class PedIntelliganceLogic
+internal class PedIntelligenceLogic
 {
     private readonly MtaServer _server;
-    private readonly PedIntelliganceService _pedIntelliganceService;
+    private readonly PedIntelligenceService _pedIntelligenceService;
     private readonly IElementCollection _elementCollection;
-    private readonly PedIntelliganceResource _resource;
-    private readonly ConcurrentDictionary<Ped, IPedIntelliganceState> _pedIntelliganceStates = new();
+    private readonly PedIntelligenceResource _resource;
+    private readonly ConcurrentDictionary<Ped, IPedIntelligenceState> _pedIntelligenceStates = new();
+    private readonly ConcurrentDictionary<Ped, ObstacleAvoidanceStrategies> _pedObstacleAvoidanceStrategies = new();
 
-    public PedIntelliganceLogic(MtaServer server, PedIntelliganceService pedIntelliganceService, LuaEventService luaEventService, IElementCollection elementCollection)
+    public PedIntelligenceLogic(MtaServer server, PedIntelligenceService pedIntelligenceService, LuaEventService luaEventService, IElementCollection elementCollection)
     {
         this._server = server;
-        this._pedIntelliganceService = pedIntelliganceService;
+        this._pedIntelligenceService = pedIntelligenceService;
         this._elementCollection = elementCollection;
         this._server.PlayerJoined += HandlePlayerJoin;
 
-        this._resource = _server.GetAdditionalResource<PedIntelliganceResource>();
-        this._pedIntelliganceService.RelayPedTasks = HandlePedTasks;
+        this._resource = _server.GetAdditionalResource<PedIntelligenceResource>();
+        this._pedIntelligenceService.RelayPedTasks = HandlePedTasks;
+        this._pedIntelligenceService.RelayPedObstacleAvoidanceStrategies = HandlePedObstacleAvoidanceStrategies;
 
         luaEventService.AddEventHandler("pedFinishedTask", HandlePedFinishedTask);
+        luaEventService.AddEventHandler("pedStuck", HandlePedStuck);
     }
 
     private void HandlePedFinishedTask(LuaEvent luaEvent)
     {
         var elementId = luaEvent.Parameters.First().ElementId;
         var ped = (Ped)_elementCollection.Get(elementId.Value);
-        if (_pedIntelliganceStates[ped].AdvanceToNextTask())
+        if (_pedIntelligenceStates[ped].AdvanceToNextTask() && _pedIntelligenceStates.TryRemove(ped, out var pedIntelligenceState))
         {
-            _pedIntelliganceStates.TryRemove(ped, out var pedIntelliganceState);
-            pedIntelliganceState.Complete();
+            ped.Destroyed -= HandleDestroyed;
+            pedIntelligenceState.Complete();
+        }
+    }
+
+    private void HandlePedStuck(LuaEvent luaEvent)
+    {
+        var elementId = luaEvent.Parameters.First().ElementId;
+        var ped = (Ped)_elementCollection.Get(elementId.Value);
+        if(_pedIntelligenceStates.TryRemove(ped, out var pedIntelligenceState))
+        {
+            pedIntelligenceState.Stop(new PedStuckException(ped));
         }
     }
 
@@ -49,22 +63,36 @@ internal class PedIntelliganceLogic
         this._resource.StartFor(player);
     }
 
-    private IPedIntelliganceState HandlePedTasks(Ped ped, IEnumerable<PedTask> tasks)
+    private void HandlePedObstacleAvoidanceStrategies(Ped ped, ObstacleAvoidanceStrategies obstacleAvoidanceStrategies)
+    {
+        _pedObstacleAvoidanceStrategies.TryAdd(ped, obstacleAvoidanceStrategies);
+    }
+
+    private IPedIntelligenceState HandlePedTasks(Ped ped, IEnumerable<PedTask> tasks)
     {
         if (ped.Syncer == null)
             throw new Exception("Ped has no syncer");
 
-        var taskState = new PedIntelliganceState(ped, tasks);
-        if (!_pedIntelliganceStates.TryAdd(ped, taskState))
+        var taskState = new PedIntelligenceState(ped, tasks);
+        if (!_pedIntelligenceStates.TryAdd(ped, taskState))
             throw new Exception("Ped has already running tasks");
-
+        ped.Destroyed += HandleDestroyed;
         taskState.Stopped += HandleStopped;
-        ped.Syncer.TriggerLuaEvent("onPedTasks", ped.Syncer, ped, taskState.Id.ToString(), tasks.Select(x => x.ToLuaValue()).ToArray());
+        _pedObstacleAvoidanceStrategies.TryGetValue(ped, out var pedObstacleAvoidanceStrategies);
+        ped.Syncer.TriggerLuaEvent("onPedTasks", ped.Syncer, ped, (int)pedObstacleAvoidanceStrategies, taskState.Id.ToString(), tasks.Select(x => x.ToLuaValue()).ToArray());
         return taskState;
     }
 
-    private void HandleStopped(IPedIntelliganceState pedIntelliganceState)
+    private void HandleDestroyed(Element element)
     {
-        pedIntelliganceState.Ped.Syncer.TriggerLuaEvent("stopPedTasks", pedIntelliganceState.Ped);
+        var ped = (Ped)element;
+        _pedIntelligenceStates.TryRemove(ped, out var _);
+        _pedObstacleAvoidanceStrategies.TryRemove(ped, out var _);
+        ped.Destroyed -= HandleDestroyed;
+    }
+
+    private void HandleStopped(IPedIntelligenceState pedIntelligenceState, Exception? ex)
+    {
+        pedIntelligenceState.Ped.Syncer.TriggerLuaEvent("stopPedTasks", pedIntelligenceState.Ped);
     }
 }

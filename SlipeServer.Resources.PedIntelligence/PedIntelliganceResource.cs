@@ -2,20 +2,19 @@
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Resources;
 
-namespace SlipeServer.Resources.PedIntelligance;
+namespace SlipeServer.Resources.PedIntelligence;
 
-internal class PedIntelliganceResource : Resource
+internal class PedIntelligenceResource : Resource
 {
     internal Dictionary<string, byte[]> AdditionalFiles { get; } = new Dictionary<string, byte[]>()
     {
-        ["PedIntelligance.lua"] = ResourceFiles.PedIntelliganceLua,
+        ["PedIntelligence.lua"] = ResourceFiles.PedIntelligenceLua,
     };
 
-    internal PedIntelliganceResource(MtaServer server)
-        : base(server, server.GetRequiredService<RootElement>(), "PedIntelligance")
+    internal PedIntelligenceResource(MtaServer server)
+        : base(server, server.GetRequiredService<RootElement>(), "PedIntelligence")
     {
         foreach (var (path, content) in AdditionalFiles)
             Files.Add(ResourceFileFactory.FromBytes(content, path));
     }
-
 }

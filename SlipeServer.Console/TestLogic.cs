@@ -1,6 +1,7 @@
 ﻿using SlipeServer.Packets.Enums;
 using SlipeServer.Resources.BoneAttach;
-using SlipeServer.Resources.PedIntelligance;
+using SlipeServer.Resources.PedIntelligence;
+using SlipeServer.Resources.PedIntelligence.Exceptions;
 using SlipeServer.Resources.PedIntelligence.Interfaces;
 using SlipeServer.Resources.Scoreboard;
 using SlipeServer.Resources.Text3d;
@@ -17,13 +18,13 @@ internal class TestLogic
     private readonly Text3dService _text3DService;
     private readonly BoneAttachService boneAttachService;
     private readonly MtaServer mtaServer;
-    private readonly PedIntelliganceService pedIntelliganceService;
+    private readonly PedIntelligenceService pedIntelliganceService;
     private readonly ChatBox chatBox;
     private readonly ScoreboardService scoreboardService;
     private readonly GameWorld gameWorld;
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
-        BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelliganceService pedIntelliganceService, ChatBox chatBox,
+        BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelligenceService pedIntelliganceService, ChatBox chatBox,
         ScoreboardService scoreboardService, GameWorld gameWorld)
     {
         _text3DService = text3DService;
@@ -63,6 +64,11 @@ internal class TestLogic
         var ak47 = new WorldObject(355, Vector3.Zero).AssociateWith(mtaServer);
         this.boneAttachService.Attach(ak47, ped, BoneId.Spine1, new Vector3(0, -0.15f, 0));
         this.boneAttachService.ElementDetached += HandleElementDetached;
+
+        var testObstacle1 = new WorldObject(1468, new Vector3(22.00f, -8.95f, 3.12f)).AssociateWith(mtaServer);
+        testObstacle1.Rotation = new Vector3(0, 0, 45);
+        var testObstacle2 = new WorldObject(1468, new Vector3(10.70f, 4.17f, 3.11f)).AssociateWith(mtaServer);
+        testObstacle2.Rotation = new Vector3(0, 0, 45);
     }
 
     private int sampleText3d = 0;
@@ -173,15 +179,25 @@ internal class TestLogic
     private async void HandlePedAiCommand(object? sender, Server.Events.CommandTriggeredEventArgs e)
     {
         var ped = new Ped(Server.Elements.Enums.PedModel.Cj, new Vector3(4.46f, 11.36f, 3.12f)).AssociateWith(this.mtaServer);
+        if (e.Arguments.FirstOrDefault() == "smarter")
+        {
+            this.pedIntelliganceService.SetPedObstacleAvoidanceStrategies(ped, ObstacleAvoidanceStrategies.Jump);
+        }
         ped.Syncer = e.Player;
-        chatBox.Output("spawned ped");
 
         var points = new Vector3[] { new Vector3(17.13f, -3.29f, 3.12f), new Vector3(3.67f, 12.75f, 3.12f) };
         var index = 0;
         while (true)
         {
-            IPedIntelliganceState pedState = this.pedIntelliganceService.GoTo(ped, points[index]);
-            await pedState.Completed;
+            IPedIntelligenceState pedState = this.pedIntelliganceService.GoTo(ped, points[index]);
+            try
+            {
+                await pedState.Completed;
+            }
+            catch(PedStuckException pedStuckException)
+            {
+                // ignore
+            }
             if (index == 1)
                 index = 0;
             else
@@ -197,7 +213,7 @@ internal class TestLogic
         try
         {
 
-        IPedIntelliganceState pedState = this.pedIntelliganceService.Follow(ped, e.Player);
+        IPedIntelligenceState pedState = this.pedIntelliganceService.Follow(ped, e.Player);
             await pedState.Completed;
         }
         catch(Exception ex)

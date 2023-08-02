@@ -5,7 +5,7 @@ using SlipeServer.Server.Services;
 
 namespace SlipeServer.Resources.PedIntelligence;
 
-internal class PedIntelliganceState : IPedIntelliganceState
+internal class PedIntelligenceState : IPedIntelligenceState
 {
     public Guid Id { get; }
     public Ped Ped { get; }
@@ -15,22 +15,24 @@ internal class PedIntelliganceState : IPedIntelliganceState
 
     public bool IsCompleted => TaskId == TotalTasks;
 
-    public event Action<IPedIntelliganceState, int>? TaskCompleted;
-    public event Action<IPedIntelliganceState>? AllTasksCompleted;
-    public event Action<IPedIntelliganceState>? Stopped;
-    public Task Completed { get
+    public event Action<IPedIntelligenceState, int>? TaskCompleted;
+    public event Action<IPedIntelligenceState>? AllTasksCompleted;
+    public event Action<IPedIntelligenceState, Exception?>? Stopped;
+    public Task Completed
+    {
+        get
         {
             var task = new TaskCompletionSource();
-            void HandleCompleted(IPedIntelliganceState e)
+            void HandleCompleted(IPedIntelligenceState e)
             {
                 task.SetResult();
                 this.AllTasksCompleted -= HandleCompleted;
                 this.Stopped -= HandleStopped;
             };
 
-            void HandleStopped(IPedIntelliganceState e)
+            void HandleStopped(IPedIntelligenceState e, Exception? ex)
             {
-                task.SetException(new OperationCanceledException());
+                task.SetException(ex ?? new OperationCanceledException());
                 this.AllTasksCompleted -= HandleCompleted;
                 this.Stopped -= HandleStopped;
             };
@@ -39,9 +41,10 @@ internal class PedIntelliganceState : IPedIntelliganceState
             this.Stopped += HandleStopped;
 
             return task.Task;
-        } }
+        }
+    }
 
-    public PedIntelliganceState(Ped ped, IEnumerable<PedTask> tasks)
+    public PedIntelligenceState(Ped ped, IEnumerable<PedTask> tasks)
     {
         Ped = ped;
         Id = Guid.NewGuid();
@@ -63,17 +66,15 @@ internal class PedIntelliganceState : IPedIntelliganceState
 
     public void Complete()
     {
-        if (IsCompleted)
-            throw new InvalidOperationException();
-
+        TaskId = TotalTasks;
         AllTasksCompleted?.Invoke(this);
     }
 
-    public void Stop()
+    public void Stop(Exception? ex = null)
     {
         if (IsCompleted)
             throw new InvalidOperationException();
 
-        Stopped?.Invoke(this);
+        Stopped?.Invoke(this, ex);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace SlipeServer.Resources.PedIntelligence.Interfaces;
 
-public interface IPedIntelliganceState
+public interface IPedIntelligenceState
 {
     Ped Ped { get; }
     int TaskId { get; }
@@ -10,11 +10,11 @@ public interface IPedIntelliganceState
     Task Completed { get; }
     bool IsCompleted { get; }
 
-    event Action<IPedIntelliganceState, int> TaskCompleted;
-    event Action<IPedIntelliganceState> AllTasksCompleted;
+    event Action<IPedIntelligenceState, int> TaskCompleted;
+    event Action<IPedIntelligenceState> AllTasksCompleted;
 
     internal void Complete();
     internal bool AdvanceToNextTask();
 
-    void Stop();
+    void Stop(Exception? ex);
 }

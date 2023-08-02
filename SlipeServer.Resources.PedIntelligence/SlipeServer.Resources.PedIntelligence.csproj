@@ -18,11 +18,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Lua\PedIntelligance.lua" />
+	  <None Remove="Lua\PedIntelligence.lua" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Lua\PedIntelligance.lua" />
+	  <EmbeddedResource Include="Lua\PedIntelligence.lua" />
 	</ItemGroup>
 
 	<ItemGroup>
