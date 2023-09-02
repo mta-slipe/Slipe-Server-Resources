@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Threading;
 using SlipeServer.Resources.Scoreboard;
+using SlipeServer.Resources.ClientElements;
 
 namespace SlipeServer.Console;
 
@@ -100,6 +101,7 @@ public partial class Program
                 builder.AddPedIntelligenceResource();
                 builder.AddScoreboard();
                 builder.AddBoneAttachResource(BoneAttachVersion.Release_1_2_0);
+                builder.AddClientElementsResource();
 
                 builder.AddLogic<TestLogic>();
             }

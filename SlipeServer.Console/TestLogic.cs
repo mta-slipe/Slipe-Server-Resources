@@ -1,5 +1,6 @@
 ﻿using SlipeServer.Packets.Enums;
 using SlipeServer.Resources.BoneAttach;
+using SlipeServer.Resources.ClientElements;
 using SlipeServer.Resources.PedIntelligence;
 using SlipeServer.Resources.PedIntelligence.Exceptions;
 using SlipeServer.Resources.PedIntelligence.Interfaces;
@@ -22,10 +23,11 @@ internal class TestLogic
     private readonly ChatBox chatBox;
     private readonly ScoreboardService scoreboardService;
     private readonly GameWorld gameWorld;
+    private readonly ClientElementsService clientElementsService;
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
         BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelligenceService pedIntelliganceService, ChatBox chatBox,
-        ScoreboardService scoreboardService, GameWorld gameWorld)
+        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService)
     {
         _text3DService = text3DService;
         this.boneAttachService = boneAttachService;
@@ -34,6 +36,7 @@ internal class TestLogic
         this.chatBox = chatBox;
         this.scoreboardService = scoreboardService;
         this.gameWorld = gameWorld;
+        this.clientElementsService = clientElementsService;
         var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns");
         Task.Run(async () =>
         {
@@ -57,6 +60,7 @@ internal class TestLogic
         commandService.AddCommand("car").Triggered += HandleCarCommand;
         commandService.AddCommand("scoreboard").Triggered += HandleScoreboard;
         commandService.AddCommand("day").Triggered += HandleDay;
+        commandService.AddCommand("clientelements").Triggered += HandleClientsElements;
 
         watermarkService.SetContent("Sample server, version: 1");
 
@@ -222,4 +226,17 @@ internal class TestLogic
         }
     }
 
+    private IEnumerable<Element> CreateExampleElements(Player player)
+    {
+        for(int i = 0 ; i < 10; i++)
+            yield return new WorldObject(Server.Enums.ObjectModel.BinNt07LA, player.Position with { X = player.Position.X + i + 3 });
+        for(int i = 0 ; i < 10; i++)
+            yield return new Blip(player.Position with { X = player.Position.X + i * 20 + 3 }, BlipIcon.Airyard, 5000, 0);
+    }
+
+    private async void HandleClientsElements(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        using var _ = clientElementsService.CreateFor(e.Player, CreateExampleElements(e.Player));
+        await Task.Delay(2000);
+    }
 }

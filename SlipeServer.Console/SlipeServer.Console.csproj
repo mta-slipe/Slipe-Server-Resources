@@ -20,6 +20,7 @@
     <ProjectReference Include="..\SlipeServer.Resource.Scoreboard\SlipeServer.Resources.Scoreboard.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.Base\SlipeServer.Resources.Base.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.BoneAttach\SlipeServer.Resources.BoneAttach.csproj" />
+    <ProjectReference Include="..\SlipeServer.Resources.ClientElements\SlipeServer.Resources.ClientElements.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.DGS\SlipeServer.Resources.DGS.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.Parachute\SlipeServer.Resources.Parachute.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.PedIntelligence\SlipeServer.Resources.PedIntelligence.csproj" />
