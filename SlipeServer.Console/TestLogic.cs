@@ -1,6 +1,7 @@
 ﻿using SlipeServer.Packets.Enums;
 using SlipeServer.Resources.BoneAttach;
 using SlipeServer.Resources.ClientElements;
+using SlipeServer.Resources.DiscordRichPresence;
 using SlipeServer.Resources.PedIntelligence;
 using SlipeServer.Resources.PedIntelligence.Exceptions;
 using SlipeServer.Resources.PedIntelligence.Interfaces;
@@ -24,10 +25,11 @@ internal class TestLogic
     private readonly ScoreboardService scoreboardService;
     private readonly GameWorld gameWorld;
     private readonly ClientElementsService clientElementsService;
+    private readonly DiscordRichPresenceService discordRichPresenceService;
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
         BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelligenceService pedIntelliganceService, ChatBox chatBox,
-        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService)
+        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService, DiscordRichPresenceService discordRichPresenceService)
     {
         _text3DService = text3DService;
         this.boneAttachService = boneAttachService;
@@ -37,6 +39,7 @@ internal class TestLogic
         this.scoreboardService = scoreboardService;
         this.gameWorld = gameWorld;
         this.clientElementsService = clientElementsService;
+        this.discordRichPresenceService = discordRichPresenceService;
         var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns");
         Task.Run(async () =>
         {
@@ -61,6 +64,8 @@ internal class TestLogic
         commandService.AddCommand("scoreboard").Triggered += HandleScoreboard;
         commandService.AddCommand("day").Triggered += HandleDay;
         commandService.AddCommand("clientelements").Triggered += HandleClientsElements;
+        commandService.AddCommand("discordrichpresence").Triggered += HandleDiscordRichPresence;
+        commandService.AddCommand("discordrichpresenceall").Triggered += HandleDiscordRichPresenceAll;
 
         watermarkService.SetContent("Sample server, version: 1");
 
@@ -73,6 +78,39 @@ internal class TestLogic
         testObstacle1.Rotation = new Vector3(0, 0, 45);
         var testObstacle2 = new WorldObject(1468, new Vector3(10.70f, 4.17f, 3.11f)).AssociateWith(mtaServer);
         testObstacle2.Rotation = new Vector3(0, 0, 45);
+
+        discordRichPresenceService.RichPresenceReady += DiscordRichPresenceService_RichPresenceChanged;
+    }
+
+    private void DiscordRichPresenceService_RichPresenceChanged(Player player)
+    {
+        this.chatBox.Output($"Discord rich presence ready: {player.Name}");
+    }
+
+    private void HandleDiscordRichPresence(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        var player = e.Player;
+        chatBox.OutputTo(player, $"Rich presence ready: {discordRichPresenceService.IsRichPresenceAllowed(player)}");
+        discordRichPresenceService.SetState(player, "In-Game");
+        discordRichPresenceService.SetDetails(player, "Hello c#");
+        discordRichPresenceService.SetAsset(player, "big_mreow", "mr. mreow");
+        discordRichPresenceService.SetSmallAsset(player, "big_mreow", "mr. mreow junior");
+        discordRichPresenceService.SetButton(player, DiscordRichPresenceButton.Upper, "upper", new Uri("https://www.google.com"));
+        discordRichPresenceService.SetButton(player, DiscordRichPresenceButton.Lower, "lower", new Uri("https://www.google.com"));
+        //discordRichPresenceService.SetPartySize(player, 420, 1337);
+        //discordRichPresenceService.SetStartTime(player, 4201337);
+    }
+    
+    private void HandleDiscordRichPresenceAll(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        discordRichPresenceService.SetState("In-Game");
+        discordRichPresenceService.SetDetails("Hello c#");
+        discordRichPresenceService.SetAsset("big_mreow", "mr. mreow");
+        discordRichPresenceService.SetSmallAsset("big_mreow", "mr. mreow junior");
+        discordRichPresenceService.SetButton(DiscordRichPresenceButton.Upper, "upper", new Uri("https://www.google.com"));
+        discordRichPresenceService.SetButton(DiscordRichPresenceButton.Lower, "lower", new Uri("https://www.google.com"));
+        //discordRichPresenceService.SetPartySize(420, 1337);
+        //discordRichPresenceService.SetStartTime(4201337);
     }
 
     private int sampleText3d = 0;

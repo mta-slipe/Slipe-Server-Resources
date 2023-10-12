@@ -24,6 +24,7 @@ using System.Numerics;
 using System.Threading;
 using SlipeServer.Resources.Scoreboard;
 using SlipeServer.Resources.ClientElements;
+using SlipeServer.Resources.DiscordRichPresence;
 
 namespace SlipeServer.Console;
 
@@ -62,8 +63,9 @@ public partial class Program
 
     public Program(string[] args)
     {
-        this.configuration = new Configuration()
+        this.configuration = new Configuration
         {
+            HttpPort = 22005,
             IsVoiceEnabled = true
         };
 
@@ -102,6 +104,10 @@ public partial class Program
                 builder.AddScoreboard();
                 builder.AddBoneAttachResource(BoneAttachVersion.Release_1_2_0);
                 builder.AddClientElementsResource();
+                builder.AddDiscordRichPresenceResource(new DiscordRichPresenceOptions
+                {
+                    ApplicationId = 1162033070740869120
+                });
 
                 builder.AddLogic<TestLogic>();
             }
