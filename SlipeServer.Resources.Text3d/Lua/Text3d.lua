@@ -52,25 +52,28 @@ end)
 local function render()
 	local cx,cy,cz = getCameraMatrix()
 	local x,y,z, sx,sy, distance, ignoredElement;
+	local interior, dimension = getElementInterior(localPlayer), getElementDimension(localPlayer)
 	for id, text in pairs(texts)do
-		if(text.position)then
-			x,y,z = text.position[1], text.position[2], text.position[3]
-		elseif(text.element)then
-			if(text.element and isElement(text.element))then
-				x,y,z = getElementPosition(text.element)
-			else
-				x = false
-				texts[id] = nil;
+		if(text.interior == interior and text.dimension == dimension)then
+			if(text.position)then
+				x,y,z = text.position[1], text.position[2], text.position[3]
+			elseif(text.element)then
+				if(text.element and isElement(text.element))then
+					x,y,z = getElementPosition(text.element)
+				else
+					x = false
+					texts[id] = nil;
+				end
 			end
-		end
-		if(x)then
-			distance = getDistanceBetweenPoints3D(x,y,z, cx,cy,cz);
-			if(distance < text.distance)then
-				ignoredElement = getPedOccupiedVehicle(localPlayer) or localPlayer
-				if(isLineOfSightClear(x,y,z, cx,cy,cz, true, true, true, true, true, false, false, localPlayer))then
-					sx, sy = getScreenFromWorldPosition(x,y,z)
-					if(sx and sy)then
-						dxDrawText(text.text, sx, sy, sx, sy, tocolor(text.color[1],text.color[2], text.color[3], text.color[4]), text.fontSize, "default", "center", "center");
+			if(x)then
+				distance = getDistanceBetweenPoints3D(x,y,z, cx,cy,cz);
+				if(distance < text.distance)then
+					ignoredElement = getPedOccupiedVehicle(localPlayer) or localPlayer
+					if(isLineOfSightClear(x,y,z, cx,cy,cz, true, true, true, true, true, false, false, localPlayer))then
+						sx, sy = getScreenFromWorldPosition(x,y,z)
+						if(sx and sy)then
+							dxDrawText(text.text, sx, sy, sx, sy, tocolor(text.color[1],text.color[2], text.color[3], text.color[4]), text.fontSize, "default", "center", "center");
+						end
 					end
 				end
 			end

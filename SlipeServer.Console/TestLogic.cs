@@ -40,6 +40,8 @@ internal class TestLogic
         this.gameWorld = gameWorld;
         this.clientElementsService = clientElementsService;
         this.discordRichPresenceService = discordRichPresenceService;
+        var textDim = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "dimension 1, interior 0", dimension: 1);
+        var textInt = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "dimension 0, interior 1", interior: 1);
         var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns");
         Task.Run(async () =>
         {
@@ -66,6 +68,8 @@ internal class TestLogic
         commandService.AddCommand("clientelements").Triggered += HandleClientsElements;
         commandService.AddCommand("discordrichpresence").Triggered += HandleDiscordRichPresence;
         commandService.AddCommand("discordrichpresenceall").Triggered += HandleDiscordRichPresenceAll;
+        commandService.AddCommand("interior").Triggered += HandleInterior;
+        commandService.AddCommand("dimension").Triggered += HandleDimension;
 
         watermarkService.SetContent("Sample server, version: 1");
 
@@ -101,6 +105,18 @@ internal class TestLogic
         //discordRichPresenceService.SetStartTime(player, 4201337);
     }
     
+    private void HandleInterior(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        var player = e.Player;
+        player.Interior = player.Interior == 1 ? (byte)0 : (byte)1;
+
+    }
+    private void HandleDimension(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        var player = e.Player;
+        player.Dimension = player.Dimension == 1 ? (ushort)0 : (ushort)1;
+    }
+
     private void HandleDiscordRichPresenceAll(object? sender, Server.Events.CommandTriggeredEventArgs e)
     {
         discordRichPresenceService.SetState("In-Game");
