@@ -2,6 +2,7 @@
 using SlipeServer.Resources.BoneAttach;
 using SlipeServer.Resources.ClientElements;
 using SlipeServer.Resources.DiscordRichPresence;
+using SlipeServer.Resources.NoClip;
 using SlipeServer.Resources.PedIntelligence;
 using SlipeServer.Resources.PedIntelligence.Exceptions;
 using SlipeServer.Resources.PedIntelligence.Interfaces;
@@ -26,10 +27,11 @@ internal class TestLogic
     private readonly GameWorld gameWorld;
     private readonly ClientElementsService clientElementsService;
     private readonly DiscordRichPresenceService discordRichPresenceService;
+    private readonly NoClipService noClipService;
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
         BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelligenceService pedIntelliganceService, ChatBox chatBox,
-        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService, DiscordRichPresenceService discordRichPresenceService)
+        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService, DiscordRichPresenceService discordRichPresenceService, NoClipService noClipService)
     {
         _text3DService = text3DService;
         this.boneAttachService = boneAttachService;
@@ -40,6 +42,7 @@ internal class TestLogic
         this.gameWorld = gameWorld;
         this.clientElementsService = clientElementsService;
         this.discordRichPresenceService = discordRichPresenceService;
+        this.noClipService = noClipService;
         var textDim = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "dimension 1, interior 0", dimension: 1);
         var textInt = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "dimension 0, interior 1", interior: 1);
         var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns");
@@ -70,6 +73,8 @@ internal class TestLogic
         commandService.AddCommand("discordrichpresenceall").Triggered += HandleDiscordRichPresenceAll;
         commandService.AddCommand("interior").Triggered += HandleInterior;
         commandService.AddCommand("dimension").Triggered += HandleDimension;
+        commandService.AddCommand("noclip").Triggered += HandleNoClip;
+        commandService.AddCommand("noclipsetposition").Triggered += HandleNoClipSetPosition;
 
         watermarkService.SetContent("Sample server, version: 1");
 
@@ -84,6 +89,18 @@ internal class TestLogic
         testObstacle2.Rotation = new Vector3(0, 0, 45);
 
         discordRichPresenceService.RichPresenceReady += DiscordRichPresenceService_RichPresenceChanged;
+    }
+
+    private bool enabled = false;
+    private void HandleNoClip(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        enabled = !enabled;
+        noClipService.SetEnabledTo(e.Player, enabled);
+    }
+    
+    private void HandleNoClipSetPosition(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        noClipService.SetPosition(e.Player, new Vector3(0,0,10));
     }
 
     private void DiscordRichPresenceService_RichPresenceChanged(Player player)

@@ -3,6 +3,8 @@
     horizontalSpeed = 0.2
 }
 
+local abx, aby, abz;
+
 local function putPlayerInPosition(timeslice)
     if isChatBoxInputActive() or isConsoleActive() or isMainMenuActive() or isTransferBoxActive() then
         return
@@ -82,8 +84,16 @@ function setNoClipEnabled(enabled)
     end
 end
 
+function setNoClipPosition(x,y,z)
+    abx, aby, abz = x,y,z;
+    setElementPosition(localPlayer, x,y,z);
+end
+
 addEvent("internalSetNoClipEnabled", true)
 addEventHandler("internalSetNoClipEnabled", localPlayer, setNoClipEnabled)
+
+addEvent("internalSetNoClipPosition", true)
+addEventHandler("internalSetNoClipPosition", localPlayer, setNoClipPosition)
 
 addEvent("internalUpdateConfiguration", true)
 addEventHandler("internalUpdateConfiguration", localPlayer, function(upDown, speed)

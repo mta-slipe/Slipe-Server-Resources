@@ -1,5 +1,6 @@
 ﻿using SlipeServer.Server;
 using SlipeServer.Server.Elements;
+using System.Numerics;
 
 namespace SlipeServer.Resources.NoClip;
 
@@ -19,6 +20,13 @@ internal class NoClipLogic
 
         _resource = _server.GetAdditionalResource<NoClipResource>();
         _noClipService.NoClipStateChanged += SetNoClipEnabled;
+        _noClipService.PositionChanged += HandlePositionChanged;
+    }
+
+    private void HandlePositionChanged(Player player, Vector3 position)
+    {
+        if (_noClipPlayers.Contains(player))
+            player.TriggerLuaEvent("internalSetNoClipPosition", player, position.X, position.Y, position.Z);
     }
 
     private void SetNoClipEnabled(Player player, bool enabled)
