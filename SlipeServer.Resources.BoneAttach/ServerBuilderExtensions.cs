@@ -17,7 +17,7 @@ public static class ServerBuilderExtensions
             }
             catch (Exception ex)
             {
-                server.GetRequiredService<ILogger>().LogError(ex, "Failed to add DGS resource");
+                server.GetRequiredService<ILogger>().LogError(ex, "Failed to add BoneAttach resource");
             }
         });
 
