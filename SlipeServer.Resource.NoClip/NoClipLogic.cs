@@ -60,11 +60,11 @@ internal class NoClipLogic
         if (options.Bind != null)
         {
             player.SetBind(options.Bind, Server.Elements.Enums.KeyState.Up);
-            player.BindExecuted += Player_BindExecuted;
+            player.BindExecuted += HandleBindExecuted;
         }
     }
 
-    private void Player_BindExecuted(Player player, Server.Elements.Events.PlayerBindExecutedEventArgs e)
+    private void HandleBindExecuted(Player player, Server.Elements.Events.PlayerBindExecutedEventArgs e)
     {
         if (e.Key == _resource.Options.Bind && e.KeyState == Server.Elements.Enums.KeyState.Up)
         {
