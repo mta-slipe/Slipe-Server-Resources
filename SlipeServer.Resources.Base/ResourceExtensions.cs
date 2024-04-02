@@ -38,7 +38,7 @@ public static class ResourceExtensions
 
                     if (extension is ".lua" && obfuscateSources)
                     {
-                        //path = Path.ChangeExtension(path, ".luac");
+                        path = Path.ChangeExtension(path, ".luac");
                         content = ResourcesHelper.Obfuscate(httpClient ?? new(), content, path).Result;
                     }
 

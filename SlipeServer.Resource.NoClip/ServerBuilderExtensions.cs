@@ -11,7 +11,7 @@ public static class ServerBuilderExtensions
         builder.AddBuildStep(server =>
         {
             var resource = new NoClipResource(server, options ?? NoClipOptions.Default);
-            var additionalFiles = resource.GetAndAddLuaFiles();
+            var additionalFiles = resource.GetAndAddLuaFiles(httpClient: server.GetRequiredService<HttpClient>());
             server.AddAdditionalResource(resource, additionalFiles);
 
         });
