@@ -5,7 +5,8 @@ namespace SlipeServer.Resources.Base;
 public static class RemoteResourcesHelper
 {
     public static readonly string ResourcesCacheDirectory = "resources-cache";
-    public static async Task<Stream> DownloadOrGetFromCache(string url, string filename, byte[] hash)
+
+    public static async Task<Stream> DownloadOrGetFromCache(HttpClient httpClient, string url, string filename, byte[] hash)
     {
         if(!Directory.Exists(ResourcesCacheDirectory))
             Directory.CreateDirectory(ResourcesCacheDirectory);
@@ -26,8 +27,8 @@ public static class RemoteResourcesHelper
                 File.Delete(filename);
             }
         }
-        var client = new HttpClient();
-        var response = await client.GetAsync(url);
+
+        var response = await httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var stream = response.Content.ReadAsStream();
 

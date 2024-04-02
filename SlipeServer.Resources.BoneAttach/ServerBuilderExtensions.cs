@@ -6,18 +6,18 @@ namespace SlipeServer.Resources.BoneAttach;
 
 public static class ServerBuilderExtensions
 {
-    public static void AddBoneAttachResource(this ServerBuilder builder, BoneAttachVersion version)
+    public static void AddBoneAttachResource(this ServerBuilder builder, BoneAttachVersion version, HttpClient? httpClient = null)
     {
         builder.AddBuildStep(server =>
         {
             try
             {
-                var resource = new BoneAttachResource(server, version);
+                var resource = new BoneAttachResource(server, version, httpClient ?? server.GetRequiredService<HttpClient>());
                 server.AddAdditionalResource(resource, resource.AdditionalFiles);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                server.GetRequiredService<ILogger>().LogError(ex, "Failed to add BoneAttach resource");
+                server.GetRequiredService<ILogger>().LogError(ex, "Failed to add DGS resource");
             }
         });
 

@@ -20,17 +20,17 @@ internal class DGSResource : Resource
     private readonly DGSVersion version;
     private readonly DGSStyle? dgsStyle;
 
-    internal DGSResource(MtaServer server, DGSVersion version, DGSStyle? dgsStyle = null)
+    internal DGSResource(MtaServer server, DGSVersion version, DGSStyle? dgsStyle = null, HttpClient? httpClient = null)
         : base(server, server.GetRequiredService<RootElement>(), "dgs")
     {
         this.version = version;
         this.dgsStyle = dgsStyle;
-        DownloadDGS().Wait();
+        DownloadDGS(httpClient ?? new()).Wait();
         //Root.SetData("DGSI_FileInfo", DGSRecordedFiles, DataSyncType.Broadcast);
         server.PlayerJoined += Server_PlayerJoined;
     }
 
-    private async Task DownloadDGS()
+    private async Task DownloadDGS(HttpClient httpClient)
     {
         string? customStyle = dgsStyle?.ToString();
 
@@ -48,7 +48,7 @@ internal class DGSResource : Resource
         var versionString = versionAndChecksum.Item1;
         var downloadPath = $"https://github.com/thisdp/dgs/archive/refs/tags/{versionString}.zip";
 
-        using var file = await RemoteResourcesHelper.DownloadOrGetFromCache(downloadPath, $"dgs-{versionString}.zip", versionAndChecksum.Item2);
+        using var file = await RemoteResourcesHelper.DownloadOrGetFromCache(httpClient, downloadPath, $"dgs-{versionString}.zip", versionAndChecksum.Item2);
 
         using var zip = new ZipArchive(file, ZipArchiveMode.Read);
         var metaXmlEntry = zip.GetEntry($"dgs-{versionString}/meta.xml");
