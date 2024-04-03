@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SlipeServer.Resources.Base;
 using SlipeServer.Server.ServerBuilders;
 
 namespace SlipeServer.Resources.NoClip;
@@ -10,7 +11,9 @@ public static class ServerBuilderExtensions
         builder.AddBuildStep(server =>
         {
             var resource = new NoClipResource(server, options ?? NoClipOptions.Default);
-            server.AddAdditionalResource(resource, resource.AdditionalFiles);
+            var additionalFiles = resource.GetAndAddLuaFiles(httpClient: server.GetRequiredService<HttpClient>());
+            server.AddAdditionalResource(resource, additionalFiles);
+
         });
 
         builder.ConfigureServices(services =>

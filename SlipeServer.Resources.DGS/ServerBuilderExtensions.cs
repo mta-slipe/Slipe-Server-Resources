@@ -6,13 +6,13 @@ namespace SlipeServer.Resources.DGS;
 
 public static class ServerBuilderExtensions
 {
-    public static void AddDGSResource(this ServerBuilder builder, DGSVersion version, DGSStyle? dgsStyle = null)
+    public static void AddDGSResource(this ServerBuilder builder, DGSVersion version, DGSStyle? dgsStyle = null, HttpClient? httpClient = null)
     {
         builder.AddBuildStep(server =>
         {
             try
             {
-                var resource = new DGSResource(server, version, dgsStyle);
+                var resource = new DGSResource(server, version, dgsStyle, httpClient ?? server.GetRequiredService<HttpClient>());
                 server.AddAdditionalResource(resource, resource.AdditionalFiles);
             }
             catch (Exception ex)

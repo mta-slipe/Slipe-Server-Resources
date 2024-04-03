@@ -17,17 +17,17 @@ internal class BoneAttachResource : Resource
     internal Dictionary<string, byte[]> AdditionalFiles { get; } = new();
     private readonly BoneAttachVersion version;
 
-    internal BoneAttachResource(MtaServer server, BoneAttachVersion version)
+    internal BoneAttachResource(MtaServer server, BoneAttachVersion version, HttpClient? httpClient = null)
         : base(server, server.GetRequiredService<RootElement>(), "boneAttach")
     {
         this.version = version;
 
-        DownloadBoneAttach().Wait();
+        DownloadBoneAttach(httpClient ?? new()).Wait();
         //Root.SetData("DGSI_FileInfo", DGSRecordedFiles, DataSyncType.Broadcast);
         //server.PlayerJoined += Server_PlayerJoined;
     }
 
-    private async Task DownloadBoneAttach()
+    private async Task DownloadBoneAttach(HttpClient httpClient)
     {
         var versionAndChecksum = version switch
         {
@@ -37,7 +37,7 @@ internal class BoneAttachResource : Resource
         var versionString = versionAndChecksum.Item1;
         var downloadPath = $"https://github.com/Patrick2562/mtasa-pAttach/releases/download/{versionString}/pAttach-{versionString}.zip";
 
-        using var file = await RemoteResourcesHelper.DownloadOrGetFromCache(downloadPath, $"pAttach-{versionString}.zip", versionAndChecksum.Item2);
+        using var file = await RemoteResourcesHelper.DownloadOrGetFromCache(httpClient, downloadPath, $"pAttach-{versionString}.zip", versionAndChecksum.Item2);
 
         using var zip = new ZipArchive(file, ZipArchiveMode.Read);
         var metaXmlEntry = zip.GetEntry($"pAttach/meta.xml");
