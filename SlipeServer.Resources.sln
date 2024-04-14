@@ -34,7 +34,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlipeServer.Resources.Score
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlipeServer.Resources.ClientElements", "SlipeServer.Resources.ClientElements\SlipeServer.Resources.ClientElements.csproj", "{72FBB8E1-4F65-4B09-8C11-DE16B733FA48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlipeServer.Resources.DiscordRichPresence", "SlipeServer.Resources.DiscordRichPresence\SlipeServer.Resources.DiscordRichPresence.csproj", "{EE94A6FD-A127-406F-B88D-F71CC0D00767}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlipeServer.Resources.DiscordRichPresence", "SlipeServer.Resources.DiscordRichPresence\SlipeServer.Resources.DiscordRichPresence.csproj", "{EE94A6FD-A127-406F-B88D-F71CC0D00767}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlipeServer.Resources.Screenshots", "SlipeServer.Resources.Screenshots\SlipeServer.Resources.Screenshots.csproj", "{26D58D6A-01F9-455E-9D50-3C2D103B496B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -94,6 +96,10 @@ Global
 		{EE94A6FD-A127-406F-B88D-F71CC0D00767}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE94A6FD-A127-406F-B88D-F71CC0D00767}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE94A6FD-A127-406F-B88D-F71CC0D00767}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26D58D6A-01F9-455E-9D50-3C2D103B496B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26D58D6A-01F9-455E-9D50-3C2D103B496B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26D58D6A-01F9-455E-9D50-3C2D103B496B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26D58D6A-01F9-455E-9D50-3C2D103B496B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

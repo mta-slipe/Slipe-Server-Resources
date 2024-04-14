@@ -7,12 +7,14 @@ using SlipeServer.Resources.PedIntelligence;
 using SlipeServer.Resources.PedIntelligence.Exceptions;
 using SlipeServer.Resources.PedIntelligence.Interfaces;
 using SlipeServer.Resources.Scoreboard;
+using SlipeServer.Resources.Screenshots;
 using SlipeServer.Resources.Text3d;
 using SlipeServer.Resources.Watermark;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Services;
 using System.Numerics;
+using System.Text;
 
 namespace SlipeServer.Console;
 
@@ -31,7 +33,7 @@ internal class TestLogic
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
         BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelligenceService pedIntelliganceService, ChatBox chatBox,
-        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService, DiscordRichPresenceService discordRichPresenceService, NoClipService noClipService)
+        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService, DiscordRichPresenceService discordRichPresenceService, NoClipService noClipService, ScreenshotsService screenshotsService)
     {
         _text3DService = text3DService;
         this.boneAttachService = boneAttachService;
@@ -89,6 +91,17 @@ internal class TestLogic
         testObstacle2.Rotation = new Vector3(0, 0, 45);
 
         discordRichPresenceService.RichPresenceReady += DiscordRichPresenceService_RichPresenceChanged;
+        screenshotsService.ScreenshotTaken += HandleScreenshotTaken;
+    }
+
+    private void HandleScreenshotTaken(Player player, byte[] data, ScreenshotSource screenshotSource)
+    {
+        System.Console.WriteLine("Screenshot taken");
+
+        if (!Directory.Exists("screenshots"))
+            Directory.CreateDirectory("screenshots");
+
+        File.WriteAllBytes($"screenshots/{Guid.NewGuid()}.png", data);
     }
 
     private bool enabled = false;

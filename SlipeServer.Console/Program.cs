@@ -25,6 +25,7 @@ using System.Threading;
 using SlipeServer.Resources.Scoreboard;
 using SlipeServer.Resources.ClientElements;
 using SlipeServer.Resources.DiscordRichPresence;
+using SlipeServer.Resources.Screenshots;
 
 namespace SlipeServer.Console;
 
@@ -108,6 +109,7 @@ public partial class Program
                 {
                     ApplicationId = 1162033070740869120
                 });
+                builder.AddScreenshotsResource();
 
                 builder.AddLogic<TestLogic>();
             }
@@ -133,6 +135,7 @@ public partial class Program
         player.Camera.Target = player;
         player.Camera.Fade(CameraFade.In);
         player.AddWeapon(Server.Enums.WeaponId.Parachute, 1, true);
+        player.AddWeapon(Server.Enums.WeaponId.Camera, 500, true);
         player.AddWeapon(Server.Enums.WeaponId.M4, 500, false);
 
         var chatBox = this.server.GetRequiredService<ChatBox>();
