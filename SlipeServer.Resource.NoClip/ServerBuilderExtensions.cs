@@ -13,13 +13,15 @@ public static class ServerBuilderExtensions
             var resource = new NoClipResource(server, options ?? NoClipOptions.Default);
             var additionalFiles = resource.GetAndAddLuaFiles(httpClient: server.GetRequiredService<HttpClient>());
             server.AddAdditionalResource(resource, additionalFiles);
-
+            resource.AddLuaEventHub<INoClipEventHub>();
         });
 
         builder.ConfigureServices(services =>
         {
             services.AddSingleton<NoClipService>();
         });
+
+        builder.AddLuaEventHub<INoClipEventHub, NoClipResource>();
 
         builder.AddLogic<NoClipLogic>();
     }

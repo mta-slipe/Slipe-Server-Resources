@@ -54,7 +54,7 @@ local function putPlayerInPosition(timeslice)
     end
 end
 
-function setNoClipEnabled(enabled)
+function handleSetEnabled(enabled)
     if enabled then
         if isPedInVehicle(getLocalPlayer()) then
             local vehicle = getPedOccupiedVehicle(getLocalPlayer())
@@ -84,19 +84,18 @@ function setNoClipEnabled(enabled)
     end
 end
 
-function setNoClipPosition(x,y,z)
+function handleSetPosition(x,y,z)
     abx, aby, abz = x,y,z;
     setElementPosition(localPlayer, x,y,z);
 end
 
-addEvent("internalSetNoClipEnabled", true)
-addEventHandler("internalSetNoClipEnabled", localPlayer, setNoClipEnabled)
-
-addEvent("internalSetNoClipPosition", true)
-addEventHandler("internalSetNoClipPosition", localPlayer, setNoClipPosition)
-
-addEvent("internalUpdateConfiguration", true)
-addEventHandler("internalUpdateConfiguration", localPlayer, function(upDown, speed)
+function handleUpdateConfiguration(upDown, speed)
     config.upDown = upDown
     config.speed = speed
+end
+
+addEventHandler("onClientResourceStart", resourceRoot, function()
+	hubBind("SetEnabled", handleSetEnabled)
+	hubBind("SetPosition", handleSetPosition)
+	hubBind("UpdateConfiguration", handleSetPosition)
 end)

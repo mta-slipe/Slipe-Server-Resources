@@ -1,4 +1,5 @@
-﻿using SlipeServer.Server;
+﻿using SlipeServer.Resources.Base;
+using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using System.Numerics;
 
@@ -8,14 +9,16 @@ internal class NoClipLogic
 {
     private readonly MtaServer _server;
     private readonly NoClipService _noClipService;
+    private readonly ILuaEventHub<INoClipEventHub> luaEventHub;
     private readonly NoClipResource _resource;
 
     private readonly HashSet<Player> _noClipPlayers = new();
 
-    public NoClipLogic(MtaServer server, NoClipService noClipService)
+    public NoClipLogic(MtaServer server, NoClipService noClipService, ILuaEventHub<INoClipEventHub> luaEventHub)
     {
         _server = server;
         _noClipService = noClipService;
+        this.luaEventHub = luaEventHub;
         server.PlayerJoined += HandlePlayerJoin;
 
         _resource = _server.GetAdditionalResource<NoClipResource>();
@@ -26,7 +29,7 @@ internal class NoClipLogic
     private void HandlePositionChanged(Player player, Vector3 position)
     {
         if (_noClipPlayers.Contains(player))
-            player.TriggerLuaEvent("internalSetNoClipPosition", player, position.X, position.Y, position.Z);
+            luaEventHub.Invoke(player, x => x.SetPosition(position.X, position.Y, position.Z));
     }
 
     private void SetNoClipEnabled(Player player, bool enabled)
@@ -45,7 +48,7 @@ internal class NoClipLogic
         }
 
         if (_noClipPlayers.Contains(player) == enabled)
-            player.TriggerLuaEvent("internalSetNoClipEnabled", player, enabled);
+            luaEventHub.Invoke(player, x => x.SetEnabled(enabled));
     }
 
     private void HandlePlayerJoin(Player player)
@@ -55,7 +58,7 @@ internal class NoClipLogic
         player.ResourceStarted += (player, @event) =>
         {
             if (@event.NetId == _resource.NetId)
-                player.TriggerLuaEvent("internalUpdateConfiguration", player, options.VerticalSpeed, options.HorizontalSpeed);
+                luaEventHub.Invoke(player, x => x.UpdateConfiguration(options.VerticalSpeed, options.HorizontalSpeed));
         };
         if (options.Bind != null)
         {
