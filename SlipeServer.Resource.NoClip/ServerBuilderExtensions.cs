@@ -18,11 +18,17 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<NoClipService>();
+            services.AddNoClipServices();
         });
 
         builder.AddLuaEventHub<INoClipEventHub, NoClipResource>();
 
         builder.AddLogic<NoClipLogic>();
+    }
+
+    public static IServiceCollection AddNoClipServices(this IServiceCollection services)
+    {
+        services.AddSingleton<NoClipService>();
+        return services;
     }
 }

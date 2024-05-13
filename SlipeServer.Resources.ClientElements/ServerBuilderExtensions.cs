@@ -15,9 +15,15 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<ClientElementsService>();
+            services.AddClientElementsServices();
         });
 
         builder.AddLogic<ClientElementsLogic>();
+    }
+
+    public static IServiceCollection AddClientElementsServices(this IServiceCollection services)
+    {
+        services.AddSingleton<ClientElementsService>();
+        return services;
     }
 }

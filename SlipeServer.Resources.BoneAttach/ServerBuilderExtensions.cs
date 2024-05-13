@@ -23,9 +23,15 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<BoneAttachService>();
+            services.AddBoneAttachServices();
         });
 
         builder.AddLogic<BoneAttachLogic>();
+    }
+
+    public static IServiceCollection AddBoneAttachServices(this IServiceCollection services)
+    {
+        services.AddSingleton<BoneAttachService>();
+        return services;
     }
 }

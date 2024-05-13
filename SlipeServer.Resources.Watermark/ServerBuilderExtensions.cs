@@ -15,9 +15,15 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<WatermarkService>();
+            services.AddWatermarkServices();
         });
 
         builder.AddLogic<WatermarkLogic>();
+    }
+
+    public static IServiceCollection AddWatermarkServices(this IServiceCollection services)
+    {
+        services.AddSingleton<WatermarkService>();
+        return services;
     }
 }

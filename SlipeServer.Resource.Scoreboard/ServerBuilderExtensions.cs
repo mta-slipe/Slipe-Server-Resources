@@ -15,9 +15,15 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<ScoreboardService>();
+            services.AddScoreboardServices();
         });
 
         builder.AddLogic<ScoreboardLogic>();
+    }
+
+    public static IServiceCollection AddScoreboardServices(this IServiceCollection services)
+    {
+        services.AddSingleton<ScoreboardService>();
+        return services;
     }
 }

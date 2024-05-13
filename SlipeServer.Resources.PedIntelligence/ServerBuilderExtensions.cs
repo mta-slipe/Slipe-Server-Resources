@@ -15,9 +15,15 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<PedIntelligenceService>();
+            services.AddPedIntelligenceServices();
         });
 
         builder.AddLogic<PedIntelligenceLogic>();
+    }
+
+    public static IServiceCollection AddPedIntelligenceServices(this IServiceCollection services)
+    {
+        services.AddSingleton<PedIntelligenceService>();
+        return services;
     }
 }

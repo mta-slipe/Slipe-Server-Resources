@@ -15,9 +15,15 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<Text3dService>();
+            services.AddText3dServices();
         });
 
         builder.AddLogic<Text3dLogic>();
+    }
+
+    public static IServiceCollection AddText3dServices(this IServiceCollection services)
+    {
+        services.AddSingleton<Text3dService>();
+        return services;
     }
 }

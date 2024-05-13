@@ -15,9 +15,15 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<DiscordRichPresenceService>();
+            services.AddDiscordRichPresenceServices();
         });
 
         builder.AddLogic<DiscordRichPresenceLogic>();
+    }
+
+    public static IServiceCollection AddDiscordRichPresenceServices(this IServiceCollection services)
+    {
+        services.AddSingleton<DiscordRichPresenceService>();
+        return services;
     }
 }

@@ -18,9 +18,15 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<ScreenshotsService>();
+            services.AddScreenshotsServices();
         });
 
         builder.AddLogic<ScreenshotsLogic>();
+    }
+
+    public static IServiceCollection AddScreenshotsServices(this IServiceCollection services)
+    {
+        services.AddSingleton<ScreenshotsService>();
+        return services;
     }
 }
