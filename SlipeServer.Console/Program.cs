@@ -70,7 +70,7 @@ public partial class Program
             IsVoiceEnabled = true
         };
 
-        this.server = MtaServer.Create(
+        this.server = MtaServer.Create<Player>(
             (builder) =>
             {
                 builder.UseConfiguration(this.configuration);
@@ -91,6 +91,7 @@ public partial class Program
 
                 builder.ConfigureServices(services =>
                 {
+                    services.AddHttpClient();
                     services.AddSingleton<ILogger, ConsoleLogger>();
                 });
 
