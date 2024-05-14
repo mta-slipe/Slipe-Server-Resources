@@ -12,7 +12,7 @@ internal class PedIntelligenceResource : Resource
     };
 
     internal PedIntelligenceResource(MtaServer server)
-        : base(server, server.GetRequiredService<RootElement>(), "PedIntelligence")
+        : base(server, server.RootElement, "PedIntelligence")
     {
         foreach (var (path, content) in AdditionalFiles)
             Files.Add(ResourceFileFactory.FromBytes(content, path));

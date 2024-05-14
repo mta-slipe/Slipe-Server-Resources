@@ -16,7 +16,7 @@ internal class ScoreboardResource : Resource
     internal ScoreboardOptions Options => _options;
 
     internal ScoreboardResource(MtaServer server, ScoreboardOptions options)
-        : base(server, server.GetRequiredService<RootElement>(), "Scoreboard")
+        : base(server, server.RootElement, "Scoreboard")
     {
         foreach (var (path, content) in AdditionalFiles)
             Files.Add(ResourceFileFactory.FromBytes(content, path));

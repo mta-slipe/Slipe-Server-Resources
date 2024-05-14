@@ -19,7 +19,7 @@ internal class WatermarkResource : Resource
     private readonly WatermarkService _watermarkService;
 
     internal WatermarkResource(MtaServer server)
-        : base(server, server.GetRequiredService<RootElement>(), "Watermark")
+        : base(server, server.RootElement, "Watermark")
     {
         foreach (var (path, content) in AdditionalFiles)
             Files.Add(ResourceFileFactory.FromBytes(content, path));

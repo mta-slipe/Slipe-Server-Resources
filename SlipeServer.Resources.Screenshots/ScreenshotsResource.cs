@@ -7,7 +7,7 @@ namespace SlipeServer.Resources.Screenshots;
 internal class ScreenshotsResource : Resource
 {
     internal ScreenshotsResource(MtaServer server)
-        : base(server, server.GetRequiredService<RootElement>(), "Screenshots")
+        : base(server, server.RootElement, "Screenshots")
     {
     }
 }

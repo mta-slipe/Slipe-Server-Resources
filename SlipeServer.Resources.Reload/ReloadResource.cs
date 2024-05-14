@@ -13,7 +13,7 @@ public class ReloadResource : Resource
     };
 
     public ReloadResource(MtaServer server)
-        : base(server, server.GetRequiredService<RootElement>(), "Reload")
+        : base(server, server.RootElement, "Reload")
     {
         using var md5 = MD5.Create();
 

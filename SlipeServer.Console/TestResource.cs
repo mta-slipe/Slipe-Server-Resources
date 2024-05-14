@@ -8,7 +8,7 @@ namespace SlipeServer.Console;
 
 public class TestResource : Resource
 {
-    public TestResource(MtaServer server) : base(server, server.GetRequiredService<RootElement>(), "TestResource")
+    public TestResource(MtaServer server) : base(server, server.RootElement, "TestResource")
     {
         NoClientScripts[$"{Name}/test.lua"] = EmbeddedResourceHelper.GetLuaFile("SlipeServer.Console.Test.lua", Assembly.GetExecutingAssembly());
     }

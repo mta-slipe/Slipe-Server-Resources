@@ -16,7 +16,7 @@ internal class DiscordRichPresenceResource : Resource
     internal DiscordRichPresenceOptions Options => _options;
 
     internal DiscordRichPresenceResource(MtaServer server, DiscordRichPresenceOptions options)
-        : base(server, server.GetRequiredService<RootElement>(), "DiscordRichPresence")
+        : base(server, server.RootElement, "DiscordRichPresence")
     {
         foreach (var (path, content) in AdditionalFiles)
             Files.Add(ResourceFileFactory.FromBytes(content, path));

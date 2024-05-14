@@ -11,7 +11,7 @@ internal class NoClipResource : Resource
     internal NoClipOptions Options => _options;
 
     internal NoClipResource(MtaServer server, NoClipOptions options)
-        : base(server, server.GetRequiredService<RootElement>(), "NoClip")
+        : base(server, server.RootElement, "NoClip")
     {
         _options = options;
     }

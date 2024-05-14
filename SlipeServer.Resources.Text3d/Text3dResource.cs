@@ -13,7 +13,7 @@ internal class Text3dResource : Resource
     };
 
     internal Text3dResource(MtaServer server)
-        : base(server, server.GetRequiredService<RootElement>(), "Text3d")
+        : base(server, server.RootElement, "Text3d")
     {
         foreach (var (path, content) in AdditionalFiles)
             Files.Add(ResourceFileFactory.FromBytes(content, path));

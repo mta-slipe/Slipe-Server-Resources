@@ -12,7 +12,7 @@ internal class ClientElementsResource : Resource
     };
 
     internal ClientElementsResource(MtaServer server)
-        : base(server, server.GetRequiredService<RootElement>(), "ClientElements")
+        : base(server, server.RootElement, "ClientElements")
     {
         foreach (var (path, content) in AdditionalFiles)
             Files.Add(ResourceFileFactory.FromBytes(content, path));
