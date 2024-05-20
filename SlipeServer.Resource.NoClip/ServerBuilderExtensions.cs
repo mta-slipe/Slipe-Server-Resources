@@ -21,13 +21,12 @@ public static class ServerBuilderExtensions
             services.AddNoClipServices();
         });
 
-        builder.AddLuaEventHub<INoClipEventHub, NoClipResource>();
-
         builder.AddLogic<NoClipLogic>();
     }
 
     public static IServiceCollection AddNoClipServices(this IServiceCollection services)
     {
+        services.AddLuaEventHub<INoClipEventHub, NoClipResource>();
         services.AddSingleton<NoClipService>();
         return services;
     }
