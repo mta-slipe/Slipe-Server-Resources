@@ -97,5 +97,5 @@ end
 addEventHandler("onClientResourceStart", resourceRoot, function()
 	hubBind("SetEnabled", handleSetEnabled)
 	hubBind("SetPosition", handleSetPosition)
-	hubBind("UpdateConfiguration", handleSetPosition)
+	hubBind("UpdateConfiguration", handleUpdateConfiguration)
 end)
