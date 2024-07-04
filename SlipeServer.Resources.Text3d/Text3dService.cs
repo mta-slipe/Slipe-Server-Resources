@@ -19,6 +19,7 @@ public class Text3dService
         public Color Color { get; set; } = Color.White;
         public byte Interior { get; set; }
         public ushort Dimension { get; set; }
+        public Vector2? Shadow { get; set; }
 
         public LuaValue LuaValue
         {
@@ -32,7 +33,8 @@ public class Text3dService
                     ["distance"] = Distance,
                     ["color"] = new LuaValue(new LuaValue[] { (int)Color.R, (int)Color.G, (int)Color.B, (int)Color.A }),
                     ["interior"] = (int)Interior,
-                    ["dimension"] = (int)Dimension
+                    ["dimension"] = (int)Dimension,
+                    ["shadow"] = Shadow == null ? LuaValue.Nil : new LuaValue([Shadow.Value.X, Shadow.Value.Y])
                 };
 
                 if (Position != null)
@@ -89,7 +91,7 @@ public class Text3dService
         };
     }
 
-    public int CreateText3d(Vector3 position, string text, float fontSize = 1.0f, float distance = 64.0f, Color? color = null, byte interior = 0, ushort dimension = 0)
+    public int CreateText3d(Vector3 position, string text, float fontSize = 1.0f, float distance = 64.0f, Color? color = null, byte interior = 0, ushort dimension = 0, Vector2? shadow = null)
     {
         AddText3d(new Text3d
         {
@@ -100,7 +102,8 @@ public class Text3dService
             Distance = distance,
             Color = color ?? Color.White,
             Interior = interior,
-            Dimension = dimension
+            Dimension = dimension,
+            Shadow = shadow
         });
         return _id++;
     }

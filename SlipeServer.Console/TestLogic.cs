@@ -47,7 +47,7 @@ internal class TestLogic
         this.noClipService = noClipService;
         var textDim = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "dimension 1, interior 0", dimension: 1);
         var textInt = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "dimension 0, interior 1", interior: 1);
-        var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns");
+        var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns", shadow: new Vector2(-1, -1));
         Task.Run(async () =>
         {
             while(true)

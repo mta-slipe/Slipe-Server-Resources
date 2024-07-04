@@ -72,6 +72,10 @@ local function render()
 					if(isLineOfSightClear(x,y,z, cx,cy,cz, true, true, true, true, true, false, false, localPlayer))then
 						sx, sy = getScreenFromWorldPosition(x,y,z)
 						if(sx and sy)then
+							if(text.shadow)then
+								local shadowX, shadowY = text.shadow[1], text.shadow[2];
+								dxDrawText(text.text, sx + shadowX, sy + shadowY, sx + shadowX, sy + shadowY, tocolor(0,0,0), text.fontSize, "default", "center", "center");
+							end
 							dxDrawText(text.text, sx, sy, sx, sy, tocolor(text.color[1],text.color[2], text.color[3], text.color[4]), text.fontSize, "default", "center", "center");
 						end
 					end
