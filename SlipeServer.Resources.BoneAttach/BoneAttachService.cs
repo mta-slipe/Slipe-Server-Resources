@@ -7,7 +7,7 @@ namespace SlipeServer.Resources.BoneAttach;
 
 public class BoneAttachService
 {
-    internal Action<Element, Ped, BoneId, Vector3?, Vector3?>? Attached;
+    internal Action<Element, Ped, BoneId, Vector3?, Vector3?, bool>? Attached;
     internal Action<Element>? Detached;
     internal Action<Ped>? DetachedAll;
     internal Action<Element, Vector3>? PositionOffsetChanged;
@@ -26,9 +26,9 @@ public class BoneAttachService
         ElementDetached?.Invoke(ped, element);
     }
 
-    public void Attach(Element element, Ped ped, BoneId boneId, Vector3? positionOffset = null, Vector3? rotationOffset = null)
+    public void Attach(Element element, Ped ped, BoneId boneId, Vector3? positionOffset = null, Vector3? rotationOffset = null, bool toggleCollision = true)
     {
-        Attached?.Invoke(element, ped, boneId, positionOffset, rotationOffset);
+        Attached?.Invoke(element, ped, boneId, positionOffset, rotationOffset, toggleCollision);
     }
 
     public void Detach(Element element)

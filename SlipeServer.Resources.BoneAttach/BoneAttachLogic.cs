@@ -78,7 +78,7 @@ internal class BoneAttachLogic
         HandleDetached(element);
     }
 
-    private void HandleAttached(Element element, Ped ped, BoneId boneId, Vector3? positionOffset, Vector3? rotationOffset)
+    private void HandleAttached(Element element, Ped ped, BoneId boneId, Vector3? positionOffset, Vector3? rotationOffset, bool toggleCollision = true)
     {
         var po = positionOffset.GetValueOrDefault();
         var ro = rotationOffset.GetValueOrDefault();

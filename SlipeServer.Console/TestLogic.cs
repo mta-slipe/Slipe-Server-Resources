@@ -116,9 +116,9 @@ internal class TestLogic
         noClipService.SetPosition(e.Player, new Vector3(0,0,10));
     }
 
-    private void DiscordRichPresenceService_RichPresenceChanged(Player player)
+    private void DiscordRichPresenceService_RichPresenceChanged(Player player, string? userId)
     {
-        this.chatBox.Output($"Discord rich presence ready: {player.Name}");
+        this.chatBox.Output($"Discord rich presence ready: {player.Name} userId {userId}");
     }
 
     private void HandleDiscordRichPresence(object? sender, Server.Events.CommandTriggeredEventArgs e)

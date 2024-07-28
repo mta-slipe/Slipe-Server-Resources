@@ -1,17 +1,27 @@
-﻿using SlipeServer.Server.Elements;
+﻿using SlipeServer.Resources.Base;
+using SlipeServer.Server.Elements;
 using SlipeServer.Server.Elements.Events;
+using System;
 using System.Collections.Concurrent;
 using System.Numerics;
+using static System.Net.Mime.MediaTypeNames;
 using System.Security.Policy;
+using System.Drawing;
 
 namespace SlipeServer.Resources.DiscordRichPresence;
 
 public class DiscordRichPresenceService
 {
-    public event Action<Player>? RichPresenceReady;
+    private readonly ILuaEventHub<IDiscordRichPresenceEventHub> _luaEventHub;
     private readonly ConcurrentDictionary<Player, bool> playersRichPresence = new();
+    public event Action<Player, string?>? RichPresenceReady;
 
-    internal void AddPlayer(Player player, bool canUseRichPresence)
+    public DiscordRichPresenceService(ILuaEventHub<IDiscordRichPresenceEventHub> luaEventHub)
+    {
+        _luaEventHub = luaEventHub;
+    }
+
+    internal void AddPlayer(Player player, bool canUseRichPresence, string? userId)
     {
         if (player.Client.IsConnected)
         {
@@ -22,7 +32,7 @@ public class DiscordRichPresenceService
             {
                 player.Disconnected += HandleDisconnected;
                 if(canUseRichPresence)
-                    RichPresenceReady?.Invoke(player);
+                    RichPresenceReady?.Invoke(player, userId);
             }
         }
     }
@@ -51,7 +61,7 @@ public class DiscordRichPresenceService
     public void SetState(Player player, string state)
     {
         ValidatePlayer(player);
-        player.TriggerLuaEvent("discordSetState", player, state);
+        _luaEventHub.Invoke(player, x => x.SetState(state));
     }
 
     /// <summary>
@@ -61,13 +71,16 @@ public class DiscordRichPresenceService
     public void SetState(string state)
     {
         foreach (var pair in playersRichPresence.Where(x => x.Value))
-            pair.Key.TriggerLuaEvent("discordSetState", pair.Key, state);
+        {
+            var player = pair.Key;
+            _luaEventHub.Invoke(pair.Key, x => x.SetState(state));
+        }
     }
 
     public void SetDetails(Player player, string details)
     {
         ValidatePlayer(player);
-        player.TriggerLuaEvent("discordSetDetails", player, details);
+        _luaEventHub.Invoke(player, x => x.SetDetails(details));
     }
 
     /// <summary>
@@ -77,13 +90,16 @@ public class DiscordRichPresenceService
     public void SetDetails(string details)
     {
         foreach (var pair in playersRichPresence.Where(x => x.Value))
-            pair.Key.TriggerLuaEvent("discordSetDetails", pair.Key, details);
+        {
+            var player = pair.Key;
+            _luaEventHub.Invoke(pair.Key, x => x.SetDetails(details));
+        }
     }
 
     public void SetAsset(Player player, string asset, string assetName)
     {
         ValidatePlayer(player);
-        player.TriggerLuaEvent("discordSetAsset", player, asset, assetName);
+        _luaEventHub.Invoke(player, x => x.SetAsset(asset, assetName));
     }
 
     /// <summary>
@@ -94,15 +110,18 @@ public class DiscordRichPresenceService
     public void SetAsset(string asset, string assetName)
     {
         foreach (var pair in playersRichPresence.Where(x => x.Value))
-            pair.Key.TriggerLuaEvent("discordSetAsset", pair.Key, asset, assetName);
+        {
+            var player = pair.Key;
+            _luaEventHub.Invoke(player, x => x.SetAsset(asset, assetName));
+        }
     }
 
     public void SetSmallAsset(Player player, string asset, string assetName)
     {
         ValidatePlayer(player);
-        player.TriggerLuaEvent("discordSetSmallAsset", player, asset, assetName);
+        _luaEventHub.Invoke(player, x => x.SetSmallAsset(asset, assetName));
     }
-    
+
     /// <summary>
     /// Set small asset for all players
     /// </summary>
@@ -112,13 +131,18 @@ public class DiscordRichPresenceService
     public void SetSmallAsset(string asset, string assetName)
     {
         foreach (var pair in playersRichPresence.Where(x => x.Value))
-            pair.Key.TriggerLuaEvent("discordSetSmallAsset", pair.Key, asset, assetName);
+        {
+            var player = pair.Key;
+            _luaEventHub.Invoke(player, x => x.SetSmallAsset(asset, assetName));
+        }
     }
 
     public void SetButton(Player player, DiscordRichPresenceButton discordRichPresenceButton, string text, Uri uri)
     {
         ValidatePlayer(player);
-        player.TriggerLuaEvent("discordSetButton", player, (int)discordRichPresenceButton, text, uri.ToString());
+        var index = (int)discordRichPresenceButton;
+        var url = uri.ToString();
+        _luaEventHub.Invoke(player, x => x.SetButton(index, text, url));
     }
 
     /// <summary>
@@ -130,8 +154,13 @@ public class DiscordRichPresenceService
     /// <param name="uri"></param>
     public void SetButton(DiscordRichPresenceButton discordRichPresenceButton, string text, Uri uri)
     {
+        var index = (int)discordRichPresenceButton;
+        var url = uri.ToString();
         foreach (var pair in playersRichPresence.Where(x => x.Value))
-            pair.Key.TriggerLuaEvent("discordSetButton", pair.Key, (int)discordRichPresenceButton, text, uri.ToString());
+        {
+            var player = pair.Key;
+            _luaEventHub.Invoke(player, x => x.SetButton(index, text, url));
+        }
     }
 
     public void SetPartySize(Player player, int size, int max)
@@ -140,7 +169,7 @@ public class DiscordRichPresenceService
             throw new ArgumentException(nameof(size));
 
         ValidatePlayer(player);
-        player.TriggerLuaEvent("discordSetPartySize", player, size, max);
+        _luaEventHub.Invoke(player, x => x.SetPartySize(size, max));
     }
 
     /// <summary>
@@ -155,7 +184,10 @@ public class DiscordRichPresenceService
             throw new ArgumentException(nameof(size));
 
         foreach (var pair in playersRichPresence.Where(x => x.Value))
-            pair.Key.TriggerLuaEvent("discordSetPartySize", pair.Key, size, max);
+        {
+            var player = pair.Key;
+            _luaEventHub.Invoke(player, x => x.SetPartySize(size, max));
+        }
     }
 
     public void SetStartTime(Player player, int seconds)
@@ -164,7 +196,7 @@ public class DiscordRichPresenceService
             throw new ArgumentException(nameof(seconds));
 
         ValidatePlayer(player);
-        player.TriggerLuaEvent("discordStartTime", player, seconds);
+        _luaEventHub.Invoke(player, x => x.StartTime(seconds));
     }
 
     /// <summary>
@@ -178,6 +210,9 @@ public class DiscordRichPresenceService
             throw new ArgumentException(nameof(seconds));
 
         foreach (var pair in playersRichPresence.Where(x => x.Value))
-            pair.Key.TriggerLuaEvent("discordStartTime", pair.Key, seconds);
+        {
+            var player = pair.Key;
+            _luaEventHub.Invoke(player, x => x.StartTime(seconds));
+        }
     }
 }

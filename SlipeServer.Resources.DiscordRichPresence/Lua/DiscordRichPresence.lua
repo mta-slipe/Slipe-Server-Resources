@@ -3,50 +3,58 @@ local applicationId;
 local function trySetApplicationId(retry)
 	local success = setDiscordApplicationID(applicationId);
 	if(success or not retry)then
-		triggerServerEvent("discordSetApplicationIdResult", resourceRoot, success);
+		triggerServerEvent("discordSetApplicationIdResult", resourceRoot, success, tostring(getDiscordRichPresenceUserID()));
 	end
 	if(not success)then
 		setTimer(trySetApplicationId, 1000 * 10, 1, trySetApplicationId, true)
 	end
 end
 
-addEvent("discordSetApplicationId", true)
-addEventHandler("discordSetApplicationId", localPlayer, function(gotApplicationId)
+function handleSetApplicationId(gotApplicationId)
 	applicationId = gotApplicationId;
 	trySetApplicationId();
-end)
+end
 
-addEvent("discordSetState", true)
-addEventHandler("discordSetState", localPlayer, function(state)
+function handleSetState(state)
+	iprint("handleSetState", state)
 	setDiscordRichPresenceState(state)
-end)
+end
 
-addEvent("discordSetDetails", true)
-addEventHandler("discordSetDetails", localPlayer, function(details)
+function handleSetDetails(details)
+	iprint("handleSetDetails", details)
 	setDiscordRichPresenceDetails(details)
-end)
+end
 
-addEvent("discordSetAsset", true)
-addEventHandler("discordSetAsset", localPlayer, function(asset, assetName)
+function handleSetAsset(asset, assetName)
+	iprint("handleSetAsset", asset, assetName)
 	setDiscordRichPresenceAsset(asset, assetName)
-end)
+end
 
-addEvent("discordSetSmallAsset", true)
-addEventHandler("discordSetSmallAsset", localPlayer, function(asset, assetName)
+function handleSetSmallAsset(asset, assetName)
+	iprint("handleSetSmallAsset", asset, assetName)
 	setDiscordRichPresenceSmallAsset(asset, assetName)
-end)
+end
 
-addEvent("discordSetButton", true)
-addEventHandler("discordSetButton", localPlayer, function(index, text, url)
+function handleSetButton(index, text, url)
+	iprint("handleSetButton", index, text, url)
 	setDiscordRichPresenceButton(index, text, url)
-end)
+end
 
-addEvent("discordSetPartySize", true)
-addEventHandler("discordSetPartySize", localPlayer, function(size, max)
+function handleSetPartySize(size, max)
 	setDiscordRichPresencePartySize(size, max)
-end)
+end
 
-addEvent("discordStartTime", true)
-addEventHandler("discordStartTime", localPlayer, function(seconds)
+function handleStartTime(seconds)
 	setDiscordRichPresenceStartTime(seconds)
+end
+
+addEventHandler("onClientResourceStart", resourceRoot, function()
+	hubBind("SetApplicationId", handleSetApplicationId)
+	hubBind("SetState", handleSetState)
+	hubBind("SetDetails", handleSetDetails)
+	hubBind("SetAsset", handleSetAsset)
+	hubBind("SetSmallAsset", handleSetSmallAsset)
+	hubBind("SetButton", handleSetButton)
+	hubBind("SetPartySize", handleSetPartySize)
+	hubBind("StartTime", handleStartTime)
 end)
