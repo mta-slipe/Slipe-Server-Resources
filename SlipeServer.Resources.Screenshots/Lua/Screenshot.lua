@@ -6,9 +6,8 @@ local function takeAndUploadScreenshot()
     setTimer(function()
         local pixels = dxGetTexturePixels(screenSource)
         if(string.len(pixels) > 10000)then -- when client disable upload image then pixels will contain approximatly 50x50 white box of size 4100bytes
-            local data = dxConvertPixels(pixels, 'png')
-            --triggerLatentServerEvent("internalUploadScreenshot", resourceRoot, base64Encode(data)) -- Uploading fails when raw data is send
-            triggerServerEvent("internalUploadCameraScreenshot", resourceRoot, base64Encode(data)) -- regular trigger because of bug in server implementation
+            local data = dxConvertPixels(pixels, 'jpeg')
+            triggerLatentServerEvent("internalUploadCameraScreenshot", 1024 * 1024, resourceRoot, base64Encode(data))
         else
             triggerServerEvent("internalFailedToUploadScreenshot", resourceRoot)
         end
