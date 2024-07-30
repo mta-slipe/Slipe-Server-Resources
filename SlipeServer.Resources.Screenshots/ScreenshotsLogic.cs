@@ -23,6 +23,7 @@ internal class ScreenshotsLogic
 
         this.resource = this.server.GetAdditionalResource<ScreenshotsResource>();
 
+        luaEventService.AddEventHandler("internalScreenshotUploadStarted", HandleScreenshotUploadStarted);
         luaEventService.AddEventHandler("internalUploadCameraScreenshot", HandleUploadCameraScreenshot);
         luaEventService.AddEventHandler("internalFailedToUploadScreenshot", HandleFailedToUploadScreenshot);
     }
@@ -31,13 +32,20 @@ internal class ScreenshotsLogic
     {
         this.screenshotsService.TriggerFailedToUploadScreenshot(luaEvent.Player);
     }
+    
+    private void HandleScreenshotUploadStarted(LuaEvent luaEvent)
+    {
+        var id = luaEvent.Parameters[0].IntegerValue;
+        this.screenshotsService.TriggerScreenshotUploadStarted(luaEvent.Player, id.Value);
+    }
 
     private void HandleUploadCameraScreenshot(LuaEvent luaEvent)
     {
-        var data = luaEvent.Parameters.FirstOrDefault();
-        byte[] decoded = Convert.FromBase64String(data.StringValue);
+        var id = luaEvent.Parameters[0].IntegerValue;
+        var data = luaEvent.Parameters[1].StringValue;
+        byte[] decoded = Convert.FromBase64String(data);
 
-        this.screenshotsService.TriggerScreenshotTaken(luaEvent.Player, decoded, ScreenshotSource.Camera);
+        this.screenshotsService.TriggerScreenshotTaken(luaEvent.Player, id.Value, decoded, ScreenshotSource.Camera);
     }
 
     private async void HandlePlayerJoin(Player player)

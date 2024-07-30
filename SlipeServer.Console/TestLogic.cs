@@ -92,17 +92,24 @@ internal class TestLogic
 
         discordRichPresenceService.RichPresenceReady += DiscordRichPresenceService_RichPresenceChanged;
         screenshotsService.ScreenshotTaken += HandleScreenshotTaken;
+        screenshotsService.ScreenshotUploadStarted += HandleScreenshotUploadStarted;
     }
 
-    private void HandleScreenshotTaken(Player player, byte[] data, ScreenshotSource screenshotSource)
+    private void HandleScreenshotTaken(Player player, int id, byte[] data, ScreenshotSource screenshotSource)
     {
-        System.Console.WriteLine("Screenshot taken");
+        System.Console.WriteLine("Screenshot taken {0}", id);
 
         if (!Directory.Exists("screenshots"))
             Directory.CreateDirectory("screenshots");
 
-        File.WriteAllBytes($"screenshots/{Guid.NewGuid()}.png", data);
+        File.WriteAllBytes($"screenshots/{Guid.NewGuid()}.jpeg", data);
     }
+
+    private void HandleScreenshotUploadStarted(Player player, int id)
+    {
+        System.Console.WriteLine("Screenshot upload started {0}", id);
+    }
+
 
     private bool enabled = false;
     private void HandleNoClip(object? sender, Server.Events.CommandTriggeredEventArgs e)

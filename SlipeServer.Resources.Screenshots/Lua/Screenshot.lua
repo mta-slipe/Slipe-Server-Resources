@@ -1,5 +1,6 @@
 ﻿local sx,sy = guiGetScreenSize();
-screenSource = dxCreateScreenSource ( sx, sy ) -- TODO: Add option to change size
+local id = 0;
+local screenSource = dxCreateScreenSource(sx, sy)
 
 local function takeAndUploadScreenshot()
     dxUpdateScreenSource(screenSource)
@@ -7,7 +8,9 @@ local function takeAndUploadScreenshot()
         local pixels = dxGetTexturePixels(screenSource)
         if(string.len(pixels) > 10000)then -- when client disable upload image then pixels will contain approximatly 50x50 white box of size 4100bytes
             local data = dxConvertPixels(pixels, 'jpeg')
-            triggerLatentServerEvent("internalUploadCameraScreenshot", 1024 * 1024, resourceRoot, base64Encode(data))
+            id = id + 1
+            triggerLatentServerEvent("internalUploadCameraScreenshot", 1024 * 1024, resourceRoot, id, base64Encode(data))
+            triggerServerEvent("internalScreenshotUploadStarted", resourceRoot, id)
         else
             triggerServerEvent("internalFailedToUploadScreenshot", resourceRoot)
         end
