@@ -107,6 +107,7 @@ public partial class Program
                 builder.AddScreenshotsResource();
 
                 builder.AddLogic<TestLogic>();
+                builder.AddLogic<HotReloadableLogic>();
             }
         );
 

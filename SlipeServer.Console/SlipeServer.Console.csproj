@@ -31,4 +31,10 @@
     <ProjectReference Include="..\SlipeServer.Resources.Watermark\SlipeServer.Resources.Watermark.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="HotReloadable.lua">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
