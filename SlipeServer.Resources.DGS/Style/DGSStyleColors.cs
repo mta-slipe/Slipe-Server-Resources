@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Text;
 
 namespace SlipeServer.Resources.DGS.Style;

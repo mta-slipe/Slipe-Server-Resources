@@ -3,7 +3,6 @@ using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Events;
 using SlipeServer.Server.Services;
-using System.Text;
 
 namespace SlipeServer.Resources.Screenshots;
 

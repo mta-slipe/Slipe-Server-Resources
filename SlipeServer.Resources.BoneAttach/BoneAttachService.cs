@@ -1,6 +1,5 @@
 ﻿using SlipeServer.Packets.Enums;
 using SlipeServer.Server.Elements;
-using System.Collections.Generic;
 using System.Numerics;
 
 namespace SlipeServer.Resources.BoneAttach;

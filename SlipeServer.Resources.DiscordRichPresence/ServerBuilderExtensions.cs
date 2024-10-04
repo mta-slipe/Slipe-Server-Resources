@@ -11,7 +11,8 @@ public static class ServerBuilderExtensions
         builder.AddBuildStep(server =>
         {
             var resource = new DiscordRichPresenceResource(server, options);
-            server.AddAdditionalResource(resource, resource.AdditionalFiles);
+            var additionalFiles = resource.GetAndAddLuaFiles();
+            server.AddAdditionalResource(resource, additionalFiles);
             resource.AddLuaEventHub<IDiscordRichPresenceEventHub>();
         });
 

@@ -43,7 +43,7 @@ public class ParachuteLogic
 
         var otherPlayers = this.elementCollection
             .GetByType<Player>()
-            .Except(new Player[] { luaEvent.Player });
+            .Except([luaEvent.Player]);
         this.luaEventService.TriggerEventForMany(otherPlayers, "doAddParachuteToPlayer", luaEvent.Player);
     }
 
@@ -54,7 +54,7 @@ public class ParachuteLogic
 
         var otherPlayers = this.elementCollection
             .GetByType<Player>()
-            .Except(new Player[] { luaEvent.Player });
+            .Except([luaEvent.Player]);
         this.luaEventService.TriggerEventForMany(otherPlayers, "doAddParachuteToPlayer", luaEvent.Player);
     }
 }

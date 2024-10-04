@@ -1,13 +1,6 @@
 ﻿using SlipeServer.Packets.Definitions.Lua;
 using SlipeServer.Server.ElementCollections;
 using SlipeServer.Server.Elements;
-using SlipeServer.Server;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SlipeServer.Resources.Watermark;
 

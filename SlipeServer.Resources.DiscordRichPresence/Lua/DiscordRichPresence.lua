@@ -16,27 +16,22 @@ function handleSetApplicationId(gotApplicationId)
 end
 
 function handleSetState(state)
-	iprint("handleSetState", state)
 	setDiscordRichPresenceState(state)
 end
 
 function handleSetDetails(details)
-	iprint("handleSetDetails", details)
 	setDiscordRichPresenceDetails(details)
 end
 
 function handleSetAsset(asset, assetName)
-	iprint("handleSetAsset", asset, assetName)
 	setDiscordRichPresenceAsset(asset, assetName)
 end
 
 function handleSetSmallAsset(asset, assetName)
-	iprint("handleSetSmallAsset", asset, assetName)
 	setDiscordRichPresenceSmallAsset(asset, assetName)
 end
 
 function handleSetButton(index, text, url)
-	iprint("handleSetButton", index, text, url)
 	setDiscordRichPresenceButton(index, text, url)
 end
 

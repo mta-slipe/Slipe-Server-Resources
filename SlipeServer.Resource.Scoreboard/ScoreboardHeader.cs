@@ -1,7 +1,4 @@
 ﻿using SlipeServer.Packets.Definitions.Lua;
-using SlipeServer.Server.Resources;
-using static SlipeServer.Packets.Constants.KeyConstants;
-using System.Xml.Linq;
 
 namespace SlipeServer.Resources.Scoreboard;
 

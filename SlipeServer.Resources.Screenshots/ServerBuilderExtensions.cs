@@ -11,7 +11,7 @@ public static class ServerBuilderExtensions
         builder.AddBuildStep(server =>
         {
             var resource = new ScreenshotsResource(server);
-            var additionalFiles = resource.GetAndAddLuaFiles(httpClient: server.GetRequiredService<HttpClient>());
+            var additionalFiles = resource.GetAndAddLuaFiles();
             server.AddAdditionalResource(resource, additionalFiles);
 
         });

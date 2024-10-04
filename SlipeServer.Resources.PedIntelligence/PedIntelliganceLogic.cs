@@ -1,6 +1,4 @@
-﻿using SlipeServer.Packets.Structs;
-using SlipeServer.Resources.PedIntelligence;
-using SlipeServer.Resources.PedIntelligence.Exceptions;
+﻿using SlipeServer.Resources.PedIntelligence.Exceptions;
 using SlipeServer.Resources.PedIntelligence.Interfaces;
 using SlipeServer.Resources.PedIntelligence.PedTasks;
 using SlipeServer.Server;
@@ -9,7 +7,6 @@ using SlipeServer.Server.Elements;
 using SlipeServer.Server.Events;
 using SlipeServer.Server.Services;
 using System.Collections.Concurrent;
-using System.Threading.Tasks;
 
 namespace SlipeServer.Resources.PedIntelligence;
 

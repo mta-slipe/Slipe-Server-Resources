@@ -1,12 +1,9 @@
-﻿using SlipeServer.Packets.Definitions.Lua;
-using SlipeServer.Resources.Base;
+﻿using SlipeServer.Resources.Base;
 using SlipeServer.Server;
-using SlipeServer.Server.Elements;
 using SlipeServer.Server.Elements.Enums;
 using SlipeServer.Server.Resources;
 using SlipeServer.Server.Resources.Interpreters.Meta;
 using System.IO.Compression;
-using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -23,8 +20,6 @@ internal class BoneAttachResource : Resource
         this.version = version;
 
         DownloadBoneAttach(httpClient ?? new()).Wait();
-        //Root.SetData("DGSI_FileInfo", DGSRecordedFiles, DataSyncType.Broadcast);
-        //server.PlayerJoined += Server_PlayerJoined;
     }
 
     private async Task DownloadBoneAttach(HttpClient httpClient)

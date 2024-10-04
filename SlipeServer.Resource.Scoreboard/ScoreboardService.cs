@@ -1,5 +1,4 @@
 ﻿using SlipeServer.Server.Elements;
-using System.Numerics;
 
 namespace SlipeServer.Resources.Scoreboard;
 

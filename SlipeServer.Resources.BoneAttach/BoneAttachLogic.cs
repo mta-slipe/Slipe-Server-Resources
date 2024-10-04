@@ -5,7 +5,6 @@ using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Services;
 using System.Numerics;
-using System.Xml.Linq;
 
 namespace SlipeServer.Resources.BoneAttach;
 

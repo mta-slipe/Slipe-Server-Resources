@@ -1,4 +1,5 @@
-﻿using SlipeServer.Server.ServerBuilders;
+﻿using SlipeServer.Resources.Base;
+using SlipeServer.Server.ServerBuilders;
 
 namespace SlipeServer.Resources.Parachute;
 public static class ServerBuilderExtensions
@@ -8,7 +9,8 @@ public static class ServerBuilderExtensions
         builder.AddBuildStep(server =>
         {
             var resource = new ParachuteResource(server);
-            server.AddAdditionalResource(resource, resource.AdditionalFiles);
+            var additionalFiles = resource.GetAndAddLuaFiles();
+            server.AddAdditionalResource(resource, additionalFiles);
         });
         builder.AddLogic<ParachuteLogic>();
     }

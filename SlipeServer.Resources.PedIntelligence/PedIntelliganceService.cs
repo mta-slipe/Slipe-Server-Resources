@@ -1,8 +1,6 @@
-﻿using SlipeServer.Packets.Definitions.Lua;
-using SlipeServer.Resources.PedIntelligence.Interfaces;
+﻿using SlipeServer.Resources.PedIntelligence.Interfaces;
 using SlipeServer.Resources.PedIntelligence.PedTasks;
 using SlipeServer.Server.Elements;
-using System;
 using System.Numerics;
 
 namespace SlipeServer.Resources.PedIntelligence;
@@ -26,17 +24,17 @@ public class PedIntelligenceService
     public IPedIntelligenceState GoTo(Ped ped, Vector3 destination, float threshold = 0.5f)
     {
         var rotation = FindRotation(ped.Position, destination);
-        return RelayPedTasks(ped, new PedTask[]
-        {
+        return RelayPedTasks(ped,
+        [
             new PedTaskGoTo(destination, threshold),
-        });
+        ]);
     }
 
     public IPedIntelligenceState Follow(Ped ped, Element element, float distance = 1.5f)
     {
-        return RelayPedTasks(ped, new PedTask[]
-        {
+        return RelayPedTasks(ped,
+        [
             new PedTaskFollow(element, distance),
-        });
+        ]);
     }
 }

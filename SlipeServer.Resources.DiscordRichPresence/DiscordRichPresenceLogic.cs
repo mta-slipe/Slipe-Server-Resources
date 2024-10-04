@@ -1,15 +1,9 @@
 ﻿using SlipeServer.Server.Elements;
 using SlipeServer.Server;
-using Microsoft.Extensions.Options;
-using System.Numerics;
 using SlipeServer.Server.Services;
 using SlipeServer.Server.Events;
 using SlipeServer.Resources.Base;
 using Microsoft.Extensions.Logging;
-using SlipeServer.Server.Resources;
-using static System.Net.Mime.MediaTypeNames;
-using System.Security.Policy;
-using System;
 
 namespace SlipeServer.Resources.DiscordRichPresence;
 

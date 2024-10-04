@@ -14,7 +14,6 @@ using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Services;
 using System.Numerics;
-using System.Text;
 
 namespace SlipeServer.Console;
 
@@ -93,6 +92,18 @@ internal class TestLogic
         discordRichPresenceService.RichPresenceReady += DiscordRichPresenceService_RichPresenceChanged;
         screenshotsService.ScreenshotTaken += HandleScreenshotTaken;
         screenshotsService.ScreenshotUploadStarted += HandleScreenshotUploadStarted;
+
+        this.mtaServer.PlayerJoined += HandlePlayerJoined;
+    }
+
+    private void HandlePlayerJoined(Player player)
+    {
+        player.ResourceStarted += HandleResourceStarted;
+    }
+
+    private void HandleResourceStarted(Player sender, Server.Elements.Events.PlayerResourceStartedEventArgs e)
+    {
+        this.chatBox.OutputTo(sender, $"Resource started {e.NetId}");
     }
 
     private void HandleScreenshotTaken(Player player, int id, byte[] data, ScreenshotSource screenshotSource)
