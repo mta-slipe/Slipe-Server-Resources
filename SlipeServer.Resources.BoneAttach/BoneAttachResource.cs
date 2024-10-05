@@ -24,9 +24,10 @@ internal class BoneAttachResource : Resource
 
     private async Task DownloadBoneAttach(HttpClient httpClient)
     {
-        var versionAndChecksum = version switch
+        (string, byte[]) versionAndChecksum = version switch
         {
-            BoneAttachVersion.Release_1_2_0 => ("v1.2.0", new byte[] { 143, 143, 137, 79, 155, 171, 106, 74, 226, 50, 11, 175, 24, 254, 218, 174 }),
+            BoneAttachVersion.Release_1_2_0 => ("v1.2.0", [143, 143, 137, 79, 155, 171, 106, 74, 226, 50, 11, 175, 24, 254, 218, 174]),
+            BoneAttachVersion.Release_1_2_3 => ("v1.2.3", [21, 46, 233, 12, 100, 192, 91, 175, 202, 234, 69, 47, 12, 5, 160, 218]),
             _ => throw new NotImplementedException()
         };
         var versionString = versionAndChecksum.Item1;
@@ -50,7 +51,7 @@ internal class BoneAttachResource : Resource
         }
 
         Exports.AddRange(metaXml.Value.exports
-            .Where(x => x.Type == "client")
+            .Where(x => x.Type == "client" || x.Type == "shared")
             .Select(x => x.Function));
     }
 }

@@ -36,6 +36,7 @@ internal class TestLogic
     {
         _text3DService = text3DService;
         this.boneAttachService = boneAttachService;
+        this.boneAttachService.ToggleCollisions(false);
         this.mtaServer = mtaServer;
         this.pedIntelliganceService = pedIntelliganceService;
         this.chatBox = chatBox;
@@ -61,8 +62,9 @@ internal class TestLogic
 
         commandService.AddCommand("setText3dEnabled").Triggered += TestLogic_Triggered;
         commandService.AddCommand("addText3d").Triggered += TestLogic_Triggered1;
-        commandService.AddCommand("customizeText3d").Triggered += HandleCustomizeText3d; ;
+        commandService.AddCommand("customizeText3d").Triggered += HandleCustomizeText3d;
         commandService.AddCommand("attach").Triggered += HandleAttachCommand;
+        commandService.AddCommand("attachcollisions").Triggered += HandleAttachCollisions;
         commandService.AddCommand("fullattachTest").Triggered += HandleFullAttachTestCommand;
         commandService.AddCommand("pedai").Triggered += HandlePedAiCommand;
         commandService.AddCommand("pedai2").Triggered += HandlePedAi2Command;
@@ -82,7 +84,7 @@ internal class TestLogic
         var ped = new Ped(Server.Elements.Enums.PedModel.Dwmolc2, new Vector3(0, 5, 3)).AssociateWith(mtaServer);
         var ak47 = new WorldObject(355, Vector3.Zero).AssociateWith(mtaServer);
         this.boneAttachService.Attach(ak47, ped, BoneId.Spine1, new Vector3(0, -0.15f, 0));
-        this.boneAttachService.ElementDetached += HandleElementDetached;
+        //this.boneAttachService.ElementDetached += HandleElementDetached;
 
         var testObstacle1 = new WorldObject(1468, new Vector3(22.00f, -8.95f, 3.12f)).AssociateWith(mtaServer);
         testObstacle1.Rotation = new Vector3(0, 0, 45);
@@ -94,6 +96,15 @@ internal class TestLogic
         screenshotsService.ScreenshotUploadStarted += HandleScreenshotUploadStarted;
 
         this.mtaServer.PlayerJoined += HandlePlayerJoined;
+    }
+
+    private async void HandleAttachCollisions(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        var bin = new WorldObject(1337, e.Player.Position).AssociateWith(mtaServer);
+        bin.AreCollisionsEnabled = false;
+        this.boneAttachService.Attach(bin, e.Player, BoneId.Spine1, Vector3.Zero);
+        await Task.Delay(1000);
+        this.boneAttachService.Detach(bin);
     }
 
     private void HandlePlayerJoined(Player player)

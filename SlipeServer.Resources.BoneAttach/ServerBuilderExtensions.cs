@@ -1,8 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SlipeServer.Server.ServerBuilders;
 
 namespace SlipeServer.Resources.BoneAttach;
+
+public sealed class BoneAttachOptions
+{
+    public required BoneAttachVersion Version { get; init; }
+}
 
 public static class ServerBuilderExtensions
 {
@@ -23,14 +29,18 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddBoneAttachServices();
+            services.AddBoneAttachServices(version);
         });
 
         builder.AddLogic<BoneAttachLogic>();
     }
 
-    public static IServiceCollection AddBoneAttachServices(this IServiceCollection services)
+    public static IServiceCollection AddBoneAttachServices(this IServiceCollection services, BoneAttachVersion version)
     {
+        services.AddSingleton<IOptions<BoneAttachOptions>>(new OptionsWrapper<BoneAttachOptions>(new BoneAttachOptions
+        {
+            Version = version
+        }));
         services.AddSingleton<BoneAttachService>();
         return services;
     }

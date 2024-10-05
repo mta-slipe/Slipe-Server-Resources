@@ -98,7 +98,7 @@ public partial class Program
                 builder.AddWatermarkResource();
                 builder.AddPedIntelligenceResource();
                 builder.AddScoreboard();
-                builder.AddBoneAttachResource(BoneAttachVersion.Release_1_2_0);
+                builder.AddBoneAttachResource(BoneAttachVersion.Release_1_2_3);
                 builder.AddClientElementsResource();
                 builder.AddDiscordRichPresenceResource(new DiscordRichPresenceOptions
                 {

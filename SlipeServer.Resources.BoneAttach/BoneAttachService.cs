@@ -1,4 +1,6 @@
-﻿using SlipeServer.Packets.Enums;
+﻿using Microsoft.Extensions.Options;
+using SlipeServer.Packets.Definitions.Lua;
+using SlipeServer.Packets.Enums;
 using SlipeServer.Server.Elements;
 using System.Numerics;
 
@@ -13,12 +15,19 @@ public class BoneAttachService
     internal Action<Element, Vector3>? RotationOffsetChanged;
     internal Action<Element, Ped>? ElementPedChanged;
     internal Action<Element, BoneId>? BoneChanged;
+    internal Action<string, LuaValue>? OptionsChanged;
 
     internal Func<Element, bool>? InternalIsAttached;
     internal Func<Element, AttachInfo>? InternalGetAttachInfo;
     internal Func<Ped, List<Element>>? InternalGetAttacheds;
+    private readonly IOptions<BoneAttachOptions> boneAttachOptions;
 
     public event Action<Ped, Element>? ElementDetached;
+
+    public BoneAttachService(IOptions<BoneAttachOptions> boneAttachOptions)
+    {
+        this.boneAttachOptions = boneAttachOptions;
+    }
 
     internal void RelayElementDetached(Ped ped, Element element)
     {
@@ -58,6 +67,18 @@ public class BoneAttachService
     public void SetBone(Element element, BoneId boneId)
     {
         BoneChanged?.Invoke(element, boneId);
+    }
+
+    public void ToggleCollisions(bool toggle)
+    {
+        if(boneAttachOptions.Value.Version >= BoneAttachVersion.Release_1_2_3)
+        {
+            OptionsChanged?.Invoke("toggleCollisions", toggle);
+        }
+        else
+        {
+            throw new NotSupportedException("ToggleCollisions require minimmum version Release_1_2_3");
+        }
     }
 
     public bool IsAttached(Element element) => InternalIsAttached?.Invoke(element) ?? throw new InvalidOperationException();

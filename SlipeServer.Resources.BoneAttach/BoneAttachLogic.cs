@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using SlipeServer.Packets.Definitions.Lua;
 using SlipeServer.Packets.Enums;
 using SlipeServer.Server;
@@ -16,7 +17,8 @@ internal class BoneAttachLogic
     private readonly ILogger<BoneAttachLogic> logger;
     private readonly BoneAttachResource resource;
 
-    private Dictionary<Element, AttachInfo> cache = new();
+    private readonly Dictionary<Element, AttachInfo> cache = new();
+    private readonly Dictionary<string, LuaValue> _options = [];
     private readonly object cacheLock = new();
 
     public BoneAttachLogic(MtaServer server, BoneAttachService boneAttachService, LuaEventService luaEventService, ILogger<BoneAttachLogic> logger)
@@ -36,6 +38,7 @@ internal class BoneAttachLogic
         boneAttachService.RotationOffsetChanged = HandleSetRotationOffsetChanged;
         boneAttachService.ElementPedChanged = HandleSetPed;
         boneAttachService.BoneChanged = HandleSetBone;
+        boneAttachService.OptionsChanged = HandleOptionsChanged;
         boneAttachService.InternalIsAttached = IsAttached;
         boneAttachService.InternalGetAttachInfo = GetAttachInfo;
         boneAttachService.InternalGetAttacheds = GetAttacheds;
@@ -64,7 +67,7 @@ internal class BoneAttachLogic
                 luaValues[i++] = row;
             }
         }
-        luaEventService.TriggerEventFor(player, "pAttach:receiveCache", resource.Root, new LuaValue(luaValues));
+        luaEventService.TriggerEventFor(player, "pAttach:receiveCache", resource.Root, new LuaValue(luaValues), _options);
     }
 
     private void HandlePedDestroyed(Element ped)
@@ -115,7 +118,7 @@ internal class BoneAttachLogic
 
         element.Destroyed -= HandleElementDestroyed;
         boneAttachService.RelayElementDetached(ped, element);
-        luaEventService.TriggerEvent("pAttach:detach", resource.Root, element);
+        luaEventService.TriggerEvent("pAttach:detach", resource.Root, element, true);
     }
 
     private void HandleDetachAll(Ped ped)
@@ -190,6 +193,12 @@ internal class BoneAttachLogic
         }
 
         luaEventService.TriggerEvent("pAttach:setPed", resource.Root, element, ped);
+    }
+
+    private void HandleOptionsChanged(string option, LuaValue value)
+    {
+        _options[option] = value;
+        luaEventService.TriggerEvent("pAttach:setConfigOption", resource.Root, option, value);
     }
 
     private void HandleSetBone(Element element, BoneId boneId)
