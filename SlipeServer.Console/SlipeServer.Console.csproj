@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SlipeServer.Resource.NoClip\SlipeServer.Resources.NoClip.csproj" />
     <ProjectReference Include="..\SlipeServer.Resource.Scoreboard\SlipeServer.Resources.Scoreboard.csproj" />
+    <ProjectReference Include="..\SlipeServer.Resources.Assets\SlipeServer.Resources.Assets.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.Base\SlipeServer.Resources.Base.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.BoneAttach\SlipeServer.Resources.BoneAttach.csproj" />
     <ProjectReference Include="..\SlipeServer.Resources.ClientElements\SlipeServer.Resources.ClientElements.csproj" />
@@ -32,6 +33,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Assets\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="HotReloadable.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
