@@ -18,7 +18,11 @@ internal class BoneAttachLogic
     private readonly BoneAttachResource resource;
 
     private readonly Dictionary<Element, AttachInfo> cache = new();
-    private readonly Dictionary<string, LuaValue> _options = [];
+    private readonly Dictionary<string, LuaValue> _options = new()
+    {
+        ["dimensionChanges"] = true,
+        ["interiorChanges"] = true,
+    };
     private readonly object cacheLock = new();
 
     public BoneAttachLogic(MtaServer server, BoneAttachService boneAttachService, LuaEventService luaEventService, ILogger<BoneAttachLogic> logger)
