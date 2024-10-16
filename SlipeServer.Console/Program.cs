@@ -120,6 +120,7 @@ public partial class Program
                     AssetsProviders = [new FileSystemAssetsProvider("Assets")]
                 });
                 builder.AddLogic<TestLogic>();
+                builder.AddLogic<PedIntelligenceTestLogic>();
                 builder.AddLogic<HotReloadableLogic>();
             }
         );

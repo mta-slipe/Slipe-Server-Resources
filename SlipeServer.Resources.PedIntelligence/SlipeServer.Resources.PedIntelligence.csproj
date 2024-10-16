@@ -18,11 +18,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Lua\PedIntelligence.lua" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Include="Lua\PedIntelligence.lua" />
+	  <EmbeddedResource Include="Lua\**\*.lua" />
 	</ItemGroup>
 
 	<ItemGroup>

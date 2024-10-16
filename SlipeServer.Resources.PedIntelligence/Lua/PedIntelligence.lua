@@ -4,9 +4,13 @@ local pedsCount = 0;
 local pedsObstacleAvoidanceStrategies = {}
 local _processLineOfSight = processLineOfSight
 
-local colorBlack = tocolor(0, 0, 0, 255);
-local colorLightBlue = tocolor(0, 255, 255, 255)
-local colorWhite = tocolor(255, 255, 255, 255)
+colorBlack = tocolor(0, 0, 0, 255);
+colorLightBlue = tocolor(0, 255, 255, 255)
+colorWhite = tocolor(255, 255, 255, 255)
+
+function getPedTasks()
+	return pedsTasks;
+end
 
 function findRotation( x1, y1, x2, y2 ) 
     local t = -math.deg( math.atan2( x2 - x1, y2 - y1 ) )
@@ -25,20 +29,6 @@ function lerpRotationDegrees(startRot, endRot, t)
   return startRot + angle
 end
 
-local function drawDebugLine(ax,ay,az, bx,by,bz, color)
-	if(color)then
-		dxDrawLine3D(ax,ay,az, bx,by,bz, color, 2.5);
-	else
-		dxDrawLine3D(ax,ay,az, bx,by,bz, colorBlack, 2.5);
-		dxDrawLine3D(ax,ay,az, bx,by,bz, colorLightBlue, 1.25);
-	end
-end
-
-local function drawDebugText(text, x,y)
-	dxDrawText(text, x - 2,y - 2,x - 2,y - 2, colorBlack, 1, "sans", "center", "center")
-	dxDrawText(text, x,y,x,y, colorWhite, 1, 1, "sans", "center", "center")
-end
-
 function isBitSet(bitmask, bitPosition)
     local bitValue = 2 ^ bitPosition
     return (bitmask % (bitValue + bitValue) >= bitValue)
@@ -49,10 +39,6 @@ function getPointFromDistanceRotation(x, y, dist, angle)
     local dx = math.cos(a) * dist;
     local dy = math.sin(a) * dist;
     return x+dx, y+dy;
-end
-
-function isDebuggingEnabled()
-	return getKeyState("i")
 end
 
 function processLineOfSight(startX, startY, startZ, endX, endY, endZ, ...)
@@ -88,49 +74,6 @@ local function tryAvoidObstacle(ped, obstacleInfo)
 	end
 end
 
-function renderDebug()
-	if(not isDebuggingEnabled())then
-		return
-	end
-	local count = 0;
-	local sx,sy;
-	for ped, state in pairs(pedsTasks)do
-		local task = state.tasks[state.currentTask]
-		if(task)then
-			local taskName = task[1]
-			local x,y,z = getElementPosition(ped);
-			count = count + 1
-			local description = "Task: "..taskName;
-			if(taskName == "PedTaskRotate")then
-				local _,_,r = getElementRotation(ped)
-				local newX, newY = getPointFromDistanceRotation(x, y, 2, task[2]);
-				description = description..string.format("\nRot: %.2f, Tar: %.2f", r, task[2])
-				drawDebugLine(x,y,z, newX, newY, z)
-			elseif(taskName == "PedTaskGoTo")then
-				local dis2d = getDistanceBetweenPoints2D(x,y, task[2], task[3]);
-				drawDebugLine(x,y,z, task[2], task[3], task[4])
-				description = description..string.format("\nDistance left: %.2fm (%.1fm)", dis2d, task[5])
-			elseif(taskName == "PedTaskFollow")then
-				local element = task[2];
-				local tx,ty,tz = getElementPosition(element)
-				local dis2d = getDistanceBetweenPoints2D(x,y, tx, ty);
-				--drawDebugLine(x,y,z, tx, ty, tz)
-				description = description..string.format("\nFollow: %s %.2fm (%.2fm) (s:%i)", getElementType(element), dis2d, task[3], task.data.state or -1)
-			end
-			
-			sx,sy = getScreenFromWorldPosition(x,y,z, 128, false)
-			if(sx and sy)then
-				if(isElementSyncer(ped))then
-					drawDebugText(description.."\n\n***Synchronized by another player***", sx, sy)
-				else
-					drawDebugText(description, sx, sy)
-				end
-			end
-		end
-	end
-
-	dxDrawText("Running pedAi: "..count, 400, 10, 400, 50, tocolor(255,255,255,255), 1, "sans", "center", "center")
-end
 
 local function toggleOffAllControls(ped)
 	setControlState(ped, "forwards", false)
@@ -280,8 +223,38 @@ local function processTask(ped, task, complete)
 				task.data.state = 4;
 			end
 		end
+	elseif(taskName == "PedTaskEnterVehicle")then
+		if(not task.data.entering)then
+			local vehicle = task[2];
+		    if isElementSyncer(ped) then
+				iprint("ped is syncer", getTickCount())
+				local result = setPedEnterVehicle(ped, vehicle, true)
+				if(result)then
+					print("ENTERED", getTickCount())
+				end
+			else
+			end
+			task.data.entering = true;
+			iprint("failed to enter", getTickCount())
+		end
 	end
 end
+
+
+addCommandHandler("mysyncers", function(command)
+	outputChatBox("Your syncers:")
+	for i,v in ipairs(getElementsByType("ped"))do
+		if(isElementSyncer(v))then
+			outputChatBox(" Ped: "..getElementModel(v))
+		end
+	end
+
+	for i,v in ipairs(getElementsByType("vehicle"))do
+		if(isElementSyncer(v))then
+			outputChatBox(" Vehicle: "..getElementModel(v))
+		end
+	end
+end)
 
 local function process()
 	if(pedsCount == 0)then
@@ -342,4 +315,3 @@ addEventHandler("onPedTasks", localPlayer, function(ped, obstacleAvoidanceStrate
 	}
 end)
 addEventHandler("onClientPreRender", root, process)
-addEventHandler("onClientRender", root, renderDebug)

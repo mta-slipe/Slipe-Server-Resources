@@ -37,4 +37,12 @@ public class PedIntelligenceService
             new PedTaskFollow(element, distance),
         ]);
     }
+
+    public IPedIntelligenceState EnterVehicle(Ped ped, Vehicle vehicle, byte seat = 0)
+    {
+        return RelayPedTasks(ped,
+        [
+            new PedTaskEnterVehicle(vehicle, seat),
+        ]);
+    }
 }
