@@ -1,4 +1,5 @@
-﻿using SlipeServer.Resources.Base;
+﻿using Microsoft.Extensions.Logging;
+using SlipeServer.Resources.Base;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using System.Numerics;
@@ -10,15 +11,17 @@ internal class NoClipLogic
     private readonly MtaServer _server;
     private readonly NoClipService _noClipService;
     private readonly ILuaEventHub<INoClipEventHub> luaEventHub;
+    private readonly ILogger<NoClipLogic> logger;
     private readonly NoClipResource _resource;
 
     private readonly HashSet<Player> _noClipPlayers = new();
 
-    public NoClipLogic(MtaServer server, NoClipService noClipService, ILuaEventHub<INoClipEventHub> luaEventHub)
+    public NoClipLogic(MtaServer server, NoClipService noClipService, ILuaEventHub<INoClipEventHub> luaEventHub, ILogger<NoClipLogic> logger)
     {
         _server = server;
         _noClipService = noClipService;
         this.luaEventHub = luaEventHub;
+        this.logger = logger;
         server.PlayerJoined += HandlePlayerJoin;
 
         _resource = _server.GetAdditionalResource<NoClipResource>();
@@ -51,19 +54,23 @@ internal class NoClipLogic
             luaEventHub.Invoke(player, x => x.SetEnabled(enabled));
     }
 
-    private void HandlePlayerJoin(Player player)
+    private async void HandlePlayerJoin(Player player)
     {
-        _resource.StartFor(player);
-        var options = _resource.Options;
-        player.ResourceStarted += (player, @event) =>
+        try
         {
-            if (@event.NetId == _resource.NetId)
-                luaEventHub.Invoke(player, x => x.UpdateConfiguration(options.VerticalSpeed, options.HorizontalSpeed));
-        };
-        if (options.Bind != null)
+            var options = _resource.Options;
+            await _resource.StartForAsync(player);
+            luaEventHub.Invoke(player, x => x.UpdateConfiguration(options.VerticalSpeed, options.HorizontalSpeed));
+
+            if (options.Bind != null)
+            {
+                player.SetBind(options.Bind, Server.Elements.Enums.KeyState.Up);
+                player.BindExecuted += HandleBindExecuted;
+            }
+        }
+        catch(Exception ex)
         {
-            player.SetBind(options.Bind, Server.Elements.Enums.KeyState.Up);
-            player.BindExecuted += HandleBindExecuted;
+            logger.ResourceFailedToStart<NoClipResource>(ex, player);
         }
     }
 

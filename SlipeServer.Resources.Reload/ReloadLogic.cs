@@ -1,4 +1,6 @@
-﻿using SlipeServer.Server;
+﻿using Microsoft.Extensions.Logging;
+using SlipeServer.Resources.Base;
+using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Events;
 using SlipeServer.Server.Services;
@@ -8,11 +10,13 @@ namespace SlipeServer.Resources.Reload;
 public class ReloadLogic
 {
     private readonly MtaServer server;
+    private readonly ILogger<ReloadLogic> logger;
     private readonly ReloadResource resource;
 
-    public ReloadLogic(MtaServer server, LuaEventService luaEventService)
+    public ReloadLogic(MtaServer server, LuaEventService luaEventService, ILogger<ReloadLogic> logger)
     {
         this.server = server;
+        this.logger = logger;
         server.PlayerJoined += HandlePlayerJoin;
 
         luaEventService.AddEventHandler("relWep", HandleWeaponReloadRequest);
@@ -20,9 +24,16 @@ public class ReloadLogic
         this.resource = this.server.GetAdditionalResource<ReloadResource>();
     }
 
-    private void HandlePlayerJoin(Player player)
+    private async void HandlePlayerJoin(Player player)
     {
-        this.resource.StartFor(player);
+        try
+        {
+            await this.resource.StartForAsync(player);
+        }
+        catch (Exception ex)
+        {
+            logger.ResourceFailedToStart<ReloadResource>(ex, player);
+        }
     }
 
     public void HandleWeaponReloadRequest(LuaEvent luaEvent)

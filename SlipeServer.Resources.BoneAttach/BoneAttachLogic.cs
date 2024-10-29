@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using SlipeServer.Packets.Definitions.Lua;
 using SlipeServer.Packets.Enums;
+using SlipeServer.Resources.Base;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Services;
@@ -251,7 +252,7 @@ internal class BoneAttachLogic
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to start boneattach resource for player {playerName}", player.Name);
+            logger.ResourceFailedToStart<BoneAttachResource>(ex, player);
         }
     }
 }

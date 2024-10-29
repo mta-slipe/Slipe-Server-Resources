@@ -1,4 +1,6 @@
-﻿using SlipeServer.Resources.PedIntelligence.Exceptions;
+﻿using Microsoft.Extensions.Logging;
+using SlipeServer.Resources.Base;
+using SlipeServer.Resources.PedIntelligence.Exceptions;
 using SlipeServer.Resources.PedIntelligence.Interfaces;
 using SlipeServer.Resources.PedIntelligence.PedTasks;
 using SlipeServer.Server;
@@ -15,15 +17,17 @@ internal class PedIntelligenceLogic
     private readonly MtaServer _server;
     private readonly PedIntelligenceService _pedIntelligenceService;
     private readonly IElementCollection _elementCollection;
+    private readonly ILogger<PedIntelligenceLogic> logger;
     private readonly PedIntelligenceResource _resource;
     private readonly ConcurrentDictionary<Ped, IPedIntelligenceState> _pedIntelligenceStates = new();
     private readonly ConcurrentDictionary<Ped, ObstacleAvoidanceStrategies> _pedObstacleAvoidanceStrategies = new();
 
-    public PedIntelligenceLogic(MtaServer server, PedIntelligenceService pedIntelligenceService, LuaEventService luaEventService, IElementCollection elementCollection)
+    public PedIntelligenceLogic(MtaServer server, PedIntelligenceService pedIntelligenceService, LuaEventService luaEventService, IElementCollection elementCollection, ILogger<PedIntelligenceLogic> logger)
     {
         this._server = server;
         this._pedIntelligenceService = pedIntelligenceService;
         this._elementCollection = elementCollection;
+        this.logger = logger;
         this._server.PlayerJoined += HandlePlayerJoin;
 
         this._resource = _server.GetAdditionalResource<PedIntelligenceResource>();
@@ -55,9 +59,16 @@ internal class PedIntelligenceLogic
         }
     }
 
-    private void HandlePlayerJoin(Player player)
+    private async void HandlePlayerJoin(Player player)
     {
-        this._resource.StartFor(player);
+        try
+        {
+            await this._resource.StartForAsync(player);
+        }
+        catch (Exception ex)
+        {
+            logger.ResourceFailedToStart<PedIntelligenceResource>(ex, player);
+        }
     }
 
     private void HandlePedObstacleAvoidanceStrategies(Ped ped, ObstacleAvoidanceStrategies obstacleAvoidanceStrategies)

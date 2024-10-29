@@ -12,7 +12,7 @@ internal class DiscordRichPresenceLogic
     private readonly MtaServer _server;
     private readonly DiscordRichPresenceService _discordRichPresenceService;
     private readonly ILuaEventHub<IDiscordRichPresenceEventHub> _luaEventHub;
-    private readonly ILogger<DiscordRichPresenceLogic> _logger;
+    private readonly ILogger<DiscordRichPresenceLogic> logger;
     private readonly DiscordRichPresenceResource _discordRichPresenceResource;
 
     public DiscordRichPresenceLogic(MtaServer server, DiscordRichPresenceService discordRichPresenceService, LuaEventService luaEventService, ILuaEventHub<IDiscordRichPresenceEventHub> luaEventHub, ILogger<DiscordRichPresenceLogic> logger)
@@ -20,7 +20,7 @@ internal class DiscordRichPresenceLogic
         _server = server;
         _discordRichPresenceService = discordRichPresenceService;
         _luaEventHub = luaEventHub;
-        _logger = logger;
+        this.logger = logger;
         server.PlayerJoined += HandlePlayerJoin;
 
         _discordRichPresenceResource = _server.GetAdditionalResource<DiscordRichPresenceResource>();
@@ -37,7 +37,7 @@ internal class DiscordRichPresenceLogic
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to start discordRichPresence resource for player {playerName}", player.Name);
+            logger.ResourceFailedToStart<DiscordRichPresenceResource>(ex, player);
         }
     }
 

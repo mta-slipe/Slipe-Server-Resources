@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SlipeServer.Resources.Base;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 
@@ -7,13 +8,13 @@ namespace SlipeServer.Resources.Scoreboard;
 internal class ScoreboardLogic
 {
     private readonly MtaServer _server;
-    private readonly ILogger<ScoreboardLogic> _logger;
+    private readonly ILogger<ScoreboardLogic> logger;
     private readonly ScoreboardResource resource;
 
     public ScoreboardLogic(MtaServer server, ScoreboardService scoreboardService, ILogger<ScoreboardLogic> logger)
     {
         _server = server;
-        _logger = logger;
+        this.logger = logger;
         server.PlayerJoined += HandlePlayerJoin;
 
         resource = _server.GetAdditionalResource<ScoreboardResource>();
@@ -48,7 +49,7 @@ internal class ScoreboardLogic
         }
         catch(Exception ex)
         {
-            _logger.LogError(ex, "Failed to start scoreboard resource for player {playerName}", player.Name);
+            this.logger.ResourceFailedToStart<ScoreboardResource>(ex, player);
         }
     }
 }

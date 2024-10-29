@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SlipeServer.Resources.Base;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 using SlipeServer.Server.Events;
@@ -55,7 +56,7 @@ internal class ScreenshotsLogic
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to start Screenshot resource for player {playerName}", player.Name);
+            this.logger.ResourceFailedToStart<ScreenshotsResource>(ex, player);
         }
     }
 }

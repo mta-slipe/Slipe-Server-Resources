@@ -4,6 +4,7 @@ using SlipeServer.Server.Elements;
 using SlipeServer.Server.Events;
 using SlipeServer.Server.ElementCollections;
 using SlipeServer.Server.Services;
+using SlipeServer.Resources.Base;
 
 namespace SlipeServer.Resources.Parachute;
 
@@ -32,9 +33,16 @@ public class ParachuteLogic
         this.resource = this.server.GetAdditionalResource<ParachuteResource>();
     }
 
-    private void HandlePlayerJoin(Player player)
+    private async void HandlePlayerJoin(Player player)
     {
-        this.resource.StartFor(player);
+        try
+        {
+            await this.resource.StartForAsync(player);
+        }
+        catch (Exception ex)
+        {
+            logger.ResourceFailedToStart<ParachuteResource>(ex, player);
+        }
     }
 
     public void HandleRequestAddParachute(LuaEvent luaEvent)

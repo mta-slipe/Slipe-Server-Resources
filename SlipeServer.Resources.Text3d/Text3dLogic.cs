@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SlipeServer.Resources.Base;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
 
@@ -28,7 +29,7 @@ internal class Text3dLogic
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to start Text3d resource");
+            this.logger.ResourceFailedToStart<Text3dResource>(ex, player);
         }
     }
 }
