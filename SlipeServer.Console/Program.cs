@@ -20,6 +20,7 @@ using SlipeServer.Resources.Scoreboard;
 using SlipeServer.Resources.ClientElements;
 using SlipeServer.Resources.DiscordRichPresence;
 using SlipeServer.Resources.Screenshots;
+using SlipeServer.Resources.Base;
 
 namespace SlipeServer.Console;
 
@@ -85,6 +86,10 @@ public partial class Program
 
                 builder.ConfigureServices(services =>
                 {
+                    services.AddResources(new DefaultResourcesOptions
+                    {
+                        Autostart = true
+                    });
                     services.AddHttpClient();
                     services.AddSingleton<ILogger, ConsoleLogger>();
                 });
@@ -102,6 +107,7 @@ public partial class Program
                 builder.AddClientElementsResource();
                 builder.AddDiscordRichPresenceResource(new DiscordRichPresenceOptions
                 {
+                    Autostart = false,
                     ApplicationId = 1162033070740869120
                 });
                 builder.AddScreenshotsResource();

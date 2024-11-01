@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SlipeServer.Resources.Base;
+using Microsoft.Extensions.Options;
 using SlipeServer.Server.ServerBuilders;
 
 namespace SlipeServer.Resources.DiscordRichPresence;
@@ -10,7 +10,7 @@ public static class ServerBuilderExtensions
     {
         builder.AddBuildStep(server =>
         {
-            var resource = new DiscordRichPresenceResource(server, options);
+            var resource = new DiscordRichPresenceResource(server);
             var additionalFiles = resource.GetAndAddLuaFiles();
             server.AddAdditionalResource(resource, additionalFiles);
             resource.AddLuaEventHub<IDiscordRichPresenceEventHub>();
@@ -18,14 +18,15 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddDiscordRichPresenceServices();
+            services.AddDiscordRichPresenceServices(options);
         });
 
         builder.AddLogic<DiscordRichPresenceLogic>();
     }
 
-    public static IServiceCollection AddDiscordRichPresenceServices(this IServiceCollection services)
+    public static IServiceCollection AddDiscordRichPresenceServices(this IServiceCollection services, DiscordRichPresenceOptions options)
     {
+        services.AddSingleton(Options.Create(options));
         services.AddSingleton<DiscordRichPresenceService>();
         services.AddLuaEventHub<IDiscordRichPresenceEventHub, DiscordRichPresenceResource>();
         return services;

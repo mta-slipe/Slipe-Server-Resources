@@ -18,11 +18,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Lua\discordRichPresence.lua" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<EmbeddedResource Include="Lua\DiscordRichPresence.lua" />
+		<EmbeddedResource Include="Lua\**\*.lua" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -38,6 +34,10 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Using Include="SlipeServer.Resources.Base" />
 	</ItemGroup>
 
 </Project>

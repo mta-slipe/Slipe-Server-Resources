@@ -7,13 +7,13 @@ namespace SlipeServer.Resources.DiscordRichPresence;
 
 public class DiscordRichPresenceService
 {
-    private readonly ILuaEventHub<IDiscordRichPresenceEventHub> _luaEventHub;
+    private readonly ILuaEventHub<IDiscordRichPresenceEventHub> luaEventHub;
     private readonly ConcurrentDictionary<Player, bool> playersRichPresence = new();
     public event Action<Player, string?>? RichPresenceReady;
 
     public DiscordRichPresenceService(ILuaEventHub<IDiscordRichPresenceEventHub> luaEventHub)
     {
-        _luaEventHub = luaEventHub;
+        this.luaEventHub = luaEventHub;
     }
 
     internal void AddPlayer(Player player, bool canUseRichPresence, string? userId)
@@ -56,7 +56,7 @@ public class DiscordRichPresenceService
     public void SetState(Player player, string state)
     {
         ValidatePlayer(player);
-        _luaEventHub.Invoke(player, x => x.SetState(state));
+        luaEventHub.Invoke(player, x => x.SetState(state));
     }
 
     /// <summary>
@@ -68,14 +68,14 @@ public class DiscordRichPresenceService
         foreach (var pair in playersRichPresence.Where(x => x.Value))
         {
             var player = pair.Key;
-            _luaEventHub.Invoke(pair.Key, x => x.SetState(state));
+            luaEventHub.Invoke(pair.Key, x => x.SetState(state));
         }
     }
 
     public void SetDetails(Player player, string details)
     {
         ValidatePlayer(player);
-        _luaEventHub.Invoke(player, x => x.SetDetails(details));
+        luaEventHub.Invoke(player, x => x.SetDetails(details));
     }
 
     /// <summary>
@@ -87,14 +87,14 @@ public class DiscordRichPresenceService
         foreach (var pair in playersRichPresence.Where(x => x.Value))
         {
             var player = pair.Key;
-            _luaEventHub.Invoke(pair.Key, x => x.SetDetails(details));
+            luaEventHub.Invoke(pair.Key, x => x.SetDetails(details));
         }
     }
 
     public void SetAsset(Player player, string asset, string assetName)
     {
         ValidatePlayer(player);
-        _luaEventHub.Invoke(player, x => x.SetAsset(asset, assetName));
+        luaEventHub.Invoke(player, x => x.SetAsset(asset, assetName));
     }
 
     /// <summary>
@@ -107,14 +107,14 @@ public class DiscordRichPresenceService
         foreach (var pair in playersRichPresence.Where(x => x.Value))
         {
             var player = pair.Key;
-            _luaEventHub.Invoke(player, x => x.SetAsset(asset, assetName));
+            luaEventHub.Invoke(player, x => x.SetAsset(asset, assetName));
         }
     }
 
     public void SetSmallAsset(Player player, string asset, string assetName)
     {
         ValidatePlayer(player);
-        _luaEventHub.Invoke(player, x => x.SetSmallAsset(asset, assetName));
+        luaEventHub.Invoke(player, x => x.SetSmallAsset(asset, assetName));
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ public class DiscordRichPresenceService
         foreach (var pair in playersRichPresence.Where(x => x.Value))
         {
             var player = pair.Key;
-            _luaEventHub.Invoke(player, x => x.SetSmallAsset(asset, assetName));
+            luaEventHub.Invoke(player, x => x.SetSmallAsset(asset, assetName));
         }
     }
 
@@ -137,7 +137,7 @@ public class DiscordRichPresenceService
         ValidatePlayer(player);
         var index = (int)discordRichPresenceButton;
         var url = uri.ToString();
-        _luaEventHub.Invoke(player, x => x.SetButton(index, text, url));
+        luaEventHub.Invoke(player, x => x.SetButton(index, text, url));
     }
 
     /// <summary>
@@ -154,7 +154,7 @@ public class DiscordRichPresenceService
         foreach (var pair in playersRichPresence.Where(x => x.Value))
         {
             var player = pair.Key;
-            _luaEventHub.Invoke(player, x => x.SetButton(index, text, url));
+            luaEventHub.Invoke(player, x => x.SetButton(index, text, url));
         }
     }
 
@@ -164,7 +164,7 @@ public class DiscordRichPresenceService
             throw new ArgumentException(nameof(size));
 
         ValidatePlayer(player);
-        _luaEventHub.Invoke(player, x => x.SetPartySize(size, max));
+        luaEventHub.Invoke(player, x => x.SetPartySize(size, max));
     }
 
     /// <summary>
@@ -181,7 +181,7 @@ public class DiscordRichPresenceService
         foreach (var pair in playersRichPresence.Where(x => x.Value))
         {
             var player = pair.Key;
-            _luaEventHub.Invoke(player, x => x.SetPartySize(size, max));
+            luaEventHub.Invoke(player, x => x.SetPartySize(size, max));
         }
     }
 
@@ -191,7 +191,7 @@ public class DiscordRichPresenceService
             throw new ArgumentException(nameof(seconds));
 
         ValidatePlayer(player);
-        _luaEventHub.Invoke(player, x => x.StartTime(seconds));
+        luaEventHub.Invoke(player, x => x.StartTime(seconds));
     }
 
     /// <summary>
@@ -207,7 +207,7 @@ public class DiscordRichPresenceService
         foreach (var pair in playersRichPresence.Where(x => x.Value))
         {
             var player = pair.Key;
-            _luaEventHub.Invoke(player, x => x.StartTime(seconds));
+            luaEventHub.Invoke(player, x => x.StartTime(seconds));
         }
     }
 }

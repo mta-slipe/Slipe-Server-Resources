@@ -1,4 +1,5 @@
 ﻿using SlipeServer.Packets.Enums;
+using SlipeServer.Resources.Base;
 using SlipeServer.Resources.BoneAttach;
 using SlipeServer.Resources.ClientElements;
 using SlipeServer.Resources.DiscordRichPresence;
@@ -29,10 +30,11 @@ internal class TestLogic
     private readonly ClientElementsService clientElementsService;
     private readonly DiscordRichPresenceService discordRichPresenceService;
     private readonly NoClipService noClipService;
+    private readonly ResourceStartedManager resourceStartedManager;
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
         BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelligenceService pedIntelliganceService, ChatBox chatBox,
-        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService, DiscordRichPresenceService discordRichPresenceService, NoClipService noClipService, ScreenshotsService screenshotsService)
+        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService, DiscordRichPresenceService discordRichPresenceService, NoClipService noClipService, ScreenshotsService screenshotsService, ResourceStartedManager resourceStartedManager)
     {
         _text3DService = text3DService;
         this.boneAttachService = boneAttachService;
@@ -45,6 +47,7 @@ internal class TestLogic
         this.clientElementsService = clientElementsService;
         this.discordRichPresenceService = discordRichPresenceService;
         this.noClipService = noClipService;
+        this.resourceStartedManager = resourceStartedManager;
         var textDim = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "dimension 1, interior 0", dimension: 1);
         var textInt = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "dimension 0, interior 1", interior: 1);
         var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns", shadow: new Vector2(-1, -1));
@@ -78,6 +81,7 @@ internal class TestLogic
         commandService.AddCommand("dimension").Triggered += HandleDimension;
         commandService.AddCommand("noclip").Triggered += HandleNoClip;
         commandService.AddCommand("noclipsetposition").Triggered += HandleNoClipSetPosition;
+        commandService.AddCommand("startdiscordrichpresence").Triggered += HandleStartDiscordRichPresence;
 
         watermarkService.SetContent("Sample server, version: 1");
 
@@ -96,6 +100,17 @@ internal class TestLogic
         screenshotsService.ScreenshotUploadStarted += HandleScreenshotUploadStarted;
 
         this.mtaServer.PlayerJoined += HandlePlayerJoined;
+    }
+
+    private void HandleStartDiscordRichPresence(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    {
+        if (resourceStartedManager.IsStarted<DiscordRichPresenceResource>(e.Player))
+        {
+            this.chatBox.OutputTo(e.Player, "Resource already started.");
+            return;
+        }
+        this.chatBox.OutputTo(e.Player, "Starting discord rich resence resource.");
+        this.mtaServer.GetAdditionalResource<DiscordRichPresenceResource>().StartFor(e.Player);
     }
 
     private async void HandleAttachCollisions(object? sender, Server.Events.CommandTriggeredEventArgs e)

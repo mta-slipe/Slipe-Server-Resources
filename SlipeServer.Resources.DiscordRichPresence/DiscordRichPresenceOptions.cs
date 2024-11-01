@@ -1,6 +1,6 @@
 ﻿namespace SlipeServer.Resources.DiscordRichPresence;
 
-public class DiscordRichPresenceOptions
+public class DiscordRichPresenceOptions : ResourceOptionsBase
 {
     public ulong ApplicationId { get; set; }
 }
