@@ -15,7 +15,7 @@ internal class BoneAttachResource : Resource
     private readonly BoneAttachVersion version;
 
     internal BoneAttachResource(MtaServer server, BoneAttachVersion version, HttpClient? httpClient = null)
-        : base(server, server.RootElement, "boneAttach")
+        : base(server, server.RootElement, "BoneAttach")
     {
         this.version = version;
 

@@ -21,7 +21,7 @@ internal class DGSResource : Resource
     private readonly DGSStyle? dgsStyle;
 
     internal DGSResource(MtaServer server, DGSVersion version, DGSStyle? dgsStyle = null, HttpClient? httpClient = null)
-        : base(server, server.RootElement, "dgs")
+        : base(server, server.RootElement, "DGS")
     {
         this.version = version;
         this.dgsStyle = dgsStyle;
