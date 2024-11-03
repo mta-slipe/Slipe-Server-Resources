@@ -2,87 +2,23 @@
 using SlipeServer.Server;
 using SlipeServer.Server.Services;
 using SlipeServer.Server.Events;
-using SlipeServer.Resources.Base;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Reflection;
-using SlipeServer.Server.Elements.Events;
-using SlipeServer.Server.Resources.Providers;
-using System.Numerics;
 
 namespace SlipeServer.Resources.DiscordRichPresence;
 
-internal class DiscordRichPresenceLogic
+internal class DiscordRichPresenceLogic : ResourceLogicBase<DiscordRichPresenceResource, DiscordRichPresenceOptions>
 {
-    private readonly MtaServer server;
     private readonly DiscordRichPresenceService discordRichPresenceService;
+    private readonly LuaEventService luaEventService;
     private readonly ILuaEventHub<IDiscordRichPresenceEventHub> luaEventHub;
-    private readonly ILogger<DiscordRichPresenceLogic> logger;
-    private readonly IOptions<DiscordRichPresenceOptions> discordRichPresenceOptions;
-    private readonly IOptions<DefaultResourcesOptions> defaultResourcesOptions;
-    private readonly DiscordRichPresenceResource discordRichPresenceResource;
-    private readonly ResourceStartedManager resourceStartedManager;
 
-    public DiscordRichPresenceLogic(MtaServer server, DiscordRichPresenceService discordRichPresenceService, LuaEventService luaEventService, ILuaEventHub<IDiscordRichPresenceEventHub> luaEventHub, ILogger<DiscordRichPresenceLogic> logger, IOptions<DiscordRichPresenceOptions> discordRichPresenceOptions, IOptions<DefaultResourcesOptions> defaultResourcesOptions, ResourceStartedManager? resourceStartedManager = null)
+    public DiscordRichPresenceLogic(MtaServer server, ILogger<DiscordRichPresenceLogic> logger, IOptions<DiscordRichPresenceOptions> resourceOptions, IOptions<DefaultResourcesOptions> defaultResourcesOptions, DiscordRichPresenceService discordRichPresenceService, LuaEventService luaEventService, ILuaEventHub<IDiscordRichPresenceEventHub> luaEventHub, ResourceStartedManager? resourceStartedManager = null) : base(server, logger, resourceOptions, defaultResourcesOptions, resourceStartedManager)
     {
-        this.resourceStartedManager = resourceStartedManager ?? throw new InvalidOperationException("ResourceStartedManager is not initialized. Please ensure that you have called services.AddResources() in your service configuration.");
-        this.server = server;
         this.discordRichPresenceService = discordRichPresenceService;
+        this.luaEventService = luaEventService;
         this.luaEventHub = luaEventHub;
-        this.logger = logger;
-        this.discordRichPresenceOptions = discordRichPresenceOptions;
-        this.defaultResourcesOptions = defaultResourcesOptions;
-        this.discordRichPresenceResource = this.server.GetAdditionalResource<DiscordRichPresenceResource>();
-
-        this.server.PlayerJoined += HandlePlayerJoin;
         luaEventService.AddEventHandler("discordSetApplicationIdResult", HandleSetApplicationIdResult);
-    }
-
-    private async void HandlePlayerJoin(Player player)
-    {
-        try
-        {
-            if (!discordRichPresenceOptions.Value.Autostart ?? this.defaultResourcesOptions.Value.Autostart)
-            {
-                void handleResourceStarted(Player sender, PlayerResourceStartedEventArgs args)
-                {
-                    if (args.NetId != discordRichPresenceResource.NetId)
-                        return;
-
-                    try
-                    {
-                        HandleResourceStarted(sender);
-                    }
-                    catch(Exception ex)
-                    {
-                        this.logger.LogError(ex, "Resource started failed for player {playerName}", sender.Name);
-                    }
-                    finally
-                    {
-                        player.ResourceStarted -= handleResourceStarted;
-                    }
-                }
-                player.ResourceStarted += handleResourceStarted;
-            }
-            else
-            {
-                await discordRichPresenceResource.StartForAsync(player);
-                HandleResourceStarted(player);
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.ResourceFailedToStart<DiscordRichPresenceResource>(ex, player);
-        }
-    }
-
-    private void HandleResourceStarted(Player player)
-    {
-        if (this.resourceStartedManager.Started<DiscordRichPresenceResource>(player))
-        {
-            var applicationId = discordRichPresenceOptions.Value.ApplicationId.ToString();
-            luaEventHub.Invoke(player, x => x.SetApplicationId(applicationId));
-        }
     }
 
     private void HandleSetApplicationIdResult(LuaEvent luaEvent)
@@ -93,6 +29,12 @@ internal class DiscordRichPresenceLogic
             var userId = luaEvent.Parameters[1].StringValue;
             discordRichPresenceService.AddPlayer(luaEvent.Player, success ?? false, userId);
         }
+    }
+
+    protected override void HandleResourceStarted(Player player)
+    {
+        var applicationId = this.resourceOptions.Value.ApplicationId.ToString();
+        luaEventHub.Invoke(player, x => x.SetApplicationId(applicationId));
     }
 }
 
