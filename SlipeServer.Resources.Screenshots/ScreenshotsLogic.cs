@@ -1,28 +1,19 @@
-﻿using Microsoft.Extensions.Logging;
-using SlipeServer.Resources.Base;
+﻿using SlipeServer.Resources.Base;
 using SlipeServer.Server;
-using SlipeServer.Server.Elements;
 using SlipeServer.Server.Events;
 using SlipeServer.Server.Services;
 
 namespace SlipeServer.Resources.Screenshots;
 
-internal class ScreenshotsLogic
+public sealed class ScreenshotsOptions : ResourceOptionsBase;
+
+internal sealed class ScreenshotsLogic : ResourceLogicBase<ScreenshotsResource, ScreenshotsOptions>
 {
-    private readonly MtaServer server;
     private readonly ScreenshotsService screenshotsService;
-    private readonly ILogger<ScreenshotsLogic> logger;
-    private readonly ScreenshotsResource resource;
 
-    public ScreenshotsLogic(MtaServer server, ScreenshotsService screenshotsService, ILogger<ScreenshotsLogic> logger, LuaEventService luaEventService)
+    public ScreenshotsLogic(MtaServer server, ScreenshotsService screenshotsService, LuaEventService luaEventService) : base(server)
     {
-        this.server = server;
         this.screenshotsService = screenshotsService;
-        this.logger = logger;
-        this.server.PlayerJoined += HandlePlayerJoin;
-
-        this.resource = this.server.GetAdditionalResource<ScreenshotsResource>();
-
         luaEventService.AddEventHandler("internalScreenshotUploadStarted", HandleScreenshotUploadStarted);
         luaEventService.AddEventHandler("internalUploadCameraScreenshot", HandleUploadCameraScreenshot);
         luaEventService.AddEventHandler("internalFailedToUploadScreenshot", HandleFailedToUploadScreenshot);
@@ -30,33 +21,30 @@ internal class ScreenshotsLogic
 
     private void HandleFailedToUploadScreenshot(LuaEvent luaEvent)
     {
-        this.screenshotsService.TriggerFailedToUploadScreenshot(luaEvent.Player);
+        if (IsStarted(luaEvent.Player))
+        {
+            this.screenshotsService.TriggerFailedToUploadScreenshot(luaEvent.Player);
+        }
     }
     
     private void HandleScreenshotUploadStarted(LuaEvent luaEvent)
     {
-        var id = luaEvent.Parameters[0].IntegerValue;
-        this.screenshotsService.TriggerScreenshotUploadStarted(luaEvent.Player, id.Value);
+        if (IsStarted(luaEvent.Player))
+        {
+            var id = luaEvent.Parameters[0].IntegerValue;
+            this.screenshotsService.TriggerScreenshotUploadStarted(luaEvent.Player, id.Value);
+        }
     }
 
     private void HandleUploadCameraScreenshot(LuaEvent luaEvent)
     {
-        var id = luaEvent.Parameters[0].IntegerValue;
-        var data = luaEvent.Parameters[1].StringValue;
-        byte[] decoded = Convert.FromBase64String(data);
-
-        this.screenshotsService.TriggerScreenshotTaken(luaEvent.Player, id.Value, decoded, ScreenshotSource.Camera);
-    }
-
-    private async void HandlePlayerJoin(Player player)
-    {
-        try
+        if (IsStarted(luaEvent.Player))
         {
-            await this.resource.StartForAsync(player);
-        }
-        catch (Exception ex)
-        {
-            this.logger.ResourceFailedToStart<ScreenshotsResource>(ex, player);
+            var id = luaEvent.Parameters[0].IntegerValue;
+            var data = luaEvent.Parameters[1].StringValue;
+            byte[] decoded = Convert.FromBase64String(data);
+
+            this.screenshotsService.TriggerScreenshotTaken(luaEvent.Player, id.Value, decoded, ScreenshotSource.Camera);
         }
     }
 }

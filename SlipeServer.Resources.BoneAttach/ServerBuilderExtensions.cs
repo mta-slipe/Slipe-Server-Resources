@@ -1,24 +1,25 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SlipeServer.Resources.Base;
 using SlipeServer.Server.ServerBuilders;
 
 namespace SlipeServer.Resources.BoneAttach;
 
-public sealed class BoneAttachOptions
+public sealed class BoneAttachOptions : ResourceOptionsBase
 {
     public required BoneAttachVersion Version { get; init; }
 }
 
 public static class ServerBuilderExtensions
 {
-    public static void AddBoneAttachResource(this ServerBuilder builder, BoneAttachVersion version, HttpClient? httpClient = null)
+    public static void AddBoneAttachResource(this ServerBuilder builder, BoneAttachOptions options, HttpClient? httpClient = null)
     {
         builder.AddBuildStep(server =>
         {
             try
             {
-                var resource = new BoneAttachResource(server, version, httpClient ?? server.GetRequiredService<HttpClient>());
+                var resource = new BoneAttachResource(server, options.Version, httpClient ?? server.GetRequiredService<HttpClient>());
                 server.AddAdditionalResource(resource, resource.AdditionalFiles);
             }
             catch (Exception ex)
@@ -29,18 +30,15 @@ public static class ServerBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            services.AddBoneAttachServices(version);
+            services.AddBoneAttachServices(options);
         });
 
         builder.AddLogic<BoneAttachLogic>();
     }
 
-    public static IServiceCollection AddBoneAttachServices(this IServiceCollection services, BoneAttachVersion version)
+    public static IServiceCollection AddBoneAttachServices(this IServiceCollection services, BoneAttachOptions options)
     {
-        services.AddSingleton<IOptions<BoneAttachOptions>>(new OptionsWrapper<BoneAttachOptions>(new BoneAttachOptions
-        {
-            Version = version
-        }));
+        services.AddSingleton(Options.Create(options));
         services.AddSingleton<BoneAttachService>();
         return services;
     }

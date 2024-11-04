@@ -1,5 +1,4 @@
-﻿using SlipeServer.Resources.Base;
-using SlipeServer.Server.Elements;
+﻿using SlipeServer.Server.Elements;
 using SlipeServer.Server.Elements.Events;
 using System.Collections.Concurrent;
 

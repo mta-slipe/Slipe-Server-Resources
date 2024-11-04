@@ -16,13 +16,13 @@ public abstract class ResourceLogicBase<TResource, TOptions> where TResource : R
     protected readonly TResource resource;
     protected readonly ResourceStartedManager resourceStartedManager;
 
-    public ResourceLogicBase(MtaServer server, ILogger logger, IOptions<TOptions> resourceOptions, IOptions<DefaultResourcesOptions> defaultResourcesOptions, ResourceStartedManager? resourceStartedManager = null)
+    public ResourceLogicBase(MtaServer server)
     {
-        this.resourceStartedManager = resourceStartedManager ?? throw new InvalidOperationException("ResourceStartedManager is not initialized. Please ensure that you have called services.AddResources() in your service configuration.");
         this.server = server;
-        this.logger = logger;
-        this.resourceOptions = resourceOptions;
-        this.defaultResourcesOptions = defaultResourcesOptions;
+        this.logger = server.GetRequiredService<ILogger<ResourceLogicBase<TResource, TOptions>>>();
+        this.resourceOptions = server.GetRequiredService<IOptions<TOptions>>();
+        this.defaultResourcesOptions = server.GetRequiredService<IOptions<DefaultResourcesOptions>>();
+        this.resourceStartedManager = server.GetService<ResourceStartedManager>() ?? throw new InvalidOperationException("ResourceStartedManager is not initialized. Please ensure that you have called services.AddResources() in your service configuration.");
         this.resource = this.server.GetAdditionalResource<TResource>();
 
         this.server.PlayerJoined += HandlePlayerJoin;
@@ -32,7 +32,12 @@ public abstract class ResourceLogicBase<TResource, TOptions> where TResource : R
     {
         try
         {
-            if (!this.resourceOptions.Value.Autostart ?? this.defaultResourcesOptions.Value.Autostart)
+            if (this.resourceOptions.Value.Autostart ?? this.defaultResourcesOptions.Value.Autostart)
+            {
+                await resource.StartForAsync(player);
+                this.HandleResourceStartedInternal(player);
+            }
+            else
             {
                 void handleResourceStarted(Player sender, PlayerResourceStartedEventArgs args)
                 {
@@ -54,11 +59,6 @@ public abstract class ResourceLogicBase<TResource, TOptions> where TResource : R
                 }
                 player.ResourceStarted += handleResourceStarted;
             }
-            else
-            {
-                await resource.StartForAsync(player);
-                this.HandleResourceStartedInternal(player);
-            }
         }
         catch (Exception ex)
         {
@@ -72,6 +72,11 @@ public abstract class ResourceLogicBase<TResource, TOptions> where TResource : R
         {
             HandleResourceStarted(player);
         }
+    }
+
+    protected bool IsStarted(Player player)
+    {
+        return this.resourceStartedManager.IsStarted<TResource>(player);
     }
 
     protected virtual void HandleResourceStarted(Player player) { }

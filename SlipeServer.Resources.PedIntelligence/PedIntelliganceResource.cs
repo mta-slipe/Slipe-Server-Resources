@@ -3,7 +3,7 @@ using SlipeServer.Server.Resources;
 
 namespace SlipeServer.Resources.PedIntelligence;
 
-internal class PedIntelligenceResource : Resource
+public sealed class PedIntelligenceResource : Resource
 {
     internal PedIntelligenceResource(MtaServer server)
         : base(server, server.RootElement, "PedIntelligence")

@@ -3,7 +3,7 @@ using SlipeServer.Server.Resources;
 
 namespace SlipeServer.Resources.ClientElements;
 
-internal class ClientElementsResource : Resource
+public sealed class ClientElementsResource : Resource
 {
     internal ClientElementsResource(MtaServer server)
         : base(server, server.RootElement, "ClientElements")

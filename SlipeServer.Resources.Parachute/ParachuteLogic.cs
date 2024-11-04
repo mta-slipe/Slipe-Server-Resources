@@ -8,41 +8,20 @@ using SlipeServer.Resources.Base;
 
 namespace SlipeServer.Resources.Parachute;
 
-public class ParachuteLogic
-{
-    private readonly MtaServer server;
-    private readonly LuaEventService luaEventService;
-    private readonly ILogger logger;
-    private readonly IElementCollection elementCollection;
-    private readonly ParachuteResource resource;
+public sealed class ParachuteOptions : ResourceOptionsBase;
 
-    public ParachuteLogic(MtaServer server,
-        LuaEventService luaEventService,
-        ILogger logger,
-        IElementCollection elementCollection)
+internal sealed class ParachuteLogic : ResourceLogicBase<ParachuteResource, ParachuteOptions>
+{
+    private readonly LuaEventService luaEventService;
+    private readonly IElementCollection elementCollection;
+
+    public ParachuteLogic(MtaServer server, LuaEventService luaEventService, IElementCollection elementCollection) : base(server)
     {
-        this.server = server;
         this.luaEventService = luaEventService;
-        this.logger = logger;
         this.elementCollection = elementCollection;
-        server.PlayerJoined += HandlePlayerJoin;
 
         luaEventService.AddEventHandler("requestAddParachute", HandleRequestAddParachute);
         luaEventService.AddEventHandler("requestRemoveParachute", HandleRequestRemoveParachute);
-
-        this.resource = this.server.GetAdditionalResource<ParachuteResource>();
-    }
-
-    private async void HandlePlayerJoin(Player player)
-    {
-        try
-        {
-            await this.resource.StartForAsync(player);
-        }
-        catch (Exception ex)
-        {
-            logger.ResourceFailedToStart<ParachuteResource>(ex, player);
-        }
     }
 
     public void HandleRequestAddParachute(LuaEvent luaEvent)

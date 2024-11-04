@@ -13,7 +13,7 @@ using System.Xml.Serialization;
 
 namespace SlipeServer.Resources.DGS;
 
-internal class DGSResource : Resource
+public sealed class DGSResource : Resource
 {
     internal Dictionary<string, byte[]> AdditionalFiles { get; } = new();
     private readonly Dictionary<LuaValue, LuaValue> DGSRecordedFiles = new();

@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
-using SlipeServer.Packets.Definitions.Lua;
+﻿using SlipeServer.Packets.Definitions.Lua;
 using SlipeServer.Packets.Enums;
 using SlipeServer.Resources.Base;
 using SlipeServer.Server;
@@ -10,13 +8,10 @@ using System.Numerics;
 
 namespace SlipeServer.Resources.BoneAttach;
 
-internal class BoneAttachLogic
+internal sealed class BoneAttachLogic : ResourceLogicBase<BoneAttachResource, BoneAttachOptions>
 {
-    private readonly MtaServer server;
     private readonly BoneAttachService boneAttachService;
     private readonly LuaEventService luaEventService;
-    private readonly ILogger<BoneAttachLogic> logger;
-    private readonly BoneAttachResource resource;
 
     private readonly Dictionary<Element, AttachInfo> cache = new();
     private readonly Dictionary<string, LuaValue> _options = new()
@@ -26,27 +21,22 @@ internal class BoneAttachLogic
     };
     private readonly object cacheLock = new();
 
-    public BoneAttachLogic(MtaServer server, BoneAttachService boneAttachService, LuaEventService luaEventService, ILogger<BoneAttachLogic> logger)
+    public BoneAttachLogic(MtaServer server, BoneAttachService boneAttachService, LuaEventService luaEventService) : base(server)
     {
-        this.server = server;
         this.boneAttachService = boneAttachService;
         this.luaEventService = luaEventService;
-        this.logger = logger;
-        server.PlayerJoined += HandlePlayerJoin;
 
-        resource = this.server.GetAdditionalResource<BoneAttachResource>();
-
-        boneAttachService.Attached = HandleAttached;
-        boneAttachService.Detached = HandleDetached;
-        boneAttachService.DetachedAll = HandleDetachAll;
-        boneAttachService.PositionOffsetChanged = HandleSetPositionOffsetChanged;
-        boneAttachService.RotationOffsetChanged = HandleSetRotationOffsetChanged;
-        boneAttachService.ElementPedChanged = HandleSetPed;
-        boneAttachService.BoneChanged = HandleSetBone;
-        boneAttachService.OptionsChanged = HandleOptionsChanged;
-        boneAttachService.InternalIsAttached = IsAttached;
-        boneAttachService.InternalGetAttachInfo = GetAttachInfo;
-        boneAttachService.InternalGetAttacheds = GetAttacheds;
+        this.boneAttachService.Attached = HandleAttached;
+        this.boneAttachService.Detached = HandleDetached;
+        this.boneAttachService.DetachedAll = HandleDetachAll;
+        this.boneAttachService.PositionOffsetChanged = HandleSetPositionOffsetChanged;
+        this.boneAttachService.RotationOffsetChanged = HandleSetRotationOffsetChanged;
+        this.boneAttachService.ElementPedChanged = HandleSetPed;
+        this.boneAttachService.BoneChanged = HandleSetBone;
+        this.boneAttachService.OptionsChanged = HandleOptionsChanged;
+        this.boneAttachService.InternalIsAttached = IsAttached;
+        this.boneAttachService.InternalGetAttachInfo = GetAttachInfo;
+        this.boneAttachService.InternalGetAttacheds = GetAttacheds;
     }
 
     private void SendCacheToPlayer(Player player)
@@ -243,16 +233,8 @@ internal class BoneAttachLogic
                 .ToList();
     }
 
-    private async void HandlePlayerJoin(Player player)
+    protected override void HandleResourceStarted(Player player)
     {
-        try
-        {
-            await resource.StartForAsync(player);
-            SendCacheToPlayer(player);
-        }
-        catch (Exception ex)
-        {
-            logger.ResourceFailedToStart<BoneAttachResource>(ex, player);
-        }
+        SendCacheToPlayer(player);
     }
 }

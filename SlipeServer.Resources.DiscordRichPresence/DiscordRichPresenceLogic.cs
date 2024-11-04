@@ -2,28 +2,25 @@
 using SlipeServer.Server;
 using SlipeServer.Server.Services;
 using SlipeServer.Server.Events;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace SlipeServer.Resources.DiscordRichPresence;
 
-internal class DiscordRichPresenceLogic : ResourceLogicBase<DiscordRichPresenceResource, DiscordRichPresenceOptions>
+internal sealed class DiscordRichPresenceLogic : ResourceLogicBase<DiscordRichPresenceResource, DiscordRichPresenceOptions>
 {
     private readonly DiscordRichPresenceService discordRichPresenceService;
-    private readonly LuaEventService luaEventService;
     private readonly ILuaEventHub<IDiscordRichPresenceEventHub> luaEventHub;
 
-    public DiscordRichPresenceLogic(MtaServer server, ILogger<DiscordRichPresenceLogic> logger, IOptions<DiscordRichPresenceOptions> resourceOptions, IOptions<DefaultResourcesOptions> defaultResourcesOptions, DiscordRichPresenceService discordRichPresenceService, LuaEventService luaEventService, ILuaEventHub<IDiscordRichPresenceEventHub> luaEventHub, ResourceStartedManager? resourceStartedManager = null) : base(server, logger, resourceOptions, defaultResourcesOptions, resourceStartedManager)
+    public DiscordRichPresenceLogic(MtaServer server, DiscordRichPresenceService discordRichPresenceService, LuaEventService luaEventService, ILuaEventHub<IDiscordRichPresenceEventHub> luaEventHub) : base(server)
     {
         this.discordRichPresenceService = discordRichPresenceService;
-        this.luaEventService = luaEventService;
         this.luaEventHub = luaEventHub;
+
         luaEventService.AddEventHandler("discordSetApplicationIdResult", HandleSetApplicationIdResult);
     }
 
     private void HandleSetApplicationIdResult(LuaEvent luaEvent)
     {
-        if (this.resourceStartedManager.IsStarted<DiscordRichPresenceResource>(luaEvent.Player))
+        if (IsStarted(luaEvent.Player))
         {
             var success = luaEvent.Parameters[0].BoolValue;
             var userId = luaEvent.Parameters[1].StringValue;

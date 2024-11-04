@@ -1,36 +1,22 @@
-﻿using SlipeServer.Server.Elements;
-using SlipeServer.Server;
-using Microsoft.Extensions.Logging;
+﻿using SlipeServer.Server;
 using SlipeServer.Resources.Base;
+using SlipeServer.Server.Elements;
 
 namespace SlipeServer.Resources.Watermark;
 
-internal class WatermarkLogic
+public sealed class WatermarkOptions : ResourceOptionsBase;
+
+internal sealed class WatermarkLogic : ResourceLogicBase<WatermarkResource, WatermarkOptions>
 {
-    private readonly MtaServer _server;
-    private readonly WatermarkResource resource;
-    private readonly WatermarkService _watermarkService;
-    private readonly ILogger<WatermarkLogic> logger;
+    private readonly WatermarkService watermarkService;
 
-    public WatermarkLogic(MtaServer server, WatermarkService watermarkService, ILogger<WatermarkLogic> logger)
+    public WatermarkLogic(MtaServer server, WatermarkService watermarkService) : base(server)
     {
-        _server = server;
-        _watermarkService = watermarkService;
-        this.logger = logger;
-        server.PlayerJoined += HandlePlayerJoin;
-
-        this.resource = _server.GetAdditionalResource<WatermarkResource>();
+        this.watermarkService = watermarkService;
     }
 
-    private async void HandlePlayerJoin(Player player)
+    protected override void HandleResourceStarted(Player player)
     {
-        try
-        {
-            await this.resource.StartForAsync(player);
-        }
-        catch (Exception ex)
-        {
-            this.logger.ResourceFailedToStart<WatermarkResource>(ex, player);
-        }
+        this.watermarkService.AddPlayer(player);
     }
 }

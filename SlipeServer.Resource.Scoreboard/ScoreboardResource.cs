@@ -3,7 +3,7 @@ using SlipeServer.Server.Resources;
 
 namespace SlipeServer.Resources.Scoreboard;
 
-internal class ScoreboardResource : Resource
+public sealed class ScoreboardResource : Resource
 {
     private readonly ScoreboardOptions _options;
 

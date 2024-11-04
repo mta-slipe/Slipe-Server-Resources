@@ -3,7 +3,7 @@ using SlipeServer.Server.Resources;
 
 namespace SlipeServer.Resources.NoClip;
 
-internal class NoClipResource : Resource
+public sealed class NoClipResource : Resource
 {
     private readonly NoClipOptions _options;
 

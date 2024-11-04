@@ -94,23 +94,26 @@ public partial class Program
                     services.AddSingleton<ILogger, ConsoleLogger>();
                 });
 
-                builder.AddNoClipResource();
-                builder.AddParachuteResource();
+                builder.AddNoClipResource(new());
+                builder.AddParachuteResource(new());
                 var style = DGSStyleFactory.CreateFromColors(Color.Black, Color.Gray, Color.White);
                 builder.AddDGSResource(DGSVersion.Release_3_520, style);
-                builder.AddText3dResource();
-                builder.AddReloadResource();
-                builder.AddWatermarkResource();
-                builder.AddPedIntelligenceResource();
+                builder.AddText3dResource(new());
+                builder.AddReloadResource(new());
+                builder.AddWatermarkResource(new());
+                builder.AddPedIntelligenceResource(new());
                 builder.AddScoreboard();
-                builder.AddBoneAttachResource(BoneAttachVersion.Release_1_2_3);
-                builder.AddClientElementsResource();
+                builder.AddBoneAttachResource(new BoneAttachOptions
+                {
+                    Version = BoneAttachVersion.Release_1_2_3
+                });
+                builder.AddClientElementsResource(new());
                 builder.AddDiscordRichPresenceResource(new DiscordRichPresenceOptions
                 {
                     Autostart = false,
                     ApplicationId = 1162033070740869120
                 });
-                builder.AddScreenshotsResource();
+                builder.AddScreenshotsResource(new());
 
                 builder.AddLogic<TestLogic>();
                 builder.AddLogic<HotReloadableLogic>();
