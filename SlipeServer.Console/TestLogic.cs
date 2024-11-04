@@ -20,106 +20,330 @@ namespace SlipeServer.Console;
 
 internal class TestLogic
 {
-    private readonly Text3dService _text3DService;
-    private readonly BoneAttachService boneAttachService;
+    private readonly CommandService commandService;
     private readonly MtaServer mtaServer;
-    private readonly PedIntelligenceService pedIntelliganceService;
     private readonly ChatBox chatBox;
-    private readonly ScoreboardService scoreboardService;
     private readonly GameWorld gameWorld;
-    private readonly ClientElementsService clientElementsService;
-    private readonly DiscordRichPresenceService discordRichPresenceService;
-    private readonly NoClipService noClipService;
     private readonly ResourceStartedManager resourceStartedManager;
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
         BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelligenceService pedIntelliganceService, ChatBox chatBox,
         ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService, DiscordRichPresenceService discordRichPresenceService, NoClipService noClipService, ScreenshotsService screenshotsService, ResourceStartedManager resourceStartedManager)
     {
-        _text3DService = text3DService;
-        this.boneAttachService = boneAttachService;
-        this.boneAttachService.ToggleCollisions(false);
+        this.commandService = commandService;
         this.mtaServer = mtaServer;
-        this.pedIntelliganceService = pedIntelliganceService;
         this.chatBox = chatBox;
-        this.scoreboardService = scoreboardService;
         this.gameWorld = gameWorld;
-        this.clientElementsService = clientElementsService;
-        this.discordRichPresenceService = discordRichPresenceService;
-        this.noClipService = noClipService;
         this.resourceStartedManager = resourceStartedManager;
-        var textDim = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "dimension 1, interior 0", dimension: 1);
-        var textInt = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "dimension 0, interior 1", interior: 1);
-        var textId = _text3DService.CreateText3d(new System.Numerics.Vector3(5, 0, 4), "Here player spawns", shadow: new Vector2(-1, -1));
+
+        this.mtaServer.PlayerJoined += HandlePlayerJoined;
+
+        AddUsefulCommands();
+        AddText3dResourceTestLogic(text3DService);
+        AddNoClipResourceTestLogic(noClipService);
+        AddBoneAttachTestLogic(boneAttachService);
+        AddWatermarkResourceTestLogic(watermarkService);
+        AddDiscordRichPresenceTestLogic(discordRichPresenceService);
+        AddClientElementsResourceTestLogic(clientElementsService);
+        AddScreenshotsResourceTestLogic(screenshotsService);
+        AddPedIntelligenceTestLogic(pedIntelliganceService);
+        AddScoreboardReourceTestLogic(scoreboardService);
+    }
+
+    private void AddUsefulCommands()
+    {
+        AddCommand("day", player =>
+        {
+            gameWorld.SetTime(12, 0);
+        });
+
+        AddCommand("car", player =>
+        {
+            new Vehicle((ushort)VehicleModel.Buffalo, player.Position).AssociateWith(mtaServer);
+        });
+
+        AddCommand("interior", player =>
+        {
+            player.Interior = player.Interior == 1 ? (byte)0 : (byte)1;
+        });
+
+        AddCommand("dimension", player =>
+        {
+            player.Dimension = player.Dimension == 1 ? (ushort)0 : (ushort)1;
+        });
+    }
+
+    private void AddText3dResourceTestLogic(Text3dService text3DService)
+    {
+        int sampleText3d = 0;
+
+        var textDim = text3DService.CreateText3d(new Vector3(5, 0, 4), "dimension 1, interior 0", dimension: 1);
+        var textInt = text3DService.CreateText3d(new Vector3(5, 0, 4), "dimension 0, interior 1", interior: 1);
+        var textId = text3DService.CreateText3d(new Vector3(5, 0, 4), "Here player spawns", shadow: new Vector2(-1, -1));
+
         Task.Run(async () =>
         {
-            while(true)
+            while (true)
             {
                 await Task.Delay(1000);
-                _text3DService.SetText3dText(textId, $"Current date time: {DateTime.Now}");
+                text3DService.SetText3dText(textId, $"Current date time: {DateTime.Now}");
             }
         });
 
-        var textId2 = _text3DService.CreateText3d(new System.Numerics.Vector3(10, 0, 4), "Destroyed text 3d");
-        _text3DService.RemoveText3d(textId2);
+        var text3dId = text3DService.CreateText3d(new Vector3(10, 0, 4), "Destroyed text 3d");
+        text3DService.RemoveText3d(text3dId);
 
-        commandService.AddCommand("setText3dEnabled").Triggered += TestLogic_Triggered;
-        commandService.AddCommand("addText3d").Triggered += TestLogic_Triggered1;
-        commandService.AddCommand("customizeText3d").Triggered += HandleCustomizeText3d;
-        commandService.AddCommand("attach").Triggered += HandleAttachCommand;
-        commandService.AddCommand("attachcollisions").Triggered += HandleAttachCollisions;
-        commandService.AddCommand("fullattachTest").Triggered += HandleFullAttachTestCommand;
-        commandService.AddCommand("pedai").Triggered += HandlePedAiCommand;
-        commandService.AddCommand("pedai2").Triggered += HandlePedAi2Command;
-        commandService.AddCommand("car").Triggered += HandleCarCommand;
-        commandService.AddCommand("scoreboard").Triggered += HandleScoreboard;
-        commandService.AddCommand("day").Triggered += HandleDay;
-        commandService.AddCommand("clientelements").Triggered += HandleClientsElements;
-        commandService.AddCommand("discordrichpresence").Triggered += HandleDiscordRichPresence;
-        commandService.AddCommand("discordrichpresenceall").Triggered += HandleDiscordRichPresenceAll;
-        commandService.AddCommand("interior").Triggered += HandleInterior;
-        commandService.AddCommand("dimension").Triggered += HandleDimension;
-        commandService.AddCommand("noclip").Triggered += HandleNoClip;
-        commandService.AddCommand("noclipsetposition").Triggered += HandleNoClipSetPosition;
-        commandService.AddCommand("startdiscordrichpresence").Triggered += HandleStartDiscordRichPresence;
+        AddCommand("text3dSetEnabled", (player, args) =>
+        {
+            text3DService.SetRenderingEnabled(player, args.FirstOrDefault("false") == "true" ? true : false);
+        });
 
-        watermarkService.SetContent("Sample server, version: 1");
+        AddCommand("text3dCreate", player =>
+        {
+            text3DService.CreateText3d(player.Position, player.Name);
+        });
 
+        AddCommand("text3dCustomize", player =>
+        {
+            text3DService.SetText3dText(sampleText3d, "New text");
+            text3DService.SetText3dDistance(sampleText3d, 10);
+            text3DService.SetText3dFontSize(sampleText3d, 3);
+            text3DService.SetText3dPosition(sampleText3d, player.Position);
+        });
+    }
+
+    private void AddNoClipResourceTestLogic(NoClipService noClipService)
+    {
+        bool enabled = false;
+
+        AddCommand("noClipToggle", player =>
+        {
+            enabled = !enabled;
+            noClipService.SetEnabledTo(player, enabled);
+        });
+
+        AddCommand("noClipSetPosition", player =>
+        {
+            noClipService.SetPosition(player, new Vector3(0, 0, 10));
+        });
+    }
+
+    private void AddBoneAttachTestLogic(BoneAttachService boneAttachService)
+    {
+        boneAttachService.ToggleCollisions(false);
         var ped = new Ped(Server.Elements.Enums.PedModel.Dwmolc2, new Vector3(0, 5, 3)).AssociateWith(mtaServer);
         var ak47 = new WorldObject(355, Vector3.Zero).AssociateWith(mtaServer);
-        this.boneAttachService.Attach(ak47, ped, BoneId.Spine1, new Vector3(0, -0.15f, 0));
-        //this.boneAttachService.ElementDetached += HandleElementDetached;
+        boneAttachService.Attach(ak47, ped, BoneId.Spine1, new Vector3(0, -0.15f, 0));
 
+        AddCommand("boneAttachAttach", player =>
+        {
+            var ak47 = new WorldObject(355, Vector3.Zero).AssociateWith(mtaServer);
+            boneAttachService.Attach(ak47, player, BoneId.Spine1, new Vector3(0, -0.15f, 0));
+        });
+        
+        AddCommand("boneAttachCollision", async player =>
+        {
+            var bin = new WorldObject(1337, player.Position).AssociateWith(mtaServer);
+            bin.AreCollisionsEnabled = false;
+            boneAttachService.Attach(bin, player, BoneId.Spine1, Vector3.Zero);
+            await Task.Delay(1000);
+            boneAttachService.Detach(bin);
+        });
+
+        AddCommand("boneAttachFullTest", player =>
+        {
+            var ped1 = new Ped(Server.Elements.Enums.PedModel.Dwmolc2, new Vector3(0, 10, 3)).AssociateWith(mtaServer);
+            var ped2 = new Ped(Server.Elements.Enums.PedModel.Dwmolc2, new Vector3(0, 12, 3)).AssociateWith(mtaServer);
+            var ak47 = new WorldObject(355, new Vector3(0, 0, 9999)).AssociateWith(mtaServer);
+            boneAttachService.Attach(ak47, ped1, BoneId.Spine1, new Vector3(0, -0.15f, 0));
+            if (!boneAttachService.IsAttached(ak47))
+                throw new Exception("Bug1?");
+            if (!boneAttachService.GetAttacheds(ped1).Any())
+                throw new Exception("Bug2?");
+
+            boneAttachService.Detach(ak47);
+            if (boneAttachService.IsAttached(ak47))
+                throw new Exception("Bug3?");
+            if (boneAttachService.GetAttacheds(ped1).Any())
+                throw new Exception("Bug4?");
+
+            boneAttachService.Attach(ak47, ped1, BoneId.Spine1, new Vector3(0, -0.15f, 0));
+            boneAttachService.SetBone(ak47, BoneId.Head);
+            boneAttachService.SetPed(ak47, ped2);
+
+        });
+    }
+
+    private void AddWatermarkResourceTestLogic(WatermarkService watermarkService)
+    {
+        watermarkService.SetContent("Sample server, version: 1");
+    }
+
+    private void AddDiscordRichPresenceTestLogic(DiscordRichPresenceService discordRichPresenceService)
+    {
+        discordRichPresenceService.RichPresenceReady += (Player player, string? userId) =>
+        {
+            this.chatBox.Output($"Discord rich presence ready: {player.Name} userId {userId}");
+        };
+
+        AddCommand("discordRichPresenceStart", player =>
+        {
+            if (this.resourceStartedManager.IsStarted<DiscordRichPresenceResource>(player))
+            {
+                this.chatBox.OutputTo(player, "Resource already started.");
+                return;
+            }
+            this.chatBox.OutputTo(player, "Starting discord rich resence resource.");
+            this.mtaServer.GetAdditionalResource<DiscordRichPresenceResource>().StartFor(player);
+        });
+
+        AddCommand("discordRichPresence", player =>
+        {
+            chatBox.OutputTo(player, $"Rich presence ready: {discordRichPresenceService.IsRichPresenceAllowed(player)}");
+            discordRichPresenceService.SetState(player, "In-Game");
+            discordRichPresenceService.SetDetails(player, "Hello c#");
+            discordRichPresenceService.SetAsset(player, "big_mreow", "mr. mreow");
+            discordRichPresenceService.SetSmallAsset(player, "big_mreow", "mr. mreow junior");
+            discordRichPresenceService.SetButton(player, DiscordRichPresenceButton.Upper, "upper", new Uri("https://www.google.com"));
+            discordRichPresenceService.SetButton(player, DiscordRichPresenceButton.Lower, "lower", new Uri("https://www.google.com"));
+            //discordRichPresenceService.SetPartySize(player, 420, 1337);
+            //discordRichPresenceService.SetStartTime(player, 4201337);
+        });
+    }
+
+    private void AddClientElementsResourceTestLogic(ClientElementsService clientElementsService)
+    {
+        AddCommand("clientElement", async player =>
+        {
+
+            IEnumerable<Element> createExampleElements()
+            {
+                for (int i = 0; i < 10; i++)
+                    yield return new WorldObject(Server.Enums.ObjectModel.BinNt07LA, player.Position with { X = player.Position.X + i + 3 });
+                for (int i = 0; i < 10; i++)
+                    yield return new Blip(player.Position with { X = player.Position.X + i * 20 + 3 }, BlipIcon.Airyard, 5000, 0);
+            }
+
+            using var _ = clientElementsService.CreateFor(player, createExampleElements());
+            await Task.Delay(2000);
+        });
+    }
+
+    private void AddScreenshotsResourceTestLogic(ScreenshotsService screenshotsService)
+    {
+        void handleScreenshotTaken(Player player, int id, byte[] data, ScreenshotSource screenshotSource)
+        {
+            System.Console.WriteLine("Screenshot taken {0}", id);
+
+            if (!Directory.Exists("screenshots"))
+                Directory.CreateDirectory("screenshots");
+
+            File.WriteAllBytes($"screenshots/{Guid.NewGuid()}.jpeg", data);
+        }
+
+        void handleScreenshotUploadStarted(Player player, int id)
+        {
+            System.Console.WriteLine("Screenshot upload started {0}", id);
+        }
+
+        screenshotsService.ScreenshotTaken += handleScreenshotTaken;
+        screenshotsService.ScreenshotUploadStarted += handleScreenshotUploadStarted;
+    }
+    
+    private void AddPedIntelligenceTestLogic(PedIntelligenceService pedIntelliganceService)
+    {
         var testObstacle1 = new WorldObject(1468, new Vector3(22.00f, -8.95f, 3.12f)).AssociateWith(mtaServer);
         testObstacle1.Rotation = new Vector3(0, 0, 45);
         var testObstacle2 = new WorldObject(1468, new Vector3(10.70f, 4.17f, 3.11f)).AssociateWith(mtaServer);
         testObstacle2.Rotation = new Vector3(0, 0, 45);
 
-        discordRichPresenceService.RichPresenceReady += DiscordRichPresenceService_RichPresenceChanged;
-        screenshotsService.ScreenshotTaken += HandleScreenshotTaken;
-        screenshotsService.ScreenshotUploadStarted += HandleScreenshotUploadStarted;
-
-        this.mtaServer.PlayerJoined += HandlePlayerJoined;
-    }
-
-    private void HandleStartDiscordRichPresence(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        if (resourceStartedManager.IsStarted<DiscordRichPresenceResource>(e.Player))
+        AddCommand("pedAi1", async (player, args) =>
         {
-            this.chatBox.OutputTo(e.Player, "Resource already started.");
-            return;
-        }
-        this.chatBox.OutputTo(e.Player, "Starting discord rich resence resource.");
-        this.mtaServer.GetAdditionalResource<DiscordRichPresenceResource>().StartFor(e.Player);
+            var ped = new Ped(Server.Elements.Enums.PedModel.Cj, new Vector3(4.46f, 11.36f, 3.12f)).AssociateWith(this.mtaServer);
+            if (args.FirstOrDefault() == "smarter")
+            {
+                pedIntelliganceService.SetPedObstacleAvoidanceStrategies(ped, ObstacleAvoidanceStrategies.Jump);
+            }
+            ped.Syncer = player;
+
+            var points = new Vector3[] { new Vector3(17.13f, -3.29f, 3.12f), new Vector3(3.67f, 12.75f, 3.12f) };
+            var index = 0;
+            while (true)
+            {
+                IPedIntelligenceState pedState = pedIntelliganceService.GoTo(ped, points[index]);
+                try
+                {
+                    await pedState.Completed;
+                }
+                catch (PedStuckException pedStuckException)
+                {
+                    // ignore
+                }
+                if (index == 1)
+                    index = 0;
+                else
+                    index = 1;
+            }
+        });
+
+        AddCommand("pedAi2", async (player, args) =>
+        {
+            var ped = new Ped(Server.Elements.Enums.PedModel.Cj, new Vector3(4.46f, 11.36f, 3.12f)).AssociateWith(this.mtaServer);
+            ped.Syncer = player;
+
+            try
+            {
+                IPedIntelligenceState pedState = pedIntelliganceService.Follow(ped, player);
+                await pedState.Completed;
+            }
+            catch (Exception ex)
+            {
+                // Ped is unable to follow
+            }
+        });
     }
 
-    private async void HandleAttachCollisions(object? sender, Server.Events.CommandTriggeredEventArgs e)
+    private void AddScoreboardReourceTestLogic(ScoreboardService scoreboardService)
     {
-        var bin = new WorldObject(1337, e.Player.Position).AssociateWith(mtaServer);
-        bin.AreCollisionsEnabled = false;
-        this.boneAttachService.Attach(bin, e.Player, BoneId.Spine1, Vector3.Zero);
-        await Task.Delay(1000);
-        this.boneAttachService.Detach(bin);
+        AddCommand("scoreboard", player =>
+        {
+            var columns = new List<ScoreboardColumn> {
+                new ScoreboardColumn
+                {
+                    Name = "Name",
+                    Source = ScoreboardColumn.DataSource.Property,
+                    Key = "Name",
+                    Width = 400,
+                    WidthRelative = false,
+                },
+                new ScoreboardColumn
+                {
+                    Name = "TestKey",
+                    Source = ScoreboardColumn.DataSource.ElementData,
+                    Key = "TestKey",
+                    Width = 100,
+                    WidthRelative = false,
+                },
+                new ScoreboardColumn
+                {
+                    Name = "Ping",
+                    Source = ScoreboardColumn.DataSource.Property,
+                    Key = "Ping",
+                    Width = 80,
+                    WidthRelative = false,
+                    TextAlign = "right"
+                },
+            };
+
+            player.SetData("TestKey", "TestValue", Server.Elements.Enums.DataSyncType.Broadcast);
+            scoreboardService.SetColumns(player, columns);
+            scoreboardService.SetHeader(player, new ScoreboardHeader
+            {
+                Text = "Sample server name",
+                Size = 2.5f,
+                Font = "sans"
+            });
+        });
     }
 
     private void HandlePlayerJoined(Player player)
@@ -132,239 +356,19 @@ internal class TestLogic
         this.chatBox.OutputTo(sender, $"Resource started {e.NetId}");
     }
 
-    private void HandleScreenshotTaken(Player player, int id, byte[] data, ScreenshotSource screenshotSource)
+    private void AddCommand(string command, Action<Player> callback)
     {
-        System.Console.WriteLine("Screenshot taken {0}", id);
-
-        if (!Directory.Exists("screenshots"))
-            Directory.CreateDirectory("screenshots");
-
-        File.WriteAllBytes($"screenshots/{Guid.NewGuid()}.jpeg", data);
-    }
-
-    private void HandleScreenshotUploadStarted(Player player, int id)
-    {
-        System.Console.WriteLine("Screenshot upload started {0}", id);
-    }
-
-
-    private bool enabled = false;
-    private void HandleNoClip(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        enabled = !enabled;
-        noClipService.SetEnabledTo(e.Player, enabled);
-    }
-    
-    private void HandleNoClipSetPosition(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        noClipService.SetPosition(e.Player, new Vector3(0,0,10));
-    }
-
-    private void DiscordRichPresenceService_RichPresenceChanged(Player player, string? userId)
-    {
-        this.chatBox.Output($"Discord rich presence ready: {player.Name} userId {userId}");
-    }
-
-    private void HandleDiscordRichPresence(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        var player = e.Player;
-        chatBox.OutputTo(player, $"Rich presence ready: {discordRichPresenceService.IsRichPresenceAllowed(player)}");
-        discordRichPresenceService.SetState(player, "In-Game");
-        discordRichPresenceService.SetDetails(player, "Hello c#");
-        discordRichPresenceService.SetAsset(player, "big_mreow", "mr. mreow");
-        discordRichPresenceService.SetSmallAsset(player, "big_mreow", "mr. mreow junior");
-        discordRichPresenceService.SetButton(player, DiscordRichPresenceButton.Upper, "upper", new Uri("https://www.google.com"));
-        discordRichPresenceService.SetButton(player, DiscordRichPresenceButton.Lower, "lower", new Uri("https://www.google.com"));
-        //discordRichPresenceService.SetPartySize(player, 420, 1337);
-        //discordRichPresenceService.SetStartTime(player, 4201337);
-    }
-    
-    private void HandleInterior(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        var player = e.Player;
-        player.Interior = player.Interior == 1 ? (byte)0 : (byte)1;
-
-    }
-    private void HandleDimension(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        var player = e.Player;
-        player.Dimension = player.Dimension == 1 ? (ushort)0 : (ushort)1;
-    }
-
-    private void HandleDiscordRichPresenceAll(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        discordRichPresenceService.SetState("In-Game");
-        discordRichPresenceService.SetDetails("Hello c#");
-        discordRichPresenceService.SetAsset("big_mreow", "mr. mreow");
-        discordRichPresenceService.SetSmallAsset("big_mreow", "mr. mreow junior");
-        discordRichPresenceService.SetButton(DiscordRichPresenceButton.Upper, "upper", new Uri("https://www.google.com"));
-        discordRichPresenceService.SetButton(DiscordRichPresenceButton.Lower, "lower", new Uri("https://www.google.com"));
-        //discordRichPresenceService.SetPartySize(420, 1337);
-        //discordRichPresenceService.SetStartTime(4201337);
-    }
-
-    private int sampleText3d = 0;
-    private void HandleCustomizeText3d(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        _text3DService.SetText3dText(sampleText3d, "New text");
-        _text3DService.SetText3dDistance(sampleText3d, 10);
-        _text3DService.SetText3dFontSize(sampleText3d, 3);
-        _text3DService.SetText3dPosition(sampleText3d, e.Player.Position);
-    }
-
-    private void TestLogic_Triggered1(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        sampleText3d = _text3DService.CreateText3d(e.Player.Position, e.Player.Name);
-    }
-
-    private void HandleDay(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        gameWorld.SetTime(12, 0);
-    }
-
-    private void HandleScoreboard(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        var columns = new List<ScoreboardColumn> {
-            new ScoreboardColumn
-            {
-                Name = "Name",
-                Source = ScoreboardColumn.DataSource.Property,
-                Key = "Name",
-                Width = 400,
-                WidthRelative = false,
-            },
-            new ScoreboardColumn
-            {
-                Name = "TestKey",
-                Source = ScoreboardColumn.DataSource.ElementData,
-                Key = "TestKey",
-                Width = 100,
-                WidthRelative = false,
-            },
-            new ScoreboardColumn
-            {
-                Name = "Ping",
-                Source = ScoreboardColumn.DataSource.Property,
-                Key = "Ping",
-                Width = 80,
-                WidthRelative = false,
-                TextAlign = "right"
-            },
+        this.commandService.AddCommand(command).Triggered += (object? sender, Server.Events.CommandTriggeredEventArgs e) =>
+        {
+            callback(e.Player);
         };
+    }
 
-        e.Player.SetData("TestKey", "TestValue", Server.Elements.Enums.DataSyncType.Broadcast);
-        scoreboardService.SetColumns(e.Player, columns);
-        scoreboardService.SetHeader(e.Player, new ScoreboardHeader
+    private void AddCommand(string command, Action<Player, string[]> callback)
+    {
+        this.commandService.AddCommand(command).Triggered += (object? sender, Server.Events.CommandTriggeredEventArgs e) =>
         {
-            Text = "Sample server name",
-            Size = 2.5f,
-            Font = "sans"
-        });
-    }
-
-    private void HandleAttachCommand(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        var ak47 = new WorldObject(355, Vector3.Zero).AssociateWith(mtaServer);
-        this.boneAttachService.Attach(ak47, e.Player, BoneId.Spine1, new Vector3(0, -0.15f, 0));
-    }
-
-    private void HandleElementDetached(Ped ped, Element element)
-    {
-        if(ped is Player)
-        {
-            element.Destroy();
-        }
-    }
-
-    private void HandleCarCommand(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        new Vehicle(VehicleModel.Buffalo, e.Player.Position).AssociateWith(mtaServer);
-    }
-
-    private void HandleFullAttachTestCommand(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        var ped1 = new Ped(Server.Elements.Enums.PedModel.Dwmolc2, new Vector3(0, 10, 3)).AssociateWith(mtaServer);
-        var ped2 = new Ped(Server.Elements.Enums.PedModel.Dwmolc2, new Vector3(0, 12, 3)).AssociateWith(mtaServer);
-        var ak47 = new WorldObject(355, new Vector3(0,0,9999)).AssociateWith(mtaServer);
-        this.boneAttachService.Attach(ak47, ped1, BoneId.Spine1, new Vector3(0, -0.15f, 0));
-        if (!this.boneAttachService.IsAttached(ak47))
-            throw new Exception("Bug1?");
-        if (!this.boneAttachService.GetAttacheds(ped1).Any())
-            throw new Exception("Bug2?");
-
-        this.boneAttachService.Detach(ak47);
-        if (this.boneAttachService.IsAttached(ak47))
-            throw new Exception("Bug3?");
-        if (this.boneAttachService.GetAttacheds(ped1).Any())
-            throw new Exception("Bug4?");
-
-        this.boneAttachService.Attach(ak47, ped1, BoneId.Spine1, new Vector3(0, -0.15f, 0));
-        this.boneAttachService.SetBone(ak47, BoneId.Head);
-        this.boneAttachService.SetPed(ak47, ped2);
-    }
-
-    private void TestLogic_Triggered(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        _text3DService.SetRenderingEnabled(e.Player, e.Arguments.FirstOrDefault("false") == "true" ? true : false);
-    }
-
-    private async void HandlePedAiCommand(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        var ped = new Ped(Server.Elements.Enums.PedModel.Cj, new Vector3(4.46f, 11.36f, 3.12f)).AssociateWith(this.mtaServer);
-        if (e.Arguments.FirstOrDefault() == "smarter")
-        {
-            this.pedIntelliganceService.SetPedObstacleAvoidanceStrategies(ped, ObstacleAvoidanceStrategies.Jump);
-        }
-        ped.Syncer = e.Player;
-
-        var points = new Vector3[] { new Vector3(17.13f, -3.29f, 3.12f), new Vector3(3.67f, 12.75f, 3.12f) };
-        var index = 0;
-        while (true)
-        {
-            IPedIntelligenceState pedState = this.pedIntelliganceService.GoTo(ped, points[index]);
-            try
-            {
-                await pedState.Completed;
-            }
-            catch(PedStuckException pedStuckException)
-            {
-                // ignore
-            }
-            if (index == 1)
-                index = 0;
-            else
-                index = 1;
-        }
-    }
-    
-    private async void HandlePedAi2Command(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        var ped = new Ped(Server.Elements.Enums.PedModel.Cj, new Vector3(4.46f, 11.36f, 3.12f)).AssociateWith(this.mtaServer);
-        ped.Syncer = e.Player;
-
-        try
-        {
-
-        IPedIntelligenceState pedState = this.pedIntelliganceService.Follow(ped, e.Player);
-            await pedState.Completed;
-        }
-        catch(Exception ex)
-        {
-            // Ped is unable to follow
-        }
-    }
-
-    private IEnumerable<Element> CreateExampleElements(Player player)
-    {
-        for(int i = 0 ; i < 10; i++)
-            yield return new WorldObject(Server.Enums.ObjectModel.BinNt07LA, player.Position with { X = player.Position.X + i + 3 });
-        for(int i = 0 ; i < 10; i++)
-            yield return new Blip(player.Position with { X = player.Position.X + i * 20 + 3 }, BlipIcon.Airyard, 5000, 0);
-    }
-
-    private async void HandleClientsElements(object? sender, Server.Events.CommandTriggeredEventArgs e)
-    {
-        using var _ = clientElementsService.CreateFor(e.Player, CreateExampleElements(e.Player));
-        await Task.Delay(2000);
+            callback(e.Player, e.Arguments);
+        };
     }
 }
