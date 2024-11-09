@@ -77,8 +77,16 @@ internal class LuaEventHub<THub, TResource> : ILuaEventHub<THub> where TResource
             case NewExpression newExpression:
                 var instantiate = Expression.Lambda<Func<LuaValue>>(newExpression).Compile();
                 return instantiate();
+            case UnaryExpression unaryExpression:
+                var operandValue = Expression.Lambda(unaryExpression.Operand).Compile().DynamicInvoke();
+                var result = Expression.Lambda(unaryExpression).Compile().DynamicInvoke();
+                return _luaValueMapper.Map(result);
+            case MethodCallExpression methodCallExpression when methodCallExpression.Arguments.Count == 0:
+                var instanceValue = Expression.Lambda(methodCallExpression.Object).Compile().DynamicInvoke();
+                var resultValue = methodCallExpression.Method.Invoke(instanceValue, null);
+                return _luaValueMapper.Map(resultValue);
             default:
-                throw new NotSupportedException();
+                throw new NotSupportedException(expression.ToString());
         }
     }
 }

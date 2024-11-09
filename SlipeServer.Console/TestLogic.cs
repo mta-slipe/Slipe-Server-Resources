@@ -1,4 +1,5 @@
 ﻿using SlipeServer.Packets.Enums;
+using SlipeServer.Resources.Assets;
 using SlipeServer.Resources.Base;
 using SlipeServer.Resources.BoneAttach;
 using SlipeServer.Resources.ClientElements;
@@ -13,8 +14,11 @@ using SlipeServer.Resources.Text3d;
 using SlipeServer.Resources.Watermark;
 using SlipeServer.Server;
 using SlipeServer.Server.Elements;
+using SlipeServer.Server.Enums;
 using SlipeServer.Server.Services;
+using System.Drawing;
 using System.Numerics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SlipeServer.Console;
 
@@ -25,17 +29,18 @@ internal class TestLogic
     private readonly ChatBox chatBox;
     private readonly GameWorld gameWorld;
     private readonly ResourceStartedManager resourceStartedManager;
+    private readonly LuaEventService luaEventService;
 
     public TestLogic(Text3dService text3DService, CommandService commandService, WatermarkService watermarkService,
         BoneAttachService boneAttachService, MtaServer mtaServer, PedIntelligenceService pedIntelliganceService, ChatBox chatBox,
-        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService, DiscordRichPresenceService discordRichPresenceService, NoClipService noClipService, ScreenshotsService screenshotsService, ResourceStartedManager resourceStartedManager)
+        ScoreboardService scoreboardService, GameWorld gameWorld, ClientElementsService clientElementsService, DiscordRichPresenceService discordRichPresenceService, NoClipService noClipService, ScreenshotsService screenshotsService, ResourceStartedManager resourceStartedManager, LuaEventService luaEventService, AssetsService assetsService)
     {
         this.commandService = commandService;
         this.mtaServer = mtaServer;
         this.chatBox = chatBox;
         this.gameWorld = gameWorld;
         this.resourceStartedManager = resourceStartedManager;
-
+        this.luaEventService = luaEventService;
         this.mtaServer.PlayerJoined += HandlePlayerJoined;
 
         AddUsefulCommands();
@@ -48,6 +53,7 @@ internal class TestLogic
         AddScreenshotsResourceTestLogic(screenshotsService);
         AddPedIntelligenceTestLogic(pedIntelliganceService);
         AddScoreboardReourceTestLogic(scoreboardService);
+        AddAssetsResourceTestLogic(assetsService);
     }
 
     private void AddUsefulCommands()
@@ -343,6 +349,30 @@ internal class TestLogic
                 Size = 2.5f,
                 Font = "sans"
             });
+        });
+    }
+
+    private void AddAssetsResourceTestLogic(AssetsService assetsService)
+    {
+        void handleReplaceFailed(Player player, string what, ObjectModel model, string error)
+        {
+            this.chatBox.OutputTo(player, $"Failed to replace {what} {model}({(int)model}) because: {error}", Color.OrangeRed);
+        }
+
+        assetsService.ReplaceFailed += handleReplaceFailed;
+
+        AddCommand("assetsreplace", player =>
+        {
+            var worldObject = new WorldObject(1337, player.Position + new Vector3(2, 0, 0)).AssociateWith(this.mtaServer);
+            assetsService.ReplaceObject((ObjectModel)1337, new FileSystemAssetSource("cube.dff"), new FileSystemAssetSource("cube.col"), new FileSystemAssetSource("cube.txd"));
+            this.chatBox.Output("Replaced model 1337 with cube");
+        });
+
+        AddCommand("assetsshowimage", player =>
+        {
+            this.chatBox.OutputTo(player, "Showing sample.png", Color.GreenYellow);
+            var asset = new FileSystemAssetSource("sample.png");
+            this.luaEventService.TriggerEventFor(player, "loadAsset", player, asset);
         });
     }
 

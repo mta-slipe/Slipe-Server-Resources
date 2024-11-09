@@ -62,3 +62,14 @@ addCommandHandler("gp", function()
 	local pos = string.format("%.2f, %.2f, %.2f", getElementPosition(localPlayer))
 	outputChatBox(pos)
 end)
+
+addEvent("loadAsset", true)
+addEventHandler("loadAsset", localPlayer, function(assetSource)
+	local content = exports.Assets:getAssetData(assetSource)
+	if(content.hasValue)then
+		local texture = dxCreateTexture(content.value)
+		addEventHandler("onClientRender", root, function()
+			dxDrawImage(100, 100, 100, 100, texture)
+		end)
+	end
+end)

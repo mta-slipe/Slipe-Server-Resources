@@ -21,6 +21,7 @@ using SlipeServer.Resources.ClientElements;
 using SlipeServer.Resources.DiscordRichPresence;
 using SlipeServer.Resources.Screenshots;
 using SlipeServer.Resources.Base;
+using SlipeServer.Resources.Assets;
 
 namespace SlipeServer.Console;
 
@@ -114,7 +115,10 @@ public partial class Program
                     ApplicationId = 1162033070740869120
                 });
                 builder.AddScreenshotsResource(new());
-
+                builder.AddAssetsResource(new AssetsOptions
+                {
+                    AssetsProviders = [new FileSystemAssetsProvider("Assets")]
+                });
                 builder.AddLogic<TestLogic>();
                 builder.AddLogic<HotReloadableLogic>();
             }
