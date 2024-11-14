@@ -63,13 +63,17 @@ addCommandHandler("gp", function()
 	outputChatBox(pos)
 end)
 
-addEvent("loadAsset", true)
-addEventHandler("loadAsset", localPlayer, function(assetSource)
-	local content = exports.Assets:getAssetData(assetSource)
-	if(content.hasValue)then
-		local texture = dxCreateTexture(content.value)
-		addEventHandler("onClientRender", root, function()
-			dxDrawImage(100, 100, 100, 100, texture)
-		end)
+local textures = {}
+addEventHandler("onClientRender", root, function()
+	for i,v in ipairs(textures)do
+		if(v.value)then
+			dxDrawImage(250 + (i-1) * 100, 100, 100, 100, v.value)
+		end
 	end
+end)
+
+addEvent("showImage", true)
+addEventHandler("showImage", localPlayer, function(assetSource)
+	local texture = assetsGetImage(assetSource)
+	textures[#textures + 1] = texture;
 end)

@@ -28,3 +28,18 @@ public record class FileSystemAssetSource(string FileName) : IAssetSource
 
     public static implicit operator LuaValue(FileSystemAssetSource source) => source.AsLuaValue();
 }
+
+public record class RemoteAssetSource(Uri Uri) : IAssetSource
+{
+    public LuaValue AsLuaValue()
+    {
+        return new Dictionary<LuaValue, LuaValue>
+        {
+            ["id"] = AssetSourceIdProvider.GetId(),
+            ["type"] = "remote",
+            ["uri"] = Uri.ToString()
+        };
+    }
+
+    public static implicit operator LuaValue(RemoteAssetSource source) => source.AsLuaValue();
+}

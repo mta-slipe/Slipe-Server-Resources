@@ -12,7 +12,7 @@ public sealed record FileSystemAssetsProvider(string Path) : AssetsProvider;
 public sealed class AssetsOptions : ResourceOptionsBase
 {
     public string BasePath { get; set; } = "Data";
-    public AssetsProvider[] AssetsProviders { get; set; }
+    public AssetsProvider[] AssetsProviders { get; set; } = [];
 }
 
 public static class ServerBuilderExtensions
@@ -80,8 +80,67 @@ public static class ResourceExtensions
         resource.NoClientScripts[$"{resource.Name}/assetsExports.lua"] =
             Encoding.UTF8.GetBytes("""
                 local cache = {}
-                function getAssetData(assetSource)
-                    local asset = exports.assets:getAssetData(assetSource);
+                function assetsGetRawData(assetSource)
+                    local asset = exports.Assets:assetsGetRawData(assetSource);
+                    return asset;
+                end
+
+                local function assetsLoad(assetSource, factory)
+                    local data = assetsGetRawData(assetSource)
+                    
+                    if(data.error)then
+                        return {
+                            isLoaded = true,
+                            error = data.error
+                        };
+                    end
+                    if(data.hasValue)then
+                        local success, assetOrError = pcall(factory, data.value)
+                
+                        if success then
+                            return {
+                                value = assetOrError,
+                                isLoaded = true,
+                            }
+                        else
+                            return {
+                                error = assetOrError,
+                                isLoaded = false,
+                            }
+                        end
+                    else
+                        local result = {
+                            isLoaded = false,
+                        }
+                
+                        setTimer(function()
+                            local data = assetsGetRawData(assetSource)
+                            if(data.error)then
+                                killTimer(sourceTimer);
+                                result.error = data.error;
+                            elseif(data.hasValue)then
+                                killTimer(sourceTimer);
+                                local success, assetOrError = pcall(factory, data.value)
+                
+                                if success then
+                                    result.value = assetOrError;
+                                else
+                                    result.error = assetOrError;
+                                end
+                            end
+                        end, 200, 0);
+
+                        return result;
+                    end
+                
+                    return {
+                        isLoaded = false,
+                        error = "unknown"
+                    }
+                end
+
+                function assetsGetImage(assetSource)
+                    return assetsLoad(assetSource, dxCreateTexture);
                 end
                 """);
     }

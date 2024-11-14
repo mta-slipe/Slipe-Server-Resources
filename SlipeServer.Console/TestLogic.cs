@@ -372,7 +372,28 @@ internal class TestLogic
         {
             this.chatBox.OutputTo(player, "Showing sample.png", Color.GreenYellow);
             var asset = new FileSystemAssetSource("sample.png");
-            this.luaEventService.TriggerEventFor(player, "loadAsset", player, asset);
+            this.luaEventService.TriggerEventFor(player, "showImage", player, asset);
+        });
+
+        AddCommand("assetsshowimageremote", player =>
+        {
+            this.chatBox.OutputTo(player, "Showing remote image", Color.GreenYellow);
+            var asset = new RemoteAssetSource(new Uri("https://i.imgur.com/g3D5jNz.jpeg"));
+            this.luaEventService.TriggerEventFor(player, "showImage", player, asset);
+        });
+
+        AddCommand("assetsshowimageremoteinvalid", player =>
+        {
+            this.chatBox.OutputTo(player, "Showing remote image", Color.GreenYellow);
+            var asset = new RemoteAssetSource(new Uri("https://foo.bar"));
+            this.luaEventService.TriggerEventFor(player, "showImage", player, asset);
+        });
+
+        AddCommand("assetsshowimageremoteinvalid2", player =>
+        {
+            this.chatBox.OutputTo(player, "Showing remote image", Color.GreenYellow);
+            var asset = new RemoteAssetSource(new Uri("https://imgur.com/asdasd"));
+            this.luaEventService.TriggerEventFor(player, "showImage", player, asset);
         });
     }
 

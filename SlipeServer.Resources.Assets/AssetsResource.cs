@@ -5,6 +5,6 @@ internal class AssetsResource : Resource
     internal AssetsResource(MtaServer server)
         : base(server, server.RootElement, "Assets")
     {
-        Exports.Add("getAssetData");
+        Exports.Add("assetsGetRawData");
     }
 }

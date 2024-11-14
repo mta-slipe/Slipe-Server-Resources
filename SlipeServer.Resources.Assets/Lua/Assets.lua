@@ -4,8 +4,45 @@ local basePath = "";
 local images = {};
 local models = {};
 local cache = {};
+local pendingDownloads = {};
 
-local function getContent(assetSource)
+function assetsGetRawData(assetSource)
+	if(assetSource.type == "remote")then
+		local uri = assetSource.uri;
+		local pendingDownload = pendingDownloads[uri];
+		if(pendingDownload)then
+			if(pendingDownload.state == "downloaded")then
+				return {
+					hasValue = true,
+					value = pendingDownload.data
+				};
+			elseif(pendingDownload.state == "error")then
+				return {
+					hasValue = false,
+					error = pendingDownload.error
+				};
+			end
+		else
+			pendingDownload = {
+				state = "downloading"
+			};
+			pendingDownloads[uri] = pendingDownload
+			requestBrowserDomains({ assetSource.uri }, true)
+			fetchRemote(assetSource.uri, function(responseData, responseInfo)
+				if(responseData == "ERROR")then
+					pendingDownload.state = "error";
+					pendingDownload.error = responseInfo;
+				else
+					pendingDownload.state = "downloaded";
+					pendingDownload.data = responseData;
+				end
+			end)
+		end
+		
+		return {
+			hasValue = false
+		};
+	end
 	if(assetSource.type == "fileSystem")then
 		local fullPath = basePath.."/"..assetSource.fileName
 		if(not fileExists(fullPath))then
@@ -81,11 +118,6 @@ local function handleReplaceTexture(model, assetSource)
 	else
 		triggerServerEvent("internalFailedToReplace", resourceRoot, "texture", model, content.error);
 	end
-end
-
-function getAssetData(assetSource)
-	local content = getContent(assetSource);
-	return content;
 end
 
 addEventHandler("onClientResourceStart", resourceRoot, function()

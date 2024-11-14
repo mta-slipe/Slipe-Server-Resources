@@ -82,6 +82,7 @@ public partial class Program
                 {
                     testResource = new TestResource(server);
                     testResource.InjectDGSExportedFunctions();
+                    testResource.InjectAssetsExportedFunctions();
                     server.AddAdditionalResource(testResource, new());
                 });
 
