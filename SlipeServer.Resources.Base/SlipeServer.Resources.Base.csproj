@@ -18,7 +18,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="SlipeServer.Server" Version="0.1.0-CI-20241103-130407" />
+		<PackageReference Include="SlipeServer.Server" Version="0.1.0-CI-20241202-221622" />
 	</ItemGroup>
 
 	<ItemGroup>
