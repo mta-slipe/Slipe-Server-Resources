@@ -13,7 +13,7 @@ internal sealed class BoneAttachLogic : ResourceLogicBase<BoneAttachResource, Bo
     private readonly BoneAttachService boneAttachService;
     private readonly LuaEventService luaEventService;
 
-    private readonly Dictionary<Element, AttachInfo> cache = new();
+    private readonly Dictionary<Element, AttachInfo> cache = [];
     private readonly Dictionary<string, LuaValue> _options = new()
     {
         ["dimensionChanges"] = true,

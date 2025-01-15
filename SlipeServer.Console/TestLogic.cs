@@ -101,7 +101,7 @@ internal class TestLogic
 
         AddCommand("text3dSetEnabled", (player, args) =>
         {
-            text3DService.SetRenderingEnabled(player, args.FirstOrDefault("false") == "true" ? true : false);
+            text3DService.SetRenderingEnabled(player, args.FirstOrDefault("false") == "true");
         });
 
         AddCommand("text3dCreate", player =>

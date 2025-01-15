@@ -11,7 +11,7 @@ namespace SlipeServer.Resources.BoneAttach;
 
 internal class BoneAttachResource : Resource
 {
-    internal Dictionary<string, byte[]> AdditionalFiles { get; } = new();
+    internal Dictionary<string, byte[]> AdditionalFiles { get; } = [];
     private readonly BoneAttachVersion version;
 
     internal BoneAttachResource(MtaServer server, BoneAttachVersion version, HttpClient? httpClient = null)
@@ -38,13 +38,13 @@ internal class BoneAttachResource : Resource
         using var zip = new ZipArchive(file, ZipArchiveMode.Read);
         var metaXmlEntry = zip.GetEntry($"pAttach/meta.xml");
 
-        StreamReader streamReader = new StreamReader(metaXmlEntry.Open());
+        StreamReader streamReader = new(metaXmlEntry.Open());
         MetaXml? metaXml = (MetaXml?)new XmlSerializer(typeof(MetaXml)).Deserialize(streamReader);
 
         foreach (MetaXmlScript item in metaXml.Value.scripts.Where((MetaXmlScript x) => x.Type == "client" || x.Type == "shared"))
         {
             var entry = zip.GetEntry($"pAttach/{item.Source}");
-            using StreamReader sr = new StreamReader(entry.Open());
+            using StreamReader sr = new(entry.Open());
             var data = Encoding.Default.GetBytes(sr.ReadToEnd());
             Files.Add(ResourceFileFactory.FromBytes(data, item.Source, ResourceFileType.ClientScript));
             AdditionalFiles.Add(item.Source, data);

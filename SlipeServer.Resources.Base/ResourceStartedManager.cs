@@ -15,7 +15,7 @@ public class ResourceNotStartedException : Exception
 
 public sealed class ResourceStartedManager
 {
-    private readonly object @lock = new();
+    private readonly Lock @lock = new();
     public Dictionary<Player, HashSet<Type>> PlayerResources { get; } = [];
 
     public bool IsStarted<TResource>(Player player) where TResource : Resource

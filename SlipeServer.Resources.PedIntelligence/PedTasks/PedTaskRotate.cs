@@ -15,10 +15,10 @@ public class PedTaskRotate : PedTask
 
     public override LuaValue ToLuaValue()
     {
-        return new LuaValue(new LuaValue[] {
+        return new LuaValue([
             new LuaValue(nameof(PedTaskRotate)),
             new LuaValue(direction),
             new LuaValue(tolerance),
-        });
+        ]);
     }
 }

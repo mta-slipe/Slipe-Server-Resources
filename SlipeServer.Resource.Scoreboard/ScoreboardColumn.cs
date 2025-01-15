@@ -18,8 +18,8 @@ public class ScoreboardColumn
     public string Font { get; set; } = "sans";
     public string TextAlign { get; set; } = "left";
 
-    internal LuaValue LuaValue => new LuaValue(new LuaValue[]
-    {
+    internal LuaValue LuaValue => new LuaValue(
+    [
         new LuaValue(Name),
         new LuaValue(Key),
         new LuaValue(Width),
@@ -27,5 +27,5 @@ public class ScoreboardColumn
         new LuaValue((int)Source),
         new LuaValue(Font),
         new LuaValue(TextAlign),
-    });
+    ]);
 }

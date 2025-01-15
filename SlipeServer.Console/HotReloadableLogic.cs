@@ -31,15 +31,17 @@ internal class HotReloadableLogic
         string outputDirectory = AppDomain.CurrentDomain.BaseDirectory;
         this.projectDirectory = Directory.GetParent(outputDirectory).Parent.Parent.Parent.FullName; // Navigate to the project folder
 
-        this.watcher = new FileSystemWatcher();
-        this.watcher.Filter = "*.lua";
+        this.watcher = new()
+        {
+            Filter = "*.lua",
 
-        this.watcher.Path = this.projectDirectory;
-        this.watcher.NotifyFilter = NotifyFilters.LastWrite
+            Path = this.projectDirectory,
+            NotifyFilter = NotifyFilters.LastWrite
                                  | NotifyFilters.FileName
                                  | NotifyFilters.Size
                                  | NotifyFilters.CreationTime
-                                 | NotifyFilters.DirectoryName;
+                                 | NotifyFilters.DirectoryName
+        };
 
         this.watcher.Changed += HandleChanged;
         this.watcher.EnableRaisingEvents = true;

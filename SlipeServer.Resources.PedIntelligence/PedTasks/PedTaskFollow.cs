@@ -16,10 +16,10 @@ public class PedTaskFollow : PedTask
 
     public override LuaValue ToLuaValue()
     {
-        return new LuaValue(new LuaValue[] {
+        return new LuaValue([
             new LuaValue(nameof(PedTaskFollow)),
             new LuaValue(element.Id),
             new LuaValue(distance),
-        });
+        ]);
     }
 }

@@ -74,7 +74,7 @@ public sealed class DGSResource : Resource
             Files.Add(ResourceFileFactory.FromBytes(data, item.Source, ResourceFileType.ClientFile));
             AdditionalFiles.Add(item.Source, data);
             string hash = GetHash(sha256Hash, data);
-            DGSRecordedFiles.Add(item.Source, new LuaValue(new LuaValue[] { hash, data.Length }));
+            DGSRecordedFiles.Add(item.Source, new LuaValue([hash, data.Length]));
         }
 
         foreach (MetaXmlScript item in metaXml.Value.scripts.Where((MetaXmlScript x) => x.Type == "client"))

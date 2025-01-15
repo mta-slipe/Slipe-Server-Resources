@@ -16,12 +16,12 @@ public class PedTaskGoTo : PedTask
 
     public override LuaValue ToLuaValue()
     {
-        return new LuaValue(new LuaValue[] {
+        return new LuaValue([
             new LuaValue(nameof(PedTaskGoTo)),
             new LuaValue(position.X),
             new LuaValue(position.Y),
             new LuaValue(position.Z),
             new LuaValue(threshold),
-        });
+        ]);
     }
 }
