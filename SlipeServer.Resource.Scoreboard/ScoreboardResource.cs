@@ -9,7 +9,7 @@ public sealed class ScoreboardResource : Resource
 
     internal ScoreboardOptions Options => _options;
 
-    internal ScoreboardResource(MtaServer server, ScoreboardOptions options)
+    internal ScoreboardResource(IMtaServer server, ScoreboardOptions options)
         : base(server, server.RootElement, "Scoreboard")
     {
         _options = options;

@@ -20,7 +20,7 @@ public sealed class DGSResource : Resource
     private readonly DGSVersion version;
     private readonly DGSStyle? dgsStyle;
 
-    internal DGSResource(MtaServer server, DGSVersion version, DGSStyle? dgsStyle = null, HttpClient? httpClient = null)
+    internal DGSResource(IMtaServer server, DGSVersion version, DGSStyle? dgsStyle = null, HttpClient? httpClient = null)
         : base(server, server.RootElement, "DGS")
     {
         this.version = version;

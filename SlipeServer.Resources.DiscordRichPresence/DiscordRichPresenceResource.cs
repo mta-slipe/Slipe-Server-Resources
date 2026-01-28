@@ -5,5 +5,5 @@ namespace SlipeServer.Resources.DiscordRichPresence;
 
 public sealed class DiscordRichPresenceResource : Resource
 {
-    internal DiscordRichPresenceResource(MtaServer server) : base(server, server.RootElement, "DiscordRichPresence") { }
+    internal DiscordRichPresenceResource(IMtaServer server) : base(server, server.RootElement, "DiscordRichPresence") { }
 }

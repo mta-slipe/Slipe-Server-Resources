@@ -5,7 +5,7 @@ namespace SlipeServer.Resources.PedIntelligence;
 
 public sealed class PedIntelligenceResource : Resource
 {
-    internal PedIntelligenceResource(MtaServer server)
+    internal PedIntelligenceResource(IMtaServer server)
         : base(server, server.RootElement, "PedIntelligence")
     {
     }

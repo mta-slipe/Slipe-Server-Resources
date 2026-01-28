@@ -9,7 +9,7 @@ public sealed class NoClipResource : Resource
 
     internal NoClipOptions Options => _options;
 
-    internal NoClipResource(MtaServer server, NoClipOptions options)
+    internal NoClipResource(IMtaServer server, NoClipOptions options)
         : base(server, server.RootElement, "NoClip")
     {
         _options = options;

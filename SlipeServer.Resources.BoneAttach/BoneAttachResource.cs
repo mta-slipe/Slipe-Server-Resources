@@ -14,7 +14,7 @@ internal class BoneAttachResource : Resource
     internal Dictionary<string, byte[]> AdditionalFiles { get; } = [];
     private readonly BoneAttachVersion version;
 
-    internal BoneAttachResource(MtaServer server, BoneAttachVersion version, HttpClient? httpClient = null)
+    internal BoneAttachResource(IMtaServer server, BoneAttachVersion version, HttpClient? httpClient = null)
         : base(server, server.RootElement, "BoneAttach")
     {
         this.version = version;

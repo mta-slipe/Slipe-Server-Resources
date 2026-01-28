@@ -22,142 +22,106 @@ using SlipeServer.Resources.DiscordRichPresence;
 using SlipeServer.Resources.Screenshots;
 using SlipeServer.Resources.Base;
 using SlipeServer.Resources.Assets;
+using SlipeServer.Console;
 
-namespace SlipeServer.Console;
+EventWaitHandle waitHandle = new(false, EventResetMode.AutoReset);
+Configuration configuration;
 
-public partial class Program
+ILogger Logger;
+TestResource? testResource = null;
+
+configuration = new Configuration
 {
-    public static void Main(string[] args)
+    HttpPort = 22005,
+    IsVoiceEnabled = true
+};
+
+var server = MtaServer.Create<Player>(
+    (builder) =>
     {
-        Program? program = null;
-        try
-        {
-            program = new Program(args);
-            program.Start();
-        }
-        catch (Exception exception)
-        {
-            if (program != null)
-            {
-                program.Logger.LogCritical(exception, "{message}", exception.Message);
-            }
-            else
-            {
-                System.Console.WriteLine($"Error in startup {exception.Message}");
-            }
-            System.Console.WriteLine("Press any key to exit...");
-            //System.Console.ReadKey();
-            throw;
-        }
-    }
-
-    private readonly EventWaitHandle waitHandle = new(false, EventResetMode.AutoReset);
-    private readonly MtaServer server;
-    private readonly Configuration configuration;
-
-    public ILogger Logger { get; }
-    public TestResource testResource;
-
-    public Program(string[] args)
-    {
-        this.configuration = new Configuration
-        {
-            HttpPort = 22005,
-            IsVoiceEnabled = true
-        };
-
-        this.server = MtaServer.Create<Player>(
-            (builder) =>
-            {
-                builder.UseConfiguration(this.configuration);
+        builder.UseConfiguration(configuration);
 
 #if DEBUG
-                builder.AddDefaults(exceptBehaviours: ServerBuilderDefaultBehaviours.MasterServerAnnouncementBehaviour);
-                builder.AddNetWrapper(dllPath: "net_d", port: (ushort)(this.configuration.Port + 1));
+        builder.AddDefaults(exceptBehaviours: ServerBuilderDefaultBehaviours.MasterServerAnnouncementBehaviour);
 #else
-                    builder.AddDefaults();
+            builder.AddDefaults();
 #endif
 
-                builder.AddBuildStep(server =>
-                {
-                    testResource = new TestResource(server);
-                    testResource.InjectDGSExportedFunctions();
-                    testResource.InjectAssetsExportedFunctions();
-                    server.AddAdditionalResource(testResource, []);
-                });
-
-                builder.ConfigureServices(services =>
-                {
-                    services.AddResources(new DefaultResourcesOptions
-                    {
-                        Autostart = true
-                    });
-                    services.AddHttpClient();
-                    services.AddSingleton<ILogger, ConsoleLogger>();
-                });
-
-                builder.AddNoClipResource(new());
-                builder.AddParachuteResource(new());
-                var style = DGSStyleFactory.CreateFromColors(Color.Black, Color.Gray, Color.White);
-                builder.AddDGSResource(DGSVersion.Release_3_520, style);
-                builder.AddText3dResource(new());
-                builder.AddReloadResource(new());
-                builder.AddWatermarkResource(new());
-                builder.AddPedIntelligenceResource(new());
-                builder.AddScoreboard();
-                builder.AddBoneAttachResource(new BoneAttachOptions
-                {
-                    Version = BoneAttachVersion.Release_1_2_3
-                });
-                builder.AddClientElementsResource(new());
-                builder.AddDiscordRichPresenceResource(new DiscordRichPresenceOptions
-                {
-                    Autostart = false,
-                    ApplicationId = 1162033070740869120
-                });
-                builder.AddScreenshotsResource(new());
-                builder.AddAssetsResource(new AssetsOptions
-                {
-                    AssetsProviders = [new FileSystemAssetsProvider("Assets")]
-                });
-                builder.AddLogic<TestLogic>();
-                builder.AddLogic<PedIntelligenceTestLogic>();
-                builder.AddLogic<HotReloadableLogic>();
-            }
-        );
-
-        this.server.GameType = "Slipe Server";
-        this.server.MapName = "N/A";
-
-        this.Logger = this.server.GetRequiredService<ILogger>();
-
-        System.Console.CancelKeyPress += (sender, args) =>
+        builder.AddBuildStep(server =>
         {
-            this.server.Stop();
-            this.waitHandle.Set();
-        };
+            testResource = new TestResource(server);
+            testResource.InjectDGSExportedFunctions();
+            testResource.InjectAssetsExportedFunctions();
+            server.AddAdditionalResource(testResource, []);
+        });
 
-        this.server.PlayerJoined += Server_PlayerJoined;
+        builder.ConfigureServices(services =>
+        {
+            services.AddResources(new DefaultResourcesOptions
+            {
+                Autostart = true
+            });
+            services.AddHttpClient();
+            services.AddSingleton<ILogger, ConsoleLogger>();
+        });
+
+        builder.AddNoClipResource(new());
+        builder.AddParachuteResource(new());
+        var style = DGSStyleFactory.CreateFromColors(Color.Black, Color.Gray, Color.White);
+        builder.AddDGSResource(DGSVersion.Release_3_520, style);
+        builder.AddText3dResource(new());
+        builder.AddReloadResource(new());
+        builder.AddWatermarkResource(new());
+        builder.AddPedIntelligenceResource(new());
+        builder.AddScoreboard();
+        builder.AddBoneAttachResource(new BoneAttachOptions
+        {
+            Version = BoneAttachVersion.Release_1_2_3
+        });
+        builder.AddClientElementsResource(new());
+        builder.AddDiscordRichPresenceResource(new DiscordRichPresenceOptions
+        {
+            Autostart = false,
+            ApplicationId = 1162033070740869120
+        });
+        builder.AddScreenshotsResource(new());
+        builder.AddAssetsResource(new AssetsOptions
+        {
+            AssetsProviders = [new FileSystemAssetsProvider("Assets")]
+        });
+        builder.AddLogic<TestLogic>();
+        builder.AddLogic<PedIntelligenceTestLogic>();
+        builder.AddLogic<HotReloadableLogic>();
     }
+);
 
-    private void Server_PlayerJoined(Player player)
-    {
-        player.Spawn(new Vector3(0, 0, 4), 0, 0, 0, 0);
-        player.Camera.Target = player;
-        player.Camera.Fade(CameraFade.In);
-        player.AddWeapon(Server.Enums.WeaponId.Parachute, 1, true);
-        player.AddWeapon(Server.Enums.WeaponId.Camera, 500, true);
-        player.AddWeapon(Server.Enums.WeaponId.M4, 500, false);
+server.GameType = "Slipe Server";
+server.MapName = "N/A";
 
-        var chatBox = this.server.GetRequiredService<ChatBox>();
-        chatBox.OutputTo(player, "Press num_0 to enable no clip.");
-        testResource.StartFor(player);
-    }
+Logger = server.GetRequiredService<ILogger>();
 
-    public void Start()
-    {
-        this.server.Start();
-        this.Logger.LogInformation("Server started.");
-        this.waitHandle.WaitOne();
-    }
+System.Console.CancelKeyPress += (sender, args) =>
+{
+    server.Stop();
+    waitHandle.Set();
+};
+
+server.PlayerJoined += HandlePlayerJoin;
+server.Start();
+Logger.LogInformation("Server started.");
+waitHandle.WaitOne();
+
+
+void HandlePlayerJoin(Player player)
+{
+    player.Spawn(new Vector3(0, 0, 4), 0, 0, 0, 0);
+    player.Camera.Target = player;
+    player.Camera.Fade(CameraFade.In);
+    player.AddWeapon(SlipeServer.Server.Enums.WeaponId.Parachute, 1, true);
+    player.AddWeapon(SlipeServer.Server.Enums.WeaponId.Camera, 500, true);
+    player.AddWeapon(SlipeServer.Server.Enums.WeaponId.M4, 500, false);
+
+    var chatBox = server.GetRequiredService<ChatBox>();
+    chatBox.OutputTo(player, "Press num_0 to enable no clip.");
+    testResource?.StartFor(player);
 }

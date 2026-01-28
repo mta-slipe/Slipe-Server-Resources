@@ -5,7 +5,7 @@ namespace SlipeServer.Resources.Reload;
 
 public sealed class ReloadResource : Resource
 {
-    public ReloadResource(MtaServer server)
+    public ReloadResource(IMtaServer server)
         : base(server, server.RootElement, "Reload")
     {
     }

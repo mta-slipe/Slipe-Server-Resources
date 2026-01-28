@@ -5,7 +5,7 @@ namespace SlipeServer.Resources.ClientElements;
 
 public sealed class ClientElementsResource : Resource
 {
-    internal ClientElementsResource(MtaServer server)
+    internal ClientElementsResource(IMtaServer server)
         : base(server, server.RootElement, "ClientElements")
     {
     }

@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SlipeServer.Server.Elements;
+﻿using SlipeServer.Server.Elements;
+using System.Text.Json.Nodes;
 
 namespace SlipeServer.Resources.ClientElements;
 
@@ -70,30 +69,39 @@ public class ClientElementsService
 {
     private string SerializeElements(IEnumerable<Element> elements)
     {
-        var jArray = new JArray();
+        var array = new JsonArray();
         foreach (var element in elements)
         {
-            var jObject = new JObject
+            var obj = new JsonObject
             {
                 ["t"] = element.GetType().Name,
-                ["p"] = new JArray(element.Position.X, element.Position.Y, element.Position.Z, element.Rotation.X, element.Rotation.Y, element.Rotation.Z, element.Interior, element.Dimension)
+                ["p"] = new JsonArray(
+                    JsonValue.Create(element.Position.X),
+                    JsonValue.Create(element.Position.Y),
+                    JsonValue.Create(element.Position.Z),
+                    JsonValue.Create(element.Rotation.X),
+                    JsonValue.Create(element.Rotation.Y),
+                    JsonValue.Create(element.Rotation.Z),
+                    JsonValue.Create(element.Interior),
+                    JsonValue.Create(element.Dimension)
+                )
             };
 
             switch (element)
             {
                 case WorldObject worldObject:
-                    jObject["model"] = (int)worldObject.Model;
+                    obj["model"] = (int)worldObject.Model;
                     break;
                 case Blip blip:
-                    jObject["icon"] = (int)blip.Icon;
-                    jObject["distance"] = blip.VisibleDistance;
-                    jObject["ordering"] = blip.Ordering;
+                    obj["icon"] = (int)blip.Icon;
+                    obj["distance"] = blip.VisibleDistance;
+                    obj["ordering"] = blip.Ordering;
                     break;
             }
-            jArray.Add(jObject);
+            array.Add(obj);
         }
 
-        return jArray.ToString(Formatting.None);
+        return array.ToJsonString();
     }
 
     public ClientElementsGroup CreateFor(Player player, IEnumerable<Element> elements)

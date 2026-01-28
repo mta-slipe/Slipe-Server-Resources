@@ -5,6 +5,6 @@ namespace SlipeServer.Resources.Watermark;
 
 public sealed class WatermarkResource : Resource
 {
-    internal WatermarkResource(MtaServer server)
+    internal WatermarkResource(IMtaServer server)
         : base(server, server.RootElement, "Watermark") { }
 }
