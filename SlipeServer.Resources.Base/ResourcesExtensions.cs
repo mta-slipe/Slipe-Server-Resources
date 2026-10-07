@@ -29,7 +29,7 @@ end
         foreach (var methodInfo in methods)
             AddMethod(ref sb, resource.Name, methodInfo);
         var source = sb.ToString();
-        resource.NoClientScripts[$"{resource.Name}/eventHub.lua"] = Encoding.UTF8.GetBytes(source);
+        resource.AddNoClientScript($"{resource.Name}/eventHub.lua", source);
     }
 
     private static void AddMethod(ref StringBuilder sb, string baseName, MethodInfo methodInfo)

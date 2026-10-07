@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using SlipeServer.Server.Resources;
 using SlipeServer.Server.ServerBuilders;
-using System.Text;
 
 namespace SlipeServer.Resources.Assets;
 
@@ -77,8 +76,7 @@ public static class ResourceExtensions
 
     public static void InjectAssetsExportedFunctions(this Resource resource)
     {
-        resource.NoClientScripts[$"{resource.Name}/assetsExports.lua"] =
-            Encoding.UTF8.GetBytes("""
+        resource.AddNoClientScript($"{resource.Name}/assetsExports.lua", """
                 local cache = {}
                 function assetsGetRawData(assetSource)
                     local asset = exports.Assets:assetsGetRawData(assetSource);
