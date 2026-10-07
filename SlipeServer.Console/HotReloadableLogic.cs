@@ -44,12 +44,12 @@ internal class HotReloadableLogic
         this.watcher.Changed += HandleChanged;
         this.watcher.EnableRaisingEvents = true;
 
-        this.hotResource = this.CreateHotResource();
+        this.hotResource = this.CreateHotReloadableResource();
 
         mtaServer.PlayerJoined += HandlePlayerJoined;
     }
 
-    private HotResource CreateHotResource()
+    private HotResource CreateHotReloadableResource()
     {
         var resource = new HotResource(this.mtaServer);
         var bytes = File.ReadAllBytes(Path.Join(this.projectDirectory, "HotReloadable.lua"));
@@ -71,7 +71,7 @@ internal class HotReloadableLogic
             this.hotResource.StopFor(player);
 
         this.mtaServer.RemoveAdditionalResource(this.hotResource);
-        this.hotResource = this.CreateHotResource();
+        this.hotResource = this.CreateHotReloadableResource();
 
         foreach (var player in players)
             this.hotResource.StartFor(player);
