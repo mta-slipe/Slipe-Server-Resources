@@ -18,15 +18,13 @@ internal class HotReloadableLogic
     private readonly IElementCollection elementCollection;
     private readonly MtaServer mtaServer;
     private readonly FileSystemWatcher watcher;
-    private readonly HotResource hotResource;
+    private HotResource hotResource;
     private readonly string projectDirectory;
 
     public HotReloadableLogic(IElementCollection elementCollection, MtaServer mtaServer)
     {
         this.elementCollection = elementCollection;
         this.mtaServer = mtaServer;
-        this.hotResource = new HotResource(this.mtaServer);
-        this.mtaServer.AddAdditionalResource(this.hotResource, []);
 
         string outputDirectory = AppDomain.CurrentDomain.BaseDirectory;
         this.projectDirectory = Directory.GetParent(outputDirectory).Parent.Parent.Parent.FullName; // Navigate to the project folder
@@ -46,10 +44,18 @@ internal class HotReloadableLogic
         this.watcher.Changed += HandleChanged;
         this.watcher.EnableRaisingEvents = true;
 
-        var bytes = File.ReadAllBytes(Path.Join(this.projectDirectory, "HotReloadable.lua"));
-        this.hotResource.NoClientScripts["HotReloadable.lua"] = bytes;
+        this.hotResource = this.CreateHotResource();
 
         mtaServer.PlayerJoined += HandlePlayerJoined;
+    }
+
+    private HotResource CreateHotResource()
+    {
+        var resource = new HotResource(this.mtaServer);
+        var bytes = File.ReadAllBytes(Path.Join(this.projectDirectory, "HotReloadable.lua"));
+        resource.AddNoClientScript("HotReloadable.lua", bytes);
+        this.mtaServer.AddAdditionalResource(resource, []);
+        return resource;
     }
 
     private void HandlePlayerJoined(Player player)
@@ -64,8 +70,8 @@ internal class HotReloadableLogic
         foreach (var player in players)
             this.hotResource.StopFor(player);
 
-        var bytes = File.ReadAllBytes(Path.Join(this.projectDirectory, "HotReloadable.lua"));
-        this.hotResource.NoClientScripts["HotReloadable.lua"] = bytes;
+        this.mtaServer.RemoveAdditionalResource(this.hotResource);
+        this.hotResource = this.CreateHotResource();
 
         foreach (var player in players)
             this.hotResource.StartFor(player);

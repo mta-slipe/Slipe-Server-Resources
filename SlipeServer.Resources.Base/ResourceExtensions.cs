@@ -48,7 +48,7 @@ public static class ResourceExtensions
                     }
                     else
                     {
-                        resource.NoClientScripts[path] = content;
+                        resource.AddNoClientScript(path, content);
                     }
 
                     additionalFiles[path] = content;
